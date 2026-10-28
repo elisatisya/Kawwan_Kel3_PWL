@@ -141,3 +141,107 @@ function initPasswordToggles() {
         });
     });
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    initDokterCounters();
+    initDokterCharts();
+});
+
+function initDokterCounters() {
+    document.querySelectorAll('.dokter-stat-value[data-count]').forEach((el) => {
+        const target = parseInt(el.dataset.count, 10);
+        if (Number.isNaN(target) || target === 0) return;
+
+        const duration = 700;
+        const start = performance.now();
+
+        const tick = (now) => {
+            const progress = Math.min((now - start) / duration, 1);
+            el.textContent = Math.round(target * progress);
+            if (progress < 1) requestAnimationFrame(tick);
+        };
+
+        el.textContent = '0';
+        requestAnimationFrame(tick);
+    });
+}
+
+function initDokterCharts() {
+    const sumber = document.getElementById('dokterChartData');
+    if (!sumber || typeof Chart === 'undefined') return;
+
+    const grafik = JSON.parse(sumber.textContent);
+
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#81766E';
+
+    const harian = document.getElementById('chartHarian');
+    if (harian) {
+        new Chart(harian, {
+            type: 'line',
+            data: {
+                labels: grafik.harian.labels,
+                datasets: [{
+                    label: 'Pemeriksaan',
+                    data: grafik.harian.data,
+                    borderColor: '#FF6B00',
+                    backgroundColor: 'rgba(255, 107, 0, 0.10)',
+                    pointBackgroundColor: '#FF6B00',
+                    pointRadius: 4,
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#F2EBE6' } },
+                    x: { grid: { display: false } },
+                },
+            },
+        });
+    }
+
+    const hewan = document.getElementById('chartHewan');
+    if (hewan) {
+        const palet = ['#FF6B00', '#181310', '#F3A66B', '#81766E', '#B84A00', '#F3DCC9'];
+        const labels = grafik.hewan.labels;
+        const data = grafik.hewan.data.map(Number);
+        const total = data.reduce((a, b) => a + b, 0);
+
+        new Chart(hewan, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: labels.map((_, i) => palet[i % palet.length]),
+                    borderWidth: 3,
+                    borderColor: '#FFFFFF',
+                    hoverOffset: 6,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14 } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const nilai = Number(ctx.parsed);
+                                const persen = total ? Math.round((nilai / total) * 100) : 0;
+                                return ` ${ctx.label}: ${nilai} pemeriksaan (${persen}%)`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+}
