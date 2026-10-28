@@ -29,9 +29,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 Route::middleware(['auth', 'role:dokter_hewan'])->prefix('dokter')->name('dokter.')->group(function () {
-    Route::get('/dashboard', function () {
-        return 'Dokter Hewan Dashboard (coming soon)';
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Dokter\DashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware(['auth', 'role:kader'])->prefix('kader')->name('kader.')->group(function () {
