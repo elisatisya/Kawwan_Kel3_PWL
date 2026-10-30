@@ -18,8 +18,9 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
-Route::middleware(['auth', 'role:pemilik_hewan'])->prefix('pemilik')->name('pemilik.')->group(function () {
-    Route::get('/beranda', [LandingPageController::class, 'index'])->name('beranda');
+Route::middleware(['auth', 'role:pemilik_hewan,pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Pemilik\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/beranda', [\App\Http\Controllers\Pemilik\DashboardController::class, 'index'])->name('beranda');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -28,7 +29,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     })->name('dashboard');
 });
 
-Route::middleware(['auth', 'role:dokter_hewan'])->prefix('dokter')->name('dokter.')->group(function () {
+Route::middleware(['auth', 'role:dokter_hewan,dokter'])->prefix('dokter')->name('dokter.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Dokter\DashboardController::class, 'index'])->name('dashboard');
 });
 

@@ -15,7 +15,27 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (! $request->user() || ! in_array($request->user()->role, $roles)) {
+        $user = $request->user();
+
+        if (! $user) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
+        $allowedRoles = [];
+        foreach ($roles as $role) {
+            $allowedRoles[] = $role;
+            if ($role === 'dokter_hewan') {
+                $allowedRoles[] = 'dokter';
+            } elseif ($role === 'dokter') {
+                $allowedRoles[] = 'dokter_hewan';
+            } elseif ($role === 'pemilik_hewan') {
+                $allowedRoles[] = 'pemilik';
+            } elseif ($role === 'pemilik') {
+                $allowedRoles[] = 'pemilik_hewan';
+            }
+        }
+
+        if (! in_array($user->role, $allowedRoles, true)) {
             abort(403, 'Akses tidak diizinkan.');
         }
 

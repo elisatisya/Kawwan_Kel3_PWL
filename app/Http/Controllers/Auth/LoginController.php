@@ -104,23 +104,22 @@ class LoginController extends Controller
         return redirect()->route('login');
     }
 
-    /**
-     * Arahkan pengguna sesuai peran (role) setelah login.
-     */
     protected function redirectBasedOnRole(User $user): RedirectResponse
     {
-        $intended = redirect()->intended();
-        $targetUrl = $intended->getTargetUrl();
+        $defaultRoute = match ($user->role) {
+            User::ROLE_ADMIN => 'admin.dashboard',
+            User::ROLE_DOKTER, 'dokter' => 'dokter.dashboard',
+            User::ROLE_KADER => 'kader.dashboard',
+            default => 'pemilik.dashboard',
+        };
 
-        if ($targetUrl && ! str_contains($targetUrl, '/login')) {
-            return $intended;
+        $defaultUrl = route($defaultRoute);
+        $intendedUrl = session()->pull('url.intended');
+
+        if (! $intendedUrl || in_array(rtrim($intendedUrl, '/'), [rtrim(url('/'), '/'), rtrim(route('login'), '/')], true)) {
+            return redirect()->to($defaultUrl);
         }
 
-        return match ($user->role) {
-            User::ROLE_ADMIN => redirect()->route('admin.dashboard'),
-            User::ROLE_DOKTER => redirect()->route('dokter.dashboard'),
-            User::ROLE_KADER => redirect()->route('kader.dashboard'),
-            default => redirect()->route('pemilik.beranda'),
-        };
+        return redirect()->to($intendedUrl);
     }
 }

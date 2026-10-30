@@ -12,13 +12,10 @@ use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
-    /**
-     * Tampilkan formulir pendaftaran akun baru.
-     */
     public function showRegistrationForm(): View|RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->route('pemilik.beranda');
+            return redirect()->route('pemilik.dashboard');
         }
 
         return view('auth.register');
@@ -65,6 +62,6 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('pemilik.beranda');
+        return redirect()->route('pemilik.dashboard');
     }
 }
