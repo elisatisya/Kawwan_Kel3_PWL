@@ -1,10 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    initMobileMenu();
+    initLandingMenu();
+    setupSidebarToggle('dokterMenuToggle', 'dokterSidebar', 'dokterBackdrop');
+    setupSidebarToggle('pemilikMenuToggle', 'pemilikSidebar', 'pemilikBackdrop');
     initSmoothScroll();
     initPasswordToggles();
+    initStatCounters();
+    initDokterCharts();
 });
 
-function initMobileMenu() {
+function initLandingMenu() {
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
 
@@ -76,6 +80,77 @@ function initMobileMenu() {
     });
 }
 
+function setupSidebarToggle(toggleId, sidebarId, backdropId) {
+    const toggle = document.getElementById(toggleId);
+    const sidebar = document.getElementById(sidebarId);
+    const backdrop = document.getElementById(backdropId);
+
+    if (!toggle || !sidebar) {
+        return;
+    }
+
+    const setSidebarState = (open) => {
+        sidebar.classList.toggle('is-open', open);
+        if (backdrop) {
+            backdrop.classList.toggle('is-visible', open);
+        }
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Tutup navigasi' : 'Buka navigasi');
+
+        const icon = toggle.querySelector('i');
+        if (icon) {
+            icon.classList.toggle('fa-bars', !open);
+            icon.classList.toggle('fa-xmark', open);
+        }
+
+        if (window.innerWidth <= 860) {
+            document.body.classList.toggle('sidebar-locked', open);
+        }
+    };
+
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = sidebar.classList.contains('is-open');
+        setSidebarState(!isOpen);
+    });
+
+    if (backdrop) {
+        backdrop.addEventListener('click', () => {
+            setSidebarState(false);
+        });
+    }
+
+    sidebar.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 860) {
+                setSidebarState(false);
+            }
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (
+            sidebar.classList.contains('is-open') &&
+            !sidebar.contains(e.target) &&
+            !toggle.contains(e.target)
+        ) {
+            setSidebarState(false);
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
+            setSidebarState(false);
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 860 && sidebar.classList.contains('is-open')) {
+            setSidebarState(false);
+        }
+    });
+}
+
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
         anchor.addEventListener('click', function (e) {
@@ -100,7 +175,6 @@ function initSmoothScroll() {
 }
 
 function initPasswordToggles() {
-    // Icon-based password toggles (supports data-target or default id="password")
     const passwordToggles = document.querySelectorAll('.password-toggle');
     passwordToggles.forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -142,14 +216,8 @@ function initPasswordToggles() {
     });
 }
 
-
-document.addEventListener('DOMContentLoaded', () => {
-    initDokterCounters();
-    initDokterCharts();
-});
-
-function initDokterCounters() {
-    document.querySelectorAll('.dokter-stat-value[data-count]').forEach((el) => {
+function initStatCounters() {
+    document.querySelectorAll('.dokter-stat-value[data-count], .pemilik-stat-value[data-count]').forEach((el) => {
         const target = parseInt(el.dataset.count, 10);
         if (Number.isNaN(target) || target === 0) return;
 

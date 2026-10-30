@@ -38,4 +38,20 @@ class Hewan extends Model
     {
         return $this->hasMany(Pemesanan::class);
     }
+
+    public function getUmurAttribute(): ?string
+    {
+        if (! $this->tanggal_lahir) {
+            return null;
+        }
+
+        $years = (int) $this->tanggal_lahir->diffInYears(now());
+        $months = (int) $this->tanggal_lahir->diffInMonths(now()) % 12;
+
+        if ($years > 0) {
+            return $years . ' tahun' . ($months > 0 ? ' ' . $months . ' bulan' : '');
+        }
+
+        return max(1, $months) . ' bulan';
+    }
 }

@@ -19,7 +19,9 @@
 
     <div class="dokter-shell">
 
-        <aside class="dokter-sidebar">
+        <div class="dokter-backdrop" id="dokterBackdrop"></div>
+
+        <aside class="dokter-sidebar" id="dokterSidebar">
             <a href="{{ route('dokter.dashboard') }}" class="dokter-brand">
                 <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
             </a>
@@ -51,7 +53,12 @@
 
         <div class="dokter-main">
             <header class="dokter-topbar">
-                <h2>@yield('title', 'Dashboard')</h2>
+                <div class="dokter-topbar-left">
+                    <button class="dokter-menu-toggle" id="dokterMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2>@yield('title', 'Dashboard')</h2>
+                </div>
 
                 <div class="dokter-user">
                     <div class="dokter-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
