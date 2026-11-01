@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\Pemilik\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
@@ -19,18 +22,34 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
 
 Route::middleware(['auth', 'role:pemilik_hewan,pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Pemilik\DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/beranda', [\App\Http\Controllers\Pemilik\DashboardController::class, 'index'])->name('beranda');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/beranda', [DashboardController::class, 'index'])->name('beranda');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return 'Admin Dashboard (coming soon)';
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    // Verifikasi Pengguna
+    Route::prefix('verifikasi')->name('verifikasi.')->group(function () {
+        Route::get('/', [VerifikasiController::class, 'index'])->name('index');
+        Route::get('/{user}', [VerifikasiController::class, 'show'])->name('show');
+        Route::post('/{user}/approve', [VerifikasiController::class, 'approve'])->name('approve');
+        Route::post('/{user}/reject', [VerifikasiController::class, 'reject'])->name('reject');
+        Route::post('/{user}/toggle', [VerifikasiController::class, 'toggleStatus'])->name('toggle');
+        Route::post('/batch-approve', [VerifikasiController::class, 'batchApprove'])->name('batch-approve');
+    });
+
+    // Pengelolaan Pengguna
+    Route::prefix('pengguna')->name('pengguna.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::patch('/{user}/role', [UserController::class, 'updateRole'])->name('role');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+    });
 });
 
 Route::middleware(['auth', 'role:dokter_hewan,dokter'])->prefix('dokter')->name('dokter.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Dokter\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Dokter\DashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware(['auth', 'role:kader'])->prefix('kader')->name('kader.')->group(function () {

@@ -14,7 +14,15 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
+            $table->string('nik')->nullable()->unique();
+            $table->string('nomor_telepon')->nullable();
+            $table->text('alamat')->nullable();
+            $table->string('role')->default('pemilik_hewan');
+            $table->string('status')->default('menunggu_verifikasi');
+            $table->text('catatan_verifikasi')->nullable();
+            $table->timestamp('verified_at')->nullable();
+            $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
