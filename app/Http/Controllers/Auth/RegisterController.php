@@ -58,6 +58,7 @@ class RegisterController extends Controller
             'email' => ! empty($validated['email']) ? trim($validated['email']) : null,
             'password' => Hash::make($validated['password']),
             'role' => User::ROLE_PEMILIK,
+            'status' => User::STATUS_MENUNGGU,
         ]);
 
         Auth::login($user);

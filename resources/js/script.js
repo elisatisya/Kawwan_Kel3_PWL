@@ -2,10 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initLandingMenu();
     setupSidebarToggle('dokterMenuToggle', 'dokterSidebar', 'dokterBackdrop');
     setupSidebarToggle('pemilikMenuToggle', 'pemilikSidebar', 'pemilikBackdrop');
+    setupSidebarToggle('adminMenuToggle', 'adminSidebar', 'adminBackdrop');
     initSmoothScroll();
     initPasswordToggles();
     initStatCounters();
     initDokterCharts();
+    initAdminCharts();
 });
 
 function initLandingMenu() {
@@ -313,3 +315,115 @@ function initDokterCharts() {
         });
     }
 }
+
+function initAdminCharts() {
+    const sumber = document.getElementById('adminChartData');
+    if (!sumber || typeof Chart === 'undefined') return;
+
+    let grafik;
+    try {
+        grafik = JSON.parse(sumber.textContent);
+    } catch (e) {
+        return;
+    }
+
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#81766E';
+
+    // 1. Chart Registrasi & Verifikasi 7 Hari Terakhir
+    const ctxRegistrasi = document.getElementById('chartRegistrasi');
+    if (ctxRegistrasi && grafik.registrasi) {
+        new Chart(ctxRegistrasi, {
+            type: 'bar',
+            data: {
+                labels: grafik.registrasi.labels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Pendaftar Baru',
+                        data: grafik.registrasi.pendaftar,
+                        backgroundColor: '#F3DCC9',
+                        borderColor: '#FF6B00',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        maxBarThickness: 28,
+                    },
+                    {
+                        type: 'line',
+                        label: 'Diverifikasi',
+                        data: grafik.registrasi.terverifikasi,
+                        borderColor: '#FF6B00',
+                        backgroundColor: 'rgba(255, 107, 0, 0.15)',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#FF6B00',
+                        pointRadius: 4,
+                        fill: false,
+                        tension: 0.3,
+                    }
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { usePointStyle: true, boxWidth: 8, padding: 14 }
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 },
+                        grid: { color: '#F2EBE6' },
+                    },
+                    x: {
+                        grid: { display: false },
+                    },
+                },
+            },
+        });
+    }
+
+    // 2. Chart Komposisi Status Akun
+    const ctxStatus = document.getElementById('chartStatus');
+    if (ctxStatus && grafik.status) {
+        const paletStatus = ['#1E6B37', '#FF6B00', '#DC2626', '#81766E'];
+        const total = grafik.status.data.reduce((a, b) => Number(a) + Number(b), 0);
+
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: grafik.status.labels,
+                datasets: [{
+                    data: grafik.status.data,
+                    backgroundColor: paletStatus,
+                    borderWidth: 3,
+                    borderColor: '#FFFFFF',
+                    hoverOffset: 6,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 14 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const val = Number(ctx.parsed);
+                                const pct = total ? Math.round((val / total) * 100) : 0;
+                                return ` ${ctx.label}: ${val} pengguna (${pct}%)`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+}
+

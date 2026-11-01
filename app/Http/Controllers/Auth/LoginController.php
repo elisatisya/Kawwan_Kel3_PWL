@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -57,30 +58,42 @@ class LoginController extends Controller
         }
 
         $fieldType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'nik';
+        $fallbackType = ($fieldType === 'email') ? 'nik' : 'email';
 
         $credentials = [
             $fieldType => $loginInput,
             'password' => $password,
         ];
 
-        if (Auth::attempt($credentials, $remember)) {
-            RateLimiter::clear($throttleKey);
-            $request->session()->regenerate();
+        $attemptSuccess = Auth::attempt($credentials, $remember)
+            || Auth::attempt([$fallbackType => $loginInput, 'password' => $password], $remember);
 
-            /** @var User $user */
-            $user = Auth::user();
+        // Dukungan jika pengguna mengetik nama/username pendek seperti "admin"
+        if (! $attemptSuccess) {
+            $userCandidate = User::where('name', $loginInput)
+                ->orWhere('email', $loginInput.'@kawwan.com')
+                ->first();
 
-            return $this->redirectBasedOnRole($user);
+            if ($userCandidate && Hash::check($password, $userCandidate->password)) {
+                Auth::login($userCandidate, $remember);
+                $attemptSuccess = true;
+            }
         }
 
-        // Coba alternatif (jika input berupa angka tapi didaftarkan sebagai email atau sebaliknya)
-        $fallbackType = ($fieldType === 'email') ? 'nik' : 'email';
-        if (Auth::attempt([$fallbackType => $loginInput, 'password' => $password], $remember)) {
-            RateLimiter::clear($throttleKey);
-            $request->session()->regenerate();
-
+        if ($attemptSuccess) {
             /** @var User $user */
             $user = Auth::user();
+
+            if ($user->status === User::STATUS_NONAKTIF) {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'login' => 'Akun Anda telah dinonaktifkan oleh Administrator. Silakan hubungi layanan bantuan.',
+                ])->onlyInput('login');
+            }
+
+            RateLimiter::clear($throttleKey);
+            $request->session()->regenerate();
 
             return $this->redirectBasedOnRole($user);
         }
@@ -88,7 +101,7 @@ class LoginController extends Controller
         RateLimiter::hit($throttleKey, 60);
 
         return back()->withErrors([
-            'login' => 'NIK / Nomor Identitas atau password yang Anda masukkan tidak sesuai.',
+            'login' => 'NIK / Email atau password yang Anda masukkan tidak sesuai.',
         ])->onlyInput('login');
     }
 
