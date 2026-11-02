@@ -1080,6 +1080,12 @@ img {
     gap: 10px;
 }
 
+.auth-alert-success {
+    background-color: #ECFDF5;
+    border-color: #A7F3D0;
+    color: #065F46;
+}
+
 .auth-alert-icon {
     font-size: 16px;
     margin-top: 2px;
@@ -2733,13 +2739,13 @@ img {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    padding: 8px 14px;
     background: var(--warm-white);
     border: 1px solid var(--soft-peach);
-    border-radius: 10px;
+    border-radius: 8px;
     color: var(--near-black);
-    font-size: 18px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -2819,6 +2825,17 @@ img {
     font-size: 14px;
     line-height: 1.5;
     animation: fadeIn 0.25s ease;
+}
+
+.admin-alert-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
 }
 
 .admin-alert-icon {
@@ -3441,6 +3458,16 @@ img {
     color: var(--orange);
 }
 
+.btn-action.is-edit {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border-color: #BFDBFE;
+}
+
+.btn-action.is-edit:hover {
+    background: #DBEAFE;
+}
+
 .btn-action.is-delete {
     background: #FFF1F2;
     color: #BE123C;
@@ -3728,7 +3755,7 @@ img {
     color: var(--near-black);
 }
 
-/* --- Pagination Wrap --- */
+/* --- Pagination Wrap & Buttons (Pure Native CSS) --- */
 .admin-pagination-wrap {
     display: flex;
     align-items: center;
@@ -3736,6 +3763,225 @@ img {
     gap: 16px;
     padding-top: 20px;
     font-size: 13px;
+    flex-wrap: wrap;
+}
+
+.admin-pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 10px;
+    background: var(--pure-white);
+    border: 1px solid var(--soft-peach);
+    color: var(--near-black);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.admin-page-btn i {
+    font-size: 11px;
+}
+
+.admin-page-btn:hover:not(.is-disabled):not(.is-dots) {
+    background: var(--warm-white);
+    border-color: var(--orange);
+    color: var(--orange);
+}
+
+.admin-page-btn.is-active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: var(--pure-white);
+    font-weight: 700;
+    cursor: default;
+}
+
+.admin-page-btn.is-disabled {
+    background: #FAF8F5;
+    border-color: #EFE8E1;
+    color: #C2B8B0;
+    cursor: not-allowed;
+}
+
+.admin-page-btn.is-dots {
+    border: none;
+    background: transparent;
+    color: var(--warm-grey);
+    cursor: default;
+}
+
+/* --- Admin User Card List (Alternative to Table) --- */
+.admin-card-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: #FAF8F5;
+    border: 1px solid var(--soft-peach);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.admin-check-all-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--near-black);
+    cursor: pointer;
+    user-select: none;
+}
+
+.admin-check-all-label input[type="checkbox"],
+.admin-user-card-check input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--orange);
+    cursor: pointer;
+}
+
+.admin-user-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-user-card {
+    background: var(--pure-white);
+    border: 1px solid var(--soft-peach);
+    border-radius: 16px;
+    padding: 18px 20px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-user-card:hover {
+    border-color: #E2CEBE;
+    box-shadow: 0 4px 16px rgba(24, 19, 16, 0.04);
+}
+
+.admin-user-card.is-pending {
+    border-left: 4px solid var(--orange);
+    background: #FFFAF5;
+}
+
+.admin-user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #F6EFEA;
+}
+
+.admin-user-card-identity {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.admin-user-card-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.admin-user-card-body {
+    padding: 14px 0;
+}
+
+.admin-user-card-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px 20px;
+}
+
+.card-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.card-info-item i {
+    color: var(--orange);
+    margin-top: 3px;
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.card-info-item small {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--warm-grey);
+    margin-bottom: 2px;
+}
+
+.card-info-item span {
+    color: var(--near-black);
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.card-info-item code {
+    background: var(--warm-white);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-user-card-note {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--warm-white);
+    border: 1px solid var(--soft-peach);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--near-black);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.admin-user-card-note i {
+    color: #1E6B37;
+}
+
+.admin-user-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid #F6EFEA;
     flex-wrap: wrap;
 }
 
@@ -4077,4 +4323,308 @@ img {
     from { transform: translateY(16px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
+/* ==========================================================================
+   Eye-Catching Notification Toast System & Custom Confirm Dialog
+   ========================================================================== */
+
+/* --- Toast Notification Container --- */
+.kawwan-toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 420px;
+    width: calc(100vw - 36px);
+    pointer-events: none;
+}
+
+.kawwan-toast {
+    pointer-events: auto;
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 16px 20px 14px;
+    box-shadow: 0 16px 36px rgba(24, 19, 16, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #F3DCC9;
+    border-left: 6px solid var(--orange);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+    animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.kawwan-toast.is-hiding {
+    opacity: 0;
+    transform: translateX(100%) scale(0.92);
+}
+
+.kawwan-toast.is-success {
+    border-left-color: #1E6B37;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5FBF7 100%);
+}
+
+.kawwan-toast.is-warning {
+    border-left-color: #D95A00;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%);
+}
+
+.kawwan-toast.is-error {
+    border-left-color: #DC2626;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FEF9F9 100%);
+}
+
+.kawwan-toast.is-info {
+    border-left-color: #2563EB;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F7FAFF 100%);
+}
+
+.kawwan-toast-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.kawwan-toast-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    line-height: 1.2;
+}
+
+.kawwan-toast.is-success .kawwan-toast-badge {
+    background: #EAF7EE;
+    color: #1E6B37;
+}
+
+.kawwan-toast.is-warning .kawwan-toast-badge {
+    background: #FFEDD5;
+    color: #9A3412;
+}
+
+.kawwan-toast.is-error .kawwan-toast-badge {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.kawwan-toast.is-info .kawwan-toast-badge {
+    background: #DBEAFE;
+    color: #1E40AF;
+}
+
+.kawwan-toast-close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--warm-grey);
+    cursor: pointer;
+    padding: 0 4px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.kawwan-toast-close:hover {
+    color: var(--near-black);
+}
+
+.kawwan-toast-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--near-black);
+    margin: 0;
+}
+
+.kawwan-toast-message {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #4B4540;
+    margin: 0;
+}
+
+.kawwan-toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    transform-origin: left;
+    animation: toastTimer 4.5s linear forwards;
+}
+
+.kawwan-toast.is-success .kawwan-toast-progress {
+    background: #1E6B37;
+}
+
+.kawwan-toast.is-warning .kawwan-toast-progress {
+    background: var(--orange);
+}
+
+.kawwan-toast.is-error .kawwan-toast-progress {
+    background: #DC2626;
+}
+
+.kawwan-toast.is-info .kawwan-toast-progress {
+    background: #2563EB;
+}
+
+@keyframes toastSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(110%) scale(0.94);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes toastTimer {
+    0% {
+        transform: scaleX(1);
+    }
+    100% {
+        transform: scaleX(0);
+    }
+}
+
+/* --- Eye-Catching Custom Confirm Dialog Modal --- */
+.kawwan-dialog-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(24, 19, 16, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+.kawwan-dialog-backdrop.is-open {
+    display: flex;
+}
+
+.kawwan-dialog {
+    background: #FFFFFF;
+    border-radius: 22px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 24px 60px rgba(24, 19, 16, 0.3), 0 4px 16px rgba(0, 0, 0, 0.05);
+    border: 1px solid #F3DCC9;
+    overflow: hidden;
+    animation: dialogPopUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dialogPopUp {
+    0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(14px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.kawwan-dialog-header {
+    padding: 24px 26px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.kawwan-dialog-tag {
+    align-self: flex-start;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.kawwan-dialog.type-danger .kawwan-dialog-tag {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.kawwan-dialog.type-success .kawwan-dialog-tag {
+    background: #EAF7EE;
+    color: #1E6B37;
+}
+
+.kawwan-dialog.type-warning .kawwan-dialog-tag {
+    background: #FFEDD5;
+    color: #9A3412;
+}
+
+.kawwan-dialog.type-primary .kawwan-dialog-tag {
+    background: var(--soft-peach);
+    color: var(--orange);
+}
+
+.kawwan-dialog-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--near-black);
+    line-height: 1.3;
+    margin: 0;
+}
+
+.kawwan-dialog-body {
+    padding: 0 26px 20px;
+}
+
+.kawwan-dialog-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4B4540;
+    margin: 0;
+}
+
+.kawwan-dialog-box {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: var(--warm-white);
+    border: 1px solid var(--soft-peach);
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--near-black);
+    line-height: 1.5;
+}
+
+.kawwan-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 26px;
+    background: #FAF8F5;
+    border-top: 1px solid #F3DCC9;
+}
+
+.kawwan-dialog-actions .btn {
+    min-height: 40px;
+    padding: 10px 20px;
+    font-size: 13px;
+}
+
+
 

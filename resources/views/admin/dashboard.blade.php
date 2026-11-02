@@ -7,15 +7,15 @@
     {{-- Header Sambutan --}}
     <div class="admin-head">
         <div class="admin-head-info">
-            <h1>Halo, <span>{{ auth()->user()->name }}</span> 👋</h1>
+            <h1>Halo, <span>{{ auth()->user()->name }}</span></h1>
             <p>Ringkasan data operasional sistem KAWWAN dan antrean verifikasi pengguna.</p>
         </div>
         <div class="admin-head-actions">
             <a href="{{ route('admin.verifikasi.index') }}" class="btn btn-primary">
-                <i class="fa-solid fa-user-check"></i> Kelola Verifikasi
+                Kelola Verifikasi
             </a>
             <a href="{{ route('admin.pengguna.index') }}" class="btn btn-outline">
-                <i class="fa-solid fa-user-plus"></i> Tambah Petugas
+                Tambah Petugas
             </a>
         </div>
     </div>
@@ -23,26 +23,20 @@
     {{-- Banner Peringatan Verifikasi Tertunda --}}
     @if ($stat['menunggu_verifikasi'] > 0)
         <div class="admin-urgent-banner">
-            <div class="admin-urgent-icon">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
             <div class="admin-urgent-content">
                 <strong>Prioritas Tindakan: {{ $stat['menunggu_verifikasi'] }} Pengguna Menunggu Verifikasi NIK</strong>
                 <p>Verifikasi identitas diperlukan agar pemilik hewan dapat mendaftarkan hewan peliharaannya dan memesan antrean layanan kesehatan.</p>
             </div>
             <a href="{{ route('admin.verifikasi.index', ['status' => 'menunggu_verifikasi']) }}" class="btn btn-primary admin-urgent-btn">
-                Tinjau Sekarang <i class="fa-solid fa-arrow-right"></i>
+                Tinjau Sekarang
             </a>
         </div>
     @endif
 
-    {{-- Grid Kartu Statistik Utama --}}
+    {{-- Grid Kartu Statistik Utama (Clean, No Icon) --}}
     <div class="admin-stats">
         {{-- Stat 1: Total Pengguna --}}
         <div class="admin-stat-card">
-            <div class="admin-stat-icon is-near-black">
-                <i class="fa-solid fa-users"></i>
-            </div>
             <div class="admin-stat-body">
                 <span class="admin-stat-label">Total Pengguna</span>
                 <span class="admin-stat-value" data-count="{{ $stat['total_pengguna'] }}">{{ $stat['total_pengguna'] }}</span>
@@ -52,9 +46,6 @@
 
         {{-- Stat 2: Menunggu Verifikasi (Highlight) --}}
         <div class="admin-stat-card is-highlight">
-            <div class="admin-stat-icon is-orange">
-                <i class="fa-solid fa-user-clock"></i>
-            </div>
             <div class="admin-stat-body">
                 <div class="admin-stat-header-row">
                     <span class="admin-stat-label">Menunggu Verifikasi</span>
@@ -67,9 +58,6 @@
 
         {{-- Stat 3: Total Hewan --}}
         <div class="admin-stat-card">
-            <div class="admin-stat-icon is-peach">
-                <i class="fa-solid fa-paw"></i>
-            </div>
             <div class="admin-stat-body">
                 <span class="admin-stat-label">Pasien Hewan</span>
                 <span class="admin-stat-value" data-count="{{ $stat['total_hewan'] }}">{{ $stat['total_hewan'] }}</span>
@@ -79,9 +67,6 @@
 
         {{-- Stat 4: Antrean Hari Ini --}}
         <div class="admin-stat-card">
-            <div class="admin-stat-icon is-green">
-                <i class="fa-solid fa-calendar-check"></i>
-            </div>
             <div class="admin-stat-body">
                 <span class="admin-stat-label">Antrean Hari Ini</span>
                 <span class="admin-stat-value" data-count="{{ $stat['antrean_hari_ini'] }}">{{ $stat['antrean_hari_ini'] }}</span>
@@ -90,26 +75,21 @@
         </div>
     </div>
 
-    {{-- Mini Pills Summary --}}
+    {{-- Mini Pills Summary (Clean Text) --}}
     <div class="admin-pills-bar">
         <div class="admin-pill-item">
-            <i class="fa-solid fa-user"></i>
             <span>Pemilik Hewan: <strong>{{ $stat['total_pemilik'] }}</strong></span>
         </div>
         <div class="admin-pill-item">
-            <i class="fa-solid fa-user-doctor"></i>
             <span>Dokter Hewan: <strong>{{ $stat['total_dokter'] }}</strong></span>
         </div>
         <div class="admin-pill-item">
-            <i class="fa-solid fa-hand-holding-medical"></i>
             <span>Kader Puskesmas: <strong>{{ $stat['total_kader'] }}</strong></span>
         </div>
         <div class="admin-pill-item">
-            <i class="fa-solid fa-circle-check text-green"></i>
             <span>Akun Aktif: <strong>{{ $stat['aktif'] }}</strong></span>
         </div>
         <div class="admin-pill-item">
-            <i class="fa-solid fa-calendar-day"></i>
             <span>Jadwal Buka: <strong>{{ $stat['jadwal_aktif'] }}</strong></span>
         </div>
     </div>
@@ -118,23 +98,18 @@
     <section class="admin-card" id="verifikasi-prioritas">
         <div class="admin-card-head">
             <div>
-                <h3 class="admin-card-title">
-                    <i class="fa-solid fa-shield-halved text-orange"></i> Prioritas Verifikasi Pengguna
-                </h3>
+                <h3 class="admin-card-title">Prioritas Verifikasi Pengguna</h3>
                 <p class="admin-card-sub">Pendaftar baru yang menunggu validasi identitas NIK untuk mengakses fitur sistem.</p>
             </div>
             <a href="{{ route('admin.verifikasi.index', ['status' => 'menunggu_verifikasi']) }}" class="btn btn-outline btn-sm">
-                Lihat Semua Antrean ({{ $stat['menunggu_verifikasi'] }}) <i class="fa-solid fa-arrow-right"></i>
+                Lihat Semua Antrean ({{ $stat['menunggu_verifikasi'] }})
             </a>
         </div>
 
         @if ($prioritasVerifikasi->isEmpty())
             <div class="admin-empty-state">
-                <div class="admin-empty-icon is-success">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
                 <h4>Semua Pengguna Terverifikasi</h4>
-                <p>Saat ini tidak ada antrean verifikasi pengguna baru yang tertunda. Sistem berjalan lancar!</p>
+                <p>Saat ini tidak ada antrean verifikasi pengguna baru yang tertunda. Sistem berjalan lancar.</p>
             </div>
         @else
             <div class="admin-table-wrap">
@@ -142,7 +117,7 @@
                     <thead>
                         <tr>
                             <th>Pemohon</th>
-                            <th>NIK (Nomor Induk)</th>
+                            <th>NIK</th>
                             <th>Kontak</th>
                             <th>Alamat Domisili</th>
                             <th>Waktu Registrasi</th>
@@ -163,13 +138,13 @@
                                 </td>
                                 <td>
                                     <span class="admin-nik-badge">
-                                        <i class="fa-solid fa-id-card"></i> {{ $user->nik ?? '-' }}
+                                        {{ $user->nik ?? '-' }}
                                     </span>
                                 </td>
                                 <td>
                                     <div class="admin-contact-cell">
-                                        <span><i class="fa-solid fa-phone"></i> {{ $user->nomor_telepon ?? '-' }}</span>
-                                        <span class="text-muted"><i class="fa-solid fa-envelope"></i> {{ $user->email ?? 'Tanpa email' }}</span>
+                                        <span>{{ $user->nomor_telepon ?? '-' }}</span>
+                                        <span class="text-muted">{{ $user->email ?? 'Tanpa email' }}</span>
                                     </div>
                                 </td>
                                 <td>
@@ -184,22 +159,22 @@
                                 </td>
                                 <td>
                                     <div class="admin-actions-cell" style="justify-content: flex-end;">
-                                        {{-- Tombol Setujui Langsung --}}
-                                        <form action="{{ route('admin.verifikasi.approve', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Verifikasi dan aktifkan akun {{ $user->name }}?');">
+                                        {{-- Tombol Setujui Langsung (Eye-Catching Confirm) --}}
+                                        <form id="formApproveUser_{{ $user->id }}" action="{{ route('admin.verifikasi.approve', $user) }}" method="POST" class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn btn-action is-approve" title="Setujui Verifikasi">
-                                                <i class="fa-solid fa-check"></i> Setujui
+                                            <button type="button" class="btn btn-action is-approve" onclick="confirmApproveDashboard('{{ $user->id }}', '{{ addslashes($user->name) }}')" title="Setujui Verifikasi">
+                                                Setujui
                                             </button>
                                         </form>
 
                                         {{-- Tombol Tolak (Buka Modal) --}}
                                         <button type="button" class="btn btn-action is-reject" onclick="openRejectModal('{{ $user->id }}', '{{ addslashes($user->name) }}', '{{ $user->nik }}')" title="Tolak Verifikasi">
-                                            <i class="fa-solid fa-xmark"></i> Tolak
+                                            Tolak
                                         </button>
 
                                         {{-- Tombol Detail --}}
                                         <button type="button" class="btn btn-action is-detail" onclick="openDetailModal('{{ $user->id }}')" title="Lihat Detail Lengkap">
-                                            <i class="fa-solid fa-eye"></i>
+                                            Detail
                                         </button>
                                     </div>
                                 </td>
@@ -217,7 +192,7 @@
         <section class="admin-card">
             <div class="admin-card-head">
                 <div>
-                    <h3 class="admin-card-title"><i class="fa-solid fa-chart-line text-orange"></i> Aktivitas 7 Hari Terakhir</h3>
+                    <h3 class="admin-card-title">Aktivitas 7 Hari Terakhir</h3>
                     <p class="admin-card-sub">Perbandingan pendaftar baru dan akun yang diverifikasi.</p>
                 </div>
             </div>
@@ -230,7 +205,7 @@
         <section class="admin-card">
             <div class="admin-card-head">
                 <div>
-                    <h3 class="admin-card-title"><i class="fa-solid fa-chart-pie text-orange"></i> Komposisi Status Akun</h3>
+                    <h3 class="admin-card-title">Komposisi Status Akun</h3>
                     <p class="admin-card-sub">Rasio pengguna berdasarkan status verifikasi dan aktivitas.</p>
                 </div>
             </div>
@@ -245,7 +220,7 @@
         <div class="admin-card-head">
             <div>
                 <h3 class="admin-card-title">
-                    <i class="fa-solid fa-clock text-orange"></i> Antrean Pelayanan Hari Ini ({{ now()->translatedFormat('d F Y') }})
+                    Antrean Pelayanan Hari Ini ({{ now()->translatedFormat('d F Y') }})
                 </h3>
                 <p class="admin-card-sub">Pantauan reservasi dan kedatangan pemeriksaan hewan.</p>
             </div>
@@ -253,9 +228,6 @@
 
         @if ($antreanHariIni->isEmpty())
             <div class="admin-empty-state">
-                <div class="admin-empty-icon">
-                    <i class="fa-solid fa-calendar-xmark"></i>
-                </div>
                 <h4>Belum Ada Antrean Hari Ini</h4>
                 <p>Tidak ada pemesanan pemeriksaan pada jadwal pelayanan hari ini.</p>
             </div>
@@ -296,11 +268,11 @@
         @endif
     </section>
 
-    {{-- MODAL TOLAK VERIFIKASI --}}
+    {{-- MODAL TOLAK VERIFIKASI (Clean) --}}
     <div class="admin-modal-backdrop" id="modalRejectBackdrop">
         <div class="admin-modal" id="modalReject">
             <div class="admin-modal-head">
-                <h4><i class="fa-solid fa-triangle-exclamation text-danger"></i> Tolak Verifikasi Akun</h4>
+                <h4>Tolak Verifikasi Akun</h4>
                 <button type="button" class="admin-modal-close" onclick="closeRejectModal()">&times;</button>
             </div>
             <form id="formReject" action="" method="POST">
@@ -331,17 +303,15 @@
         </div>
     </div>
 
-    {{-- MODAL DETAIL PENGGUNA --}}
+    {{-- MODAL DETAIL PENGGUNA (Clean) --}}
     <div class="admin-modal-backdrop" id="modalDetailBackdrop">
         <div class="admin-modal admin-modal-lg" id="modalDetail">
             <div class="admin-modal-head">
-                <h4><i class="fa-solid fa-id-card-clip text-orange"></i> Detail Lengkap Pengguna</h4>
+                <h4>Detail Lengkap Pengguna</h4>
                 <button type="button" class="admin-modal-close" onclick="closeDetailModal()">&times;</button>
             </div>
             <div class="admin-modal-body" id="modalDetailContent">
-                <div class="admin-modal-loading">
-                    <i class="fa-solid fa-spinner fa-spin"></i> Memuat data pengguna...
-                </div>
+                <div class="admin-modal-loading">Memuat data pengguna...</div>
             </div>
             <div class="admin-modal-foot">
                 <button type="button" class="btn btn-outline btn-sm" onclick="closeDetailModal()">Tutup</button>
@@ -356,6 +326,20 @@
 
 @push('scripts')
 <script>
+    function confirmApproveDashboard(userId, userName) {
+        kawwanConfirm({
+            title: 'Verifikasi & Aktifkan Akun',
+            message: `Apakah Anda yakin ingin memverifikasi dan mengaktifkan akun <strong>${userName}</strong>?`,
+            detail: 'Setelah disetujui, akun pemilik hewan akan langsung aktif dan dapat mendaftarkan hewan serta memesan antrean pelayanan.',
+            type: 'success',
+            confirmText: 'Ya, Setujui',
+            cancelText: 'Batal',
+            onConfirm: () => {
+                document.getElementById(`formApproveUser_${userId}`).submit();
+            }
+        });
+    }
+
     function openRejectModal(userId, userName, userNik) {
         const form = document.getElementById('formReject');
         form.action = `/admin/verifikasi/${userId}/reject`;
@@ -378,7 +362,7 @@
         const backdrop = document.getElementById('modalDetailBackdrop');
         const content = document.getElementById('modalDetailContent');
         backdrop.classList.add('is-open');
-        content.innerHTML = '<div class="admin-modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data pengguna...</div>';
+        content.innerHTML = '<div class="admin-modal-loading">Memuat data pengguna...</div>';
 
         try {
             const res = await fetch(`/admin/verifikasi/${userId}`);
@@ -391,7 +375,7 @@
                     <div class="detail-hewan-grid">
                         ${data.hewan.map(h => `
                             <div class="detail-hewan-card">
-                                <strong><i class="fa-solid fa-paw text-orange"></i> ${h.nama}</strong>
+                                <strong>${h.nama}</strong>
                                 <span>${h.jenis} (${h.ras}) &bull; ${h.jenis_kelamin}</span>
                                 <small class="text-muted">Umur: ${h.umur}</small>
                             </div>
@@ -413,38 +397,38 @@
 
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-id-card"></i> NIK</span>
+                            <span class="detail-label">NIK</span>
                             <span class="detail-val"><code>${data.nik}</code></span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-phone"></i> Nomor Telepon</span>
+                            <span class="detail-label">Nomor Telepon</span>
                             <span class="detail-val">${data.nomor_telepon}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-envelope"></i> Email</span>
+                            <span class="detail-label">Email</span>
                             <span class="detail-val">${data.email}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-calendar-day"></i> Terdaftar Sejak</span>
+                            <span class="detail-label">Terdaftar Sejak</span>
                             <span class="detail-val">${data.created_at_formatted}</span>
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <span class="detail-label"><i class="fa-solid fa-location-dot"></i> Alamat Domisili</span>
+                        <span class="detail-label">Alamat Domisili</span>
                         <p class="detail-address-box">${data.alamat}</p>
                     </div>
 
                     ${data.catatan_verifikasi ? `
                         <div class="detail-section">
-                            <span class="detail-label"><i class="fa-solid fa-clipboard-check"></i> Catatan Verifikasi</span>
+                            <span class="detail-label">Catatan Verifikasi</span>
                             <p class="detail-note-box">${data.catatan_verifikasi}</p>
                             ${data.verified_by_name ? `<small class="text-muted">Diverifikasi oleh: ${data.verified_by_name} pada ${data.verified_at_formatted}</small>` : ''}
                         </div>
                     ` : ''}
 
                     <div class="detail-section" style="margin-top: 14px;">
-                        <span class="detail-label"><i class="fa-solid fa-dog"></i> Hewan Peliharaan Terdaftar (${data.hewan.length})</span>
+                        <span class="detail-label">Hewan Peliharaan Terdaftar (${data.hewan.length})</span>
                         ${hewanHtml}
                     </div>
                 </div>

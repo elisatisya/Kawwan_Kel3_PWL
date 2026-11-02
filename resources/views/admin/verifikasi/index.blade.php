@@ -7,54 +7,50 @@
     {{-- Header Halaman --}}
     <div class="admin-head">
         <div class="admin-head-info">
-            <h1>Verifikasi <span>Pengguna</span> 🛡️</h1>
+            <h1>Verifikasi <span>Pengguna</span></h1>
             <p>Validasi identitas (NIK) dan kelayakan pendaftar untuk menjamin keamanan akses layanan kesehatan hewan.</p>
         </div>
         <div class="admin-head-actions">
             @if ($counter['menunggu'] > 0)
                 <span class="admin-badge-urgent" style="font-size: 13px; padding: 8px 16px;">
-                    <i class="fa-solid fa-bell"></i> {{ $counter['menunggu'] }} Menunggu Persetujuan
+                    {{ $counter['menunggu'] }} Menunggu Persetujuan
                 </span>
             @endif
         </div>
     </div>
 
-    {{-- KPI Cards Ringkasan Verifikasi --}}
+    {{-- KPI Cards Ringkasan Verifikasi (Clean, No Icon) --}}
     <div class="admin-kpi-grid">
         <a href="{{ route('admin.verifikasi.index', ['status' => 'menunggu_verifikasi']) }}" class="admin-kpi-card is-pending {{ $statusFilter === 'menunggu_verifikasi' ? 'is-active' : '' }}">
-            <div class="admin-kpi-icon"><i class="fa-solid fa-user-clock"></i></div>
             <div class="admin-kpi-data">
                 <span class="admin-kpi-val">{{ $counter['menunggu'] }}</span>
                 <span class="admin-kpi-title">Menunggu Verifikasi</span>
             </div>
-            <span class="admin-kpi-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+            <span class="admin-kpi-arrow">&rarr;</span>
         </a>
 
         <a href="{{ route('admin.verifikasi.index', ['status' => 'aktif']) }}" class="admin-kpi-card is-active-user {{ $statusFilter === 'aktif' ? 'is-active' : '' }}">
-            <div class="admin-kpi-icon"><i class="fa-solid fa-user-check"></i></div>
             <div class="admin-kpi-data">
                 <span class="admin-kpi-val">{{ $counter['aktif'] }}</span>
                 <span class="admin-kpi-title">Terverifikasi & Aktif</span>
             </div>
-            <span class="admin-kpi-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+            <span class="admin-kpi-arrow">&rarr;</span>
         </a>
 
         <a href="{{ route('admin.verifikasi.index', ['status' => 'ditolak']) }}" class="admin-kpi-card is-rejected {{ $statusFilter === 'ditolak' ? 'is-active' : '' }}">
-            <div class="admin-kpi-icon"><i class="fa-solid fa-user-xmark"></i></div>
             <div class="admin-kpi-data">
                 <span class="admin-kpi-val">{{ $counter['ditolak'] }}</span>
                 <span class="admin-kpi-title">Verifikasi Ditolak</span>
             </div>
-            <span class="admin-kpi-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+            <span class="admin-kpi-arrow">&rarr;</span>
         </a>
 
         <a href="{{ route('admin.verifikasi.index', ['status' => 'nonaktif']) }}" class="admin-kpi-card is-inactive {{ $statusFilter === 'nonaktif' ? 'is-active' : '' }}">
-            <div class="admin-kpi-icon"><i class="fa-solid fa-user-slash"></i></div>
             <div class="admin-kpi-data">
                 <span class="admin-kpi-val">{{ $counter['nonaktif'] }}</span>
                 <span class="admin-kpi-title">Akun Dinonaktifkan</span>
             </div>
-            <span class="admin-kpi-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+            <span class="admin-kpi-arrow">&rarr;</span>
         </a>
     </div>
 
@@ -84,7 +80,6 @@
             <input type="hidden" name="status" value="{{ $statusFilter }}">
 
             <div class="toolbar-search-input">
-                <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama, NIK, email, atau nomor HP..." class="form-control">
                 @if($search)
                     <a href="{{ route('admin.verifikasi.index', ['status' => $statusFilter, 'role' => $roleFilter]) }}" class="search-clear-btn" title="Hapus pencarian">&times;</a>
@@ -100,13 +95,9 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-sm">
-                <i class="fa-solid fa-filter"></i> Filter
-            </button>
+            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
             @if($search !== '' || $roleFilter !== 'semua' || $statusFilter !== 'semua')
-                <a href="{{ route('admin.verifikasi.index') }}" class="btn btn-outline btn-sm">
-                    Reset
-                </a>
+                <a href="{{ route('admin.verifikasi.index') }}" class="btn btn-outline btn-sm">Reset</a>
             @endif
         </form>
 
@@ -117,176 +108,159 @@
             {{-- Floating Batch Action Bar --}}
             <div class="admin-batch-bar" id="adminBatchBar" style="display: none;">
                 <div class="batch-bar-info">
-                    <i class="fa-solid fa-circle-check text-orange"></i>
                     <span><strong id="batchSelectedCount">0</strong> pengguna dipilih</span>
                 </div>
                 <div class="batch-bar-actions">
-                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Verifikasi semua pengguna yang dipilih sekaligus?')">
-                        <i class="fa-solid fa-check-double"></i> Setujui Terpilih
+                    <button type="button" class="btn btn-primary btn-sm" onclick="confirmBatchApprove()">
+                        Setujui Terpilih
                     </button>
                 </div>
             </div>
 
-            {{-- Tabel Data Verifikasi --}}
+            {{-- Data Verifikasi (Clean Card Layout) --}}
             @if ($penggunaList->isEmpty())
                 <div class="admin-empty-state">
-                    <div class="admin-empty-icon">
-                        <i class="fa-solid fa-users-slash"></i>
-                    </div>
                     <h4>Tidak Ditemukan Pengguna</h4>
                     <p>Tidak ada data pengguna yang sesuai dengan kriteria filter atau pencarian Anda.</p>
                 </div>
             @else
-                <div class="admin-table-wrap">
-                    <table class="admin-table admin-table-interactive">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px; text-align: center;">
-                                    <input type="checkbox" id="checkAll" aria-label="Pilih semua">
-                                </th>
-                                <th>Pemohon</th>
-                                <th>NIK & Identitas</th>
-                                <th>Kontak & Alamat</th>
-                                <th>Status Verifikasi</th>
-                                <th>Waktu Daftar</th>
-                                <th>Keterangan / Verifikator</th>
-                                <th style="text-align: right;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($penggunaList as $user)
-                                <tr class="{{ $user->status === \App\Models\User::STATUS_MENUNGGU ? 'row-pending-highlight' : '' }}">
-                                    <td style="text-align: center;">
-                                        <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox" onchange="updateBatchBar()">
-                                    </td>
-                                    <td>
-                                        <div class="admin-user-cell">
-                                            <div class="admin-user-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
-                                            <div>
-                                                <span class="admin-user-fullname">{{ $user->name }}</span>
-                                                <span class="admin-user-role-badge is-{{ str_replace(' ', '_', strtolower($user->role)) }}">
-                                                    {{ $user->role_label }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="admin-nik-cell">
-                                            <span class="admin-nik-badge">
+                <div class="admin-card-list-header">
+                    <label class="admin-check-all-label">
+                        <input type="checkbox" id="checkAll" aria-label="Pilih semua">
+                        <span>Pilih Semua</span>
+                    </label>
+                    <span class="text-muted" style="font-size: 13px;">
+                        Menampilkan {{ $penggunaList->firstItem() ?? 0 }}–{{ $penggunaList->lastItem() ?? 0 }} dari {{ $penggunaList->total() }} pengguna
+                    </span>
+                </div>
+
+                <div class="admin-user-card-list">
+                    @foreach ($penggunaList as $user)
+                        <div class="admin-user-card {{ $user->status === \App\Models\User::STATUS_MENUNGGU ? 'is-pending' : '' }}">
+                            {{-- Card Header: Avatar + Identity + Badges --}}
+                            <div class="admin-user-card-header">
+                                <div class="admin-user-card-check">
+                                    <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox" onchange="updateBatchBar()">
+                                </div>
+                                <div class="admin-user-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                                <div class="admin-user-card-identity">
+                                    <span class="admin-user-fullname">{{ $user->name }}</span>
+                                    <div class="admin-user-card-badges">
+                                        <span class="admin-user-role-badge is-{{ str_replace(' ', '_', strtolower($user->role)) }}">
+                                            {{ $user->role_label }}
+                                        </span>
+                                        <span class="admin-status-badge {{ $user->status_badge_class }}">
+                                            {{ $user->status_label }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Card Body: Info Grid --}}
+                            <div class="admin-user-card-body">
+                                <div class="admin-user-card-info">
+                                    <div class="card-info-item">
+                                        <div>
+                                            <small>NIK</small>
+                                            <span>
                                                 <code>{{ $user->nik ?? 'Belum ada NIK' }}</code>
                                                 @if($user->nik)
                                                     <button type="button" class="btn-copy-nik" onclick="copyToClipboard('{{ $user->nik }}', this)" title="Salin NIK">
-                                                        <i class="fa-solid fa-copy"></i>
+                                                        Salin
                                                     </button>
                                                 @endif
                                             </span>
-                                            <small class="text-muted"><i class="fa-solid fa-paw"></i> {{ $user->hewan_count }} hewan</small>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <div class="admin-contact-cell">
-                                            <span><i class="fa-solid fa-phone"></i> {{ $user->nomor_telepon ?? '-' }}</span>
-                                            <span class="text-muted"><i class="fa-solid fa-envelope"></i> {{ $user->email ?? '-' }}</span>
-                                            <small class="text-muted admin-address-sub" title="{{ $user->alamat }}">
-                                                <i class="fa-solid fa-location-dot"></i> {{ Str::limit($user->alamat ?? '-', 35) }}
-                                            </small>
+                                    </div>
+                                    <div class="card-info-item">
+                                        <div>
+                                            <small>Nomor Telepon</small>
+                                            <span>{{ $user->nomor_telepon ?? '-' }}</span>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span class="admin-status-badge {{ $user->status_badge_class }}">
-                                            @if($user->status === \App\Models\User::STATUS_MENUNGGU)
-                                                <i class="fa-solid fa-hourglass-half"></i>
-                                            @elseif($user->status === \App\Models\User::STATUS_AKTIF)
-                                                <i class="fa-solid fa-circle-check"></i>
-                                            @elseif($user->status === \App\Models\User::STATUS_DITOLAK)
-                                                <i class="fa-solid fa-circle-xmark"></i>
-                                            @else
-                                                <i class="fa-solid fa-ban"></i>
-                                            @endif
-                                            {{ $user->status_label }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="admin-date-text">
-                                            {{ $user->created_at ? $user->created_at->translatedFormat('d M Y') : '-' }}
-                                        </span>
-                                        <small class="text-muted d-block">
-                                            {{ $user->created_at ? $user->created_at->format('H:i') . ' WIB' : '' }}
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <div class="admin-note-cell">
-                                            @if($user->catatan_verifikasi)
-                                                <span class="admin-note-text" title="{{ $user->catatan_verifikasi }}">
-                                                    {{ Str::limit($user->catatan_verifikasi, 40) }}
-                                                </span>
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-
-                                            @if($user->verifiedBy)
-                                                <small class="text-muted d-block">
-                                                    Oleh: {{ $user->verifiedBy->name }}
-                                                </small>
-                                            @endif
+                                    </div>
+                                    <div class="card-info-item">
+                                        <div>
+                                            <small>Alamat Email</small>
+                                            <span>{{ $user->email ?? '-' }}</span>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <div class="admin-actions-cell" style="justify-content: flex-end;">
-                                            {{-- Tombol Setujui / Verifikasi --}}
-                                            @if($user->status !== \App\Models\User::STATUS_AKTIF)
-                                                <button type="button" class="btn btn-action is-approve" onclick="confirmApprove('{{ $user->id }}', '{{ addslashes($user->name) }}')" title="Setujui Verifikasi">
-                                                    <i class="fa-solid fa-check"></i>
-                                                </button>
-                                            @endif
-
-                                            {{-- Tombol Tolak --}}
-                                            @if($user->status === \App\Models\User::STATUS_MENUNGGU)
-                                                <button type="button" class="btn btn-action is-reject" onclick="openRejectModal('{{ $user->id }}', '{{ addslashes($user->name) }}', '{{ $user->nik }}')" title="Tolak Verifikasi">
-                                                    <i class="fa-solid fa-xmark"></i>
-                                                </button>
-                                            @endif
-
-                                            {{-- Tombol Toggle Aktif/Nonaktif --}}
-                                            @if($user->id !== auth()->id())
-                                                <form action="{{ route('admin.verifikasi.toggle', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ $user->status === \App\Models\User::STATUS_AKTIF ? "Nonaktifkan akun {$user->name}?" : "Aktifkan kembali akun {$user->name}?" }}');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-action {{ $user->status === \App\Models\User::STATUS_AKTIF ? 'is-deactivate' : 'is-activate' }}" title="{{ $user->status === \App\Models\User::STATUS_AKTIF ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
-                                                        <i class="fa-solid {{ $user->status === \App\Models\User::STATUS_AKTIF ? 'fa-ban' : 'fa-unlock' }}"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
-
-                                            {{-- Tombol Detail --}}
-                                            <button type="button" class="btn btn-action is-detail" onclick="openDetailModal('{{ $user->id }}')" title="Lihat Detail">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </button>
+                                    </div>
+                                    <div class="card-info-item">
+                                        <div>
+                                            <small>Waktu Terdaftar</small>
+                                            <span>{{ $user->created_at ? $user->created_at->translatedFormat('d M Y, H:i') . ' WIB' : '-' }}</span>
                                         </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                    </div>
+                                    <div class="card-info-item">
+                                        <div>
+                                            <small>Hewan Terdaftar</small>
+                                            <span>{{ $user->hewan_count }} ekor</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-info-item">
+                                        <div>
+                                            <small>Alamat Domisili</small>
+                                            <span title="{{ $user->alamat }}">{{ Str::limit($user->alamat ?? '-', 50) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if($user->catatan_verifikasi)
+                                    <div class="admin-user-card-note">
+                                        <span><strong>Catatan:</strong> {{ Str::limit($user->catatan_verifikasi, 100) }}</span>
+                                        @if($user->verifiedBy)
+                                            <small class="text-muted">— Diverifikasi oleh: {{ $user->verifiedBy->name }}</small>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Card Footer: Action Buttons (Clean Text) --}}
+                            <div class="admin-user-card-actions">
+                                @if($user->status !== \App\Models\User::STATUS_AKTIF)
+                                    <button type="button" class="btn btn-action is-approve" onclick="confirmApprove('{{ $user->id }}', '{{ addslashes($user->name) }}')" title="Setujui Verifikasi">
+                                        Setujui
+                                    </button>
+                                @endif
+
+                                @if($user->status === \App\Models\User::STATUS_MENUNGGU)
+                                    <button type="button" class="btn btn-action is-reject" onclick="openRejectModal('{{ $user->id }}', '{{ addslashes($user->name) }}', '{{ $user->nik }}')" title="Tolak Verifikasi">
+                                        Tolak
+                                    </button>
+                                @endif
+
+                                @if($user->id !== auth()->id())
+                                    <form id="formToggleVerifikasi_{{ $user->id }}" action="{{ route('admin.verifikasi.toggle', $user) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="button" class="btn btn-action {{ $user->status === \App\Models\User::STATUS_AKTIF ? 'is-deactivate' : 'is-activate' }}" onclick="confirmToggleVerifikasi('{{ $user->id }}', '{{ addslashes($user->name) }}', '{{ $user->status }}')">
+                                            {{ $user->status === \App\Models\User::STATUS_AKTIF ? 'Nonaktifkan' : 'Aktifkan' }}
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <button type="button" class="btn btn-action is-detail" onclick="openDetailModal('{{ $user->id }}')" title="Lihat Detail">
+                                    Detail
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
 
-                {{-- Pagination Links --}}
+                {{-- Pagination Links (Clean) --}}
                 <div class="admin-pagination-wrap">
                     <span class="text-muted">
-                        Menampilkan {{ $penggunaList->firstItem() ?? 0 }} - {{ $penggunaList->lastItem() ?? 0 }} dari {{ $penggunaList->total() }} pengguna
+                        Menampilkan {{ $penggunaList->firstItem() ?? 0 }}–{{ $penggunaList->lastItem() ?? 0 }} dari {{ $penggunaList->total() }} pengguna
                     </span>
-                    <div>
-                        {{ $penggunaList->links() }}
-                    </div>
+                    {{ $penggunaList->links('vendor.pagination.custom') }}
                 </div>
             @endif
         </form>
     </section>
 
-    {{-- MODAL KONFIRMASI SETUJUI --}}
+    {{-- MODAL KONFIRMASI SETUJUI (Clean) --}}
     <div class="admin-modal-backdrop" id="modalApproveBackdrop">
         <div class="admin-modal" id="modalApprove">
             <div class="admin-modal-head">
-                <h4><i class="fa-solid fa-circle-check text-green"></i> Verifikasi & Setujui Akun</h4>
+                <h4>Verifikasi & Setujui Akun</h4>
                 <button type="button" class="admin-modal-close" onclick="closeApproveModal()">&times;</button>
             </div>
             <form id="formApprove" action="" method="POST">
@@ -311,11 +285,11 @@
         </div>
     </div>
 
-    {{-- MODAL TOLAK VERIFIKASI --}}
+    {{-- MODAL TOLAK VERIFIKASI (Clean) --}}
     <div class="admin-modal-backdrop" id="modalRejectBackdrop">
         <div class="admin-modal" id="modalReject">
             <div class="admin-modal-head">
-                <h4><i class="fa-solid fa-triangle-exclamation text-danger"></i> Tolak Verifikasi Akun</h4>
+                <h4>Tolak Verifikasi Akun</h4>
                 <button type="button" class="admin-modal-close" onclick="closeRejectModal()">&times;</button>
             </div>
             <form id="formReject" action="" method="POST">
@@ -346,17 +320,15 @@
         </div>
     </div>
 
-    {{-- MODAL DETAIL PENGGUNA --}}
+    {{-- MODAL DETAIL PENGGUNA (Clean) --}}
     <div class="admin-modal-backdrop" id="modalDetailBackdrop">
         <div class="admin-modal admin-modal-lg" id="modalDetail">
             <div class="admin-modal-head">
-                <h4><i class="fa-solid fa-id-card-clip text-orange"></i> Detail Lengkap Pengguna</h4>
+                <h4>Detail Lengkap Pengguna</h4>
                 <button type="button" class="admin-modal-close" onclick="closeDetailModal()">&times;</button>
             </div>
             <div class="admin-modal-body" id="modalDetailContent">
-                <div class="admin-modal-loading">
-                    <i class="fa-solid fa-spinner fa-spin"></i> Memuat data pengguna...
-                </div>
+                <div class="admin-modal-loading">Memuat data pengguna...</div>
             </div>
             <div class="admin-modal-foot">
                 <button type="button" class="btn btn-outline btn-sm" onclick="closeDetailModal()">Tutup</button>
@@ -368,7 +340,6 @@
 
 @push('scripts')
 <script>
-    // Konfirmasi Setujui Modal
     function confirmApprove(userId, userName) {
         const form = document.getElementById('formApprove');
         form.action = `/admin/verifikasi/${userId}/approve`;
@@ -381,7 +352,6 @@
         document.getElementById('modalApproveBackdrop').classList.remove('is-open');
     }
 
-    // Tolak Modal
     function openRejectModal(userId, userName, userNik) {
         const form = document.getElementById('formReject');
         form.action = `/admin/verifikasi/${userId}/reject`;
@@ -399,12 +369,11 @@
         document.getElementById('rejectCatatan').value = reason;
     }
 
-    // Detail Modal via Fetch
     async function openDetailModal(userId) {
         const backdrop = document.getElementById('modalDetailBackdrop');
         const content = document.getElementById('modalDetailContent');
         backdrop.classList.add('is-open');
-        content.innerHTML = '<div class="admin-modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data pengguna...</div>';
+        content.innerHTML = '<div class="admin-modal-loading">Memuat data pengguna...</div>';
 
         try {
             const res = await fetch(`/admin/verifikasi/${userId}`);
@@ -417,7 +386,7 @@
                     <div class="detail-hewan-grid">
                         ${data.hewan.map(h => `
                             <div class="detail-hewan-card">
-                                <strong><i class="fa-solid fa-paw text-orange"></i> ${h.nama}</strong>
+                                <strong>${h.nama}</strong>
                                 <span>${h.jenis} (${h.ras}) &bull; ${h.jenis_kelamin}</span>
                                 <small class="text-muted">Umur: ${h.umur}</small>
                             </div>
@@ -439,38 +408,38 @@
 
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-id-card"></i> NIK</span>
+                            <span class="detail-label">NIK</span>
                             <span class="detail-val"><code>${data.nik}</code></span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-phone"></i> Nomor Telepon</span>
+                            <span class="detail-label">Nomor Telepon</span>
                             <span class="detail-val">${data.nomor_telepon}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-envelope"></i> Email</span>
+                            <span class="detail-label">Email</span>
                             <span class="detail-val">${data.email}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-calendar-day"></i> Terdaftar Sejak</span>
+                            <span class="detail-label">Terdaftar Sejak</span>
                             <span class="detail-val">${data.created_at_formatted}</span>
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <span class="detail-label"><i class="fa-solid fa-location-dot"></i> Alamat Domisili</span>
+                        <span class="detail-label">Alamat Domisili</span>
                         <p class="detail-address-box">${data.alamat}</p>
                     </div>
 
                     ${data.catatan_verifikasi ? `
                         <div class="detail-section">
-                            <span class="detail-label"><i class="fa-solid fa-clipboard-check"></i> Catatan Verifikasi</span>
+                            <span class="detail-label">Catatan Verifikasi</span>
                             <p class="detail-note-box">${data.catatan_verifikasi}</p>
                             ${data.verified_by_name ? `<small class="text-muted">Diverifikasi oleh: ${data.verified_by_name} pada ${data.verified_at_formatted}</small>` : ''}
                         </div>
                     ` : ''}
 
                     <div class="detail-section" style="margin-top: 14px;">
-                        <span class="detail-label"><i class="fa-solid fa-dog"></i> Hewan Peliharaan Terdaftar (${data.hewan.length})</span>
+                        <span class="detail-label">Hewan Peliharaan Terdaftar (${data.hewan.length})</span>
                         ${hewanHtml}
                     </div>
                 </div>
@@ -484,7 +453,6 @@
         document.getElementById('modalDetailBackdrop').classList.remove('is-open');
     }
 
-    // Check all checkboxes
     const checkAll = document.getElementById('checkAll');
     if (checkAll) {
         checkAll.addEventListener('change', function() {
@@ -506,11 +474,48 @@
         }
     }
 
+    function confirmBatchApprove() {
+        const count = document.querySelectorAll('.user-checkbox:checked').length;
+        if (count === 0) {
+            kawwanToast('Pilih setidaknya satu pengguna terlebih dahulu.', 'warning');
+            return;
+        }
+
+        kawwanConfirm({
+            title: 'Verifikasi Massal Pengguna',
+            message: `Apakah Anda yakin ingin memverifikasi dan mengaktifkan <strong>${count} pengguna</strong> terpilih secara massal?`,
+            detail: 'Semua akun yang dipilih akan langsung aktif dan status verifikasi NIK disetujui.',
+            type: 'success',
+            confirmText: 'Ya, Verifikasi Semua',
+            cancelText: 'Batal',
+            onConfirm: () => {
+                document.getElementById('formBatchApprove').submit();
+            }
+        });
+    }
+
+    function confirmToggleVerifikasi(userId, userName, currentStatus) {
+        const isAktif = currentStatus === 'aktif';
+        kawwanConfirm({
+            title: isAktif ? 'Nonaktifkan Akun Pengguna' : 'Aktifkan Kembali Akun',
+            message: isAktif
+                ? `Apakah Anda yakin ingin menonaktifkan akun <strong>${userName}</strong>? Pengguna tidak akan dapat mengakses layanan selama akun dinonaktifkan.`
+                : `Aktifkan kembali akun <strong>${userName}</strong> agar dapat mengakses seluruh layanan Puskeswan?`,
+            type: isAktif ? 'warning' : 'success',
+            confirmText: isAktif ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelText: 'Batal',
+            onConfirm: () => {
+                document.getElementById(`formToggleVerifikasi_${userId}`).submit();
+            }
+        });
+    }
+
     function copyToClipboard(text, btn) {
         navigator.clipboard.writeText(text).then(() => {
-            const original = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-check text-green"></i>';
-            setTimeout(() => { btn.innerHTML = original; }, 1500);
+            const original = btn.textContent;
+            btn.textContent = 'Tersalin!';
+            kawwanToast(`NIK ${text} berhasil disalin ke clipboard!`, 'info');
+            setTimeout(() => { btn.textContent = original; }, 1500);
         });
     }
 </script>

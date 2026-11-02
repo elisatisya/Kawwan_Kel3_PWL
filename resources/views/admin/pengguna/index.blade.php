@@ -7,36 +7,31 @@
     {{-- Header Halaman --}}
     <div class="admin-head">
         <div class="admin-head-info">
-            <h1>Pengelolaan <span>Pengguna</span> 👥</h1>
+            <h1>Pengelolaan <span>Pengguna</span></h1>
             <p>Kelola data seluruh akun pengguna, atur hak akses / peran, dan buat akun petugas (Dokter & Kader) secara terkontrol.</p>
         </div>
         <div class="admin-head-actions">
             <button type="button" class="btn btn-primary" onclick="openCreateUserModal()">
-                <i class="fa-solid fa-user-plus"></i> Tambah Petugas (Dokter/Kader)
+                + Tambah Petugas
             </button>
         </div>
     </div>
 
-    {{-- Summary Role Cards --}}
+    {{-- Summary Role Bar (Clean, No Icon) --}}
     <div class="admin-pills-bar" style="margin-bottom: 24px;">
         <div class="admin-pill-item">
-            <i class="fa-solid fa-users"></i>
             <span>Total: <strong>{{ $roleCounts['total'] }}</strong> Pengguna</span>
         </div>
         <div class="admin-pill-item">
-            <i class="fa-solid fa-user"></i>
             <span>Pemilik Hewan: <strong>{{ $roleCounts['pemilik'] }}</strong></span>
         </div>
         <div class="admin-pill-item">
-            <i class="fa-solid fa-user-doctor"></i>
             <span>Dokter Hewan: <strong>{{ $roleCounts['dokter'] }}</strong></span>
         </div>
         <div class="admin-pill-item">
-            <i class="fa-solid fa-hand-holding-medical"></i>
             <span>Kader Puskesmas: <strong>{{ $roleCounts['kader'] }}</strong></span>
         </div>
         <div class="admin-pill-item">
-            <i class="fa-solid fa-shield-halved"></i>
             <span>Admin: <strong>{{ $roleCounts['admin'] }}</strong></span>
         </div>
     </div>
@@ -46,7 +41,6 @@
         {{-- Search & Filter Toolbar --}}
         <form method="GET" action="{{ route('admin.pengguna.index') }}" class="admin-search-toolbar">
             <div class="toolbar-search-input">
-                <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama, email, NIK, atau no. telepon..." class="form-control">
                 @if($search)
                     <a href="{{ route('admin.pengguna.index', ['role' => $roleFilter, 'status' => $statusFilter]) }}" class="search-clear-btn" title="Hapus pencarian">&times;</a>
@@ -82,9 +76,6 @@
         {{-- Tabel Pengguna --}}
         @if ($users->isEmpty())
             <div class="admin-empty-state">
-                <div class="admin-empty-icon">
-                    <i class="fa-solid fa-users-slash"></i>
-                </div>
                 <h4>Tidak Ada Pengguna yang Cocok</h4>
                 <p>Silakan sesuaikan kata kunci pencarian atau filter role/status di atas.</p>
             </div>
@@ -95,11 +86,11 @@
                         <tr>
                             <th>Nama & Identitas</th>
                             <th>Kontak</th>
-                            <th>Role / Peran</th>
+                            <th>Peran</th>
                             <th>Status Akun</th>
                             <th>Peliharaan</th>
                             <th>Waktu Daftar</th>
-                            <th style="text-align: right;">Kelola</th>
+                            <th style="text-align: right;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -118,8 +109,8 @@
                                 </td>
                                 <td>
                                     <div class="admin-contact-cell">
-                                        <span><i class="fa-solid fa-envelope"></i> {{ $user->email ?? 'Tanpa email' }}</span>
-                                        <small class="text-muted"><i class="fa-solid fa-phone"></i> {{ $user->nomor_telepon ?? '-' }}</small>
+                                        <span>{{ $user->email ?? 'Tanpa email' }}</span>
+                                        <small class="text-muted">{{ $user->nomor_telepon ?? '-' }}</small>
                                     </div>
                                 </td>
                                 <td>
@@ -127,10 +118,10 @@
                                     @if($user->id === auth()->id())
                                         <span class="admin-user-role-badge is-admin">{{ $user->role_label }}</span>
                                     @else
-                                        <form action="{{ route('admin.pengguna.role', $user) }}" method="POST" class="d-inline">
+                                        <form id="formRole_{{ $user->id }}" action="{{ route('admin.pengguna.role', $user) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
-                                            <select name="role" class="form-control admin-select-sm" onchange="if(confirm('Ubah role {{ $user->name }} menjadi ' + this.options[this.selectedIndex].text + '?')) { this.form.submit(); } else { this.value='{{ $user->role }}'; }">
+                                            <select name="role" class="form-control admin-select-sm" onchange="confirmChangeRole(this, '{{ $user->id }}', '{{ addslashes($user->name) }}', '{{ $user->role }}')">
                                                 <option value="{{ \App\Models\User::ROLE_PEMILIK }}" {{ $user->hasRole('pemilik') ? 'selected' : '' }}>Pemilik Hewan</option>
                                                 <option value="{{ \App\Models\User::ROLE_DOKTER }}" {{ $user->hasRole('dokter') ? 'selected' : '' }}>Dokter Hewan</option>
                                                 <option value="{{ \App\Models\User::ROLE_KADER }}" {{ $user->isKader() ? 'selected' : '' }}>Kader Puskesmas</option>
@@ -146,7 +137,7 @@
                                 </td>
                                 <td>
                                     @if($user->hewan_count > 0)
-                                        <span class="admin-badge-count"><i class="fa-solid fa-paw text-orange"></i> {{ $user->hewan_count }} ekor</span>
+                                        <span class="admin-badge-count">{{ $user->hewan_count }} ekor</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
@@ -156,28 +147,43 @@
                                 </td>
                                 <td>
                                     <div class="admin-actions-cell" style="justify-content: flex-end;">
+                                        {{-- Edit Data Pengguna (CRUD Update) --}}
+                                        <button type="button" class="btn btn-action is-edit" onclick="openEditUserModal({{ json_encode([
+                                            'id' => $user->id,
+                                            'name' => $user->name,
+                                            'email' => $user->email,
+                                            'nik' => $user->nik,
+                                            'nomor_telepon' => $user->nomor_telepon,
+                                            'alamat' => $user->alamat,
+                                            'role' => $user->role,
+                                            'status' => $user->status,
+                                            'is_self' => $user->id === auth()->id()
+                                        ]) }})" title="Edit Data Pengguna">
+                                            Edit
+                                        </button>
+
                                         {{-- Toggle Status --}}
                                         @if($user->id !== auth()->id())
-                                            <form action="{{ route('admin.verifikasi.toggle', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ $user->status === \App\Models\User::STATUS_AKTIF ? "Nonaktifkan akun {$user->name}?" : "Aktifkan akun {$user->name}?" }}');">
+                                            <form id="formTogglePengguna_{{ $user->id }}" action="{{ route('admin.verifikasi.toggle', $user) }}" method="POST" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="btn btn-action {{ $user->status === \App\Models\User::STATUS_AKTIF ? 'is-deactivate' : 'is-activate' }}" title="{{ $user->status === \App\Models\User::STATUS_AKTIF ? 'Nonaktifkan' : 'Aktifkan' }}">
-                                                    <i class="fa-solid {{ $user->status === \App\Models\User::STATUS_AKTIF ? 'fa-ban' : 'fa-unlock' }}"></i>
+                                                <button type="button" class="btn btn-action {{ $user->status === \App\Models\User::STATUS_AKTIF ? 'is-deactivate' : 'is-activate' }}" onclick="confirmTogglePengguna('{{ $user->id }}', '{{ addslashes($user->name) }}', '{{ $user->status }}')">
+                                                    {{ $user->status === \App\Models\User::STATUS_AKTIF ? 'Nonaktifkan' : 'Aktifkan' }}
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- Detail --}}
                                         <button type="button" class="btn btn-action is-detail" onclick="openDetailModal('{{ $user->id }}')" title="Detail Pengguna">
-                                            <i class="fa-solid fa-eye"></i>
+                                            Detail
                                         </button>
 
                                         {{-- Hapus (Kecuali Akun Sendiri) --}}
                                         @if($user->id !== auth()->id())
-                                            <form action="{{ route('admin.pengguna.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('PERINGATAN: Apakah Anda yakin ingin menghapus akun {{ $user->name }} secara permanen?');">
+                                            <form id="formDeletePengguna_{{ $user->id }}" action="{{ route('admin.pengguna.destroy', $user) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-action is-delete" title="Hapus Akun">
-                                                    <i class="fa-solid fa-trash-can"></i>
+                                                <button type="button" class="btn btn-action is-delete" onclick="confirmDeletePengguna('{{ $user->id }}', '{{ addslashes($user->name) }}')" title="Hapus Akun">
+                                                    Hapus
                                                 </button>
                                             </form>
                                         @endif
@@ -194,18 +200,16 @@
                 <span class="text-muted">
                     Menampilkan {{ $users->firstItem() ?? 0 }} - {{ $users->lastItem() ?? 0 }} dari {{ $users->total() }} pengguna
                 </span>
-                <div>
-                    {{ $users->links() }}
-                </div>
+                {{ $users->links() }}
             </div>
         @endif
     </section>
 
-    {{-- MODAL TAMBAH PETUGAS (DOKTER / KADER) --}}
+    {{-- MODAL TAMBAH PETUGAS (CRUD Create) --}}
     <div class="admin-modal-backdrop" id="modalCreateBackdrop">
         <div class="admin-modal" id="modalCreate">
             <div class="admin-modal-head">
-                <h4><i class="fa-solid fa-user-plus text-orange"></i> Buat Akun Petugas Baru</h4>
+                <h4>Buat Akun Petugas Baru</h4>
                 <button type="button" class="admin-modal-close" onclick="closeCreateUserModal()">&times;</button>
             </div>
             <form action="{{ route('admin.pengguna.store') }}" method="POST">
@@ -216,7 +220,7 @@
                     </p>
 
                     <div class="form-group">
-                        <label class="form-label" for="createRole">Peran / Role Petugas <span class="text-danger">*</span></label>
+                        <label class="form-label" for="createRole">Peran Petugas <span class="text-danger">*</span></label>
                         <select name="role" id="createRole" class="form-control" required>
                             <option value="{{ \App\Models\User::ROLE_DOKTER }}">Dokter Hewan (Pelayanan medis & rekam medis)</option>
                             <option value="{{ \App\Models\User::ROLE_KADER }}">Kader Puskesmas (Pendaftaran, kedatangan, artikel)</option>
@@ -269,17 +273,88 @@
         </div>
     </div>
 
+    {{-- MODAL EDIT PENGGUNA (CRUD Update) --}}
+    <div class="admin-modal-backdrop" id="modalEditBackdrop">
+        <div class="admin-modal admin-modal-lg" id="modalEdit">
+            <div class="admin-modal-head">
+                <h4>Edit Data Pengguna</h4>
+                <button type="button" class="admin-modal-close" onclick="closeEditUserModal()">&times;</button>
+            </div>
+            <form id="formEditUser" action="" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="admin-modal-body">
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="editName">Nama Lengkap <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="editName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="editEmail">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" id="editEmail" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2" style="margin-top: 12px;">
+                        <div class="form-group">
+                            <label class="form-label" for="editNik">NIK</label>
+                            <input type="text" name="nik" id="editNik" class="form-control" placeholder="16 digit angka">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="editTelp">Nomor Telepon <span class="text-danger">*</span></label>
+                            <input type="text" name="nomor_telepon" id="editTelp" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2" style="margin-top: 12px;">
+                        <div class="form-group">
+                            <label class="form-label" for="editRole">Peran / Role <span class="text-danger">*</span></label>
+                            <select name="role" id="editRole" class="form-control" required>
+                                <option value="{{ \App\Models\User::ROLE_PEMILIK }}">Pemilik Hewan</option>
+                                <option value="{{ \App\Models\User::ROLE_DOKTER }}">Dokter Hewan</option>
+                                <option value="{{ \App\Models\User::ROLE_KADER }}">Kader Puskesmas</option>
+                                <option value="{{ \App\Models\User::ROLE_ADMIN }}">Administrator</option>
+                            </select>
+                            <small class="text-muted" id="editRoleHint" style="display: none;">Akun Anda sendiri tidak dapat diubah rolenya.</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="editStatus">Status Akun <span class="text-danger">*</span></label>
+                            <select name="status" id="editStatus" class="form-control" required>
+                                <option value="{{ \App\Models\User::STATUS_AKTIF }}">Aktif</option>
+                                <option value="{{ \App\Models\User::STATUS_MENUNGGU }}">Menunggu Verifikasi</option>
+                                <option value="{{ \App\Models\User::STATUS_DITOLAK }}">Ditolak</option>
+                                <option value="{{ \App\Models\User::STATUS_NONAKTIF }}">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 12px;">
+                        <label class="form-label" for="editAlamat">Alamat Domisili</label>
+                        <textarea name="alamat" id="editAlamat" rows="2" class="form-control"></textarea>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 12px;">
+                        <label class="form-label" for="editPassword">Ubah Password (Opsional)</label>
+                        <input type="password" name="password" id="editPassword" class="form-control" placeholder="Kosongkan bila tidak ingin mengubah password">
+                    </div>
+                </div>
+                <div class="admin-modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeEditUserModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {{-- MODAL DETAIL PENGGUNA --}}
     <div class="admin-modal-backdrop" id="modalDetailBackdrop">
         <div class="admin-modal admin-modal-lg" id="modalDetail">
             <div class="admin-modal-head">
-                <h4><i class="fa-solid fa-id-card-clip text-orange"></i> Detail Lengkap Pengguna</h4>
+                <h4>Detail Lengkap Pengguna</h4>
                 <button type="button" class="admin-modal-close" onclick="closeDetailModal()">&times;</button>
             </div>
             <div class="admin-modal-body" id="modalDetailContent">
-                <div class="admin-modal-loading">
-                    <i class="fa-solid fa-spinner fa-spin"></i> Memuat data pengguna...
-                </div>
+                <div class="admin-modal-loading">Memuat data pengguna...</div>
             </div>
             <div class="admin-modal-foot">
                 <button type="button" class="btn btn-outline btn-sm" onclick="closeDetailModal()">Tutup</button>
@@ -299,11 +374,41 @@
         document.getElementById('modalCreateBackdrop').classList.remove('is-open');
     }
 
+    function openEditUserModal(user) {
+        const form = document.getElementById('formEditUser');
+        form.action = `/admin/pengguna/${user.id}`;
+
+        document.getElementById('editName').value = user.name || '';
+        document.getElementById('editEmail').value = user.email || '';
+        document.getElementById('editNik').value = user.nik || '';
+        document.getElementById('editTelp').value = user.nomor_telepon || '';
+        document.getElementById('editAlamat').value = user.alamat || '';
+        document.getElementById('editRole').value = user.role || '';
+        document.getElementById('editStatus').value = user.status || '';
+        document.getElementById('editPassword').value = '';
+
+        const roleSelect = document.getElementById('editRole');
+        const roleHint = document.getElementById('editRoleHint');
+        if (user.is_self) {
+            roleSelect.disabled = true;
+            roleHint.style.display = 'block';
+        } else {
+            roleSelect.disabled = false;
+            roleHint.style.display = 'none';
+        }
+
+        document.getElementById('modalEditBackdrop').classList.add('is-open');
+    }
+
+    function closeEditUserModal() {
+        document.getElementById('modalEditBackdrop').classList.remove('is-open');
+    }
+
     async function openDetailModal(userId) {
         const backdrop = document.getElementById('modalDetailBackdrop');
         const content = document.getElementById('modalDetailContent');
         backdrop.classList.add('is-open');
-        content.innerHTML = '<div class="admin-modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data pengguna...</div>';
+        content.innerHTML = '<div class="admin-modal-loading">Memuat data pengguna...</div>';
 
         try {
             const res = await fetch(`/admin/verifikasi/${userId}`);
@@ -316,7 +421,7 @@
                     <div class="detail-hewan-grid">
                         ${data.hewan.map(h => `
                             <div class="detail-hewan-card">
-                                <strong><i class="fa-solid fa-paw text-orange"></i> ${h.nama}</strong>
+                                <strong>${h.nama}</strong>
                                 <span>${h.jenis} (${h.ras}) &bull; ${h.jenis_kelamin}</span>
                                 <small class="text-muted">Umur: ${h.umur}</small>
                             </div>
@@ -338,38 +443,38 @@
 
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-id-card"></i> NIK</span>
+                            <span class="detail-label">NIK</span>
                             <span class="detail-val"><code>${data.nik}</code></span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-phone"></i> Nomor Telepon</span>
+                            <span class="detail-label">Nomor Telepon</span>
                             <span class="detail-val">${data.nomor_telepon}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-envelope"></i> Email</span>
+                            <span class="detail-label">Email</span>
                             <span class="detail-val">${data.email}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label"><i class="fa-solid fa-calendar-day"></i> Terdaftar Sejak</span>
+                            <span class="detail-label">Terdaftar Sejak</span>
                             <span class="detail-val">${data.created_at_formatted}</span>
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <span class="detail-label"><i class="fa-solid fa-location-dot"></i> Alamat Domisili</span>
+                        <span class="detail-label">Alamat Domisili</span>
                         <p class="detail-address-box">${data.alamat}</p>
                     </div>
 
                     ${data.catatan_verifikasi ? `
                         <div class="detail-section">
-                            <span class="detail-label"><i class="fa-solid fa-clipboard-check"></i> Catatan Verifikasi</span>
+                            <span class="detail-label">Catatan Verifikasi</span>
                             <p class="detail-note-box">${data.catatan_verifikasi}</p>
                             ${data.verified_by_name ? `<small class="text-muted">Diverifikasi oleh: ${data.verified_by_name} pada ${data.verified_at_formatted}</small>` : ''}
                         </div>
                     ` : ''}
 
                     <div class="detail-section" style="margin-top: 14px;">
-                        <span class="detail-label"><i class="fa-solid fa-dog"></i> Hewan Peliharaan Terdaftar (${data.hewan.length})</span>
+                        <span class="detail-label">Hewan Peliharaan Terdaftar (${data.hewan.length})</span>
                         ${hewanHtml}
                     </div>
                 </div>
@@ -381,6 +486,59 @@
 
     function closeDetailModal() {
         document.getElementById('modalDetailBackdrop').classList.remove('is-open');
+    }
+
+    function confirmChangeRole(selectEl, userId, userName, originalRole) {
+        const newRoleText = selectEl.options[selectEl.selectedIndex].text;
+        kawwanConfirm({
+            title: 'Ubah Peran Pengguna',
+            message: `Apakah Anda yakin ingin mengubah peran <strong>${userName}</strong> menjadi <strong>${newRoleText}</strong>?`,
+            detail: 'Perubahan peran ini akan langsung mempengaruhi hak akses fitur pengguna di sistem.',
+            type: 'warning',
+            confirmText: 'Ya, Ubah Peran',
+            cancelText: 'Batal',
+            onConfirm: () => {
+                document.getElementById(`formRole_${userId}`).submit();
+            }
+        });
+
+        // Jika dibatalkan atau backdrop ditutup, kembalikan ke role semula
+        const cancelBtn = document.getElementById('kawwanConfirmCancelBtn');
+        const prevHandler = cancelBtn.onclick;
+        cancelBtn.onclick = () => {
+            selectEl.value = originalRole;
+            if (typeof prevHandler === 'function') prevHandler();
+        };
+    }
+
+    function confirmTogglePengguna(userId, userName, currentStatus) {
+        const isAktif = currentStatus === 'aktif';
+        kawwanConfirm({
+            title: isAktif ? 'Nonaktifkan Akun Pengguna' : 'Aktifkan Akun Pengguna',
+            message: isAktif
+                ? `Apakah Anda yakin ingin menonaktifkan akun <strong>${userName}</strong>? Pengguna tidak akan dapat mengakses sistem.`
+                : `Aktifkan kembali akun <strong>${userName}</strong> agar dapat mengakses seluruh layanan?`,
+            type: isAktif ? 'warning' : 'success',
+            confirmText: isAktif ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelText: 'Batal',
+            onConfirm: () => {
+                document.getElementById(`formTogglePengguna_${userId}`).submit();
+            }
+        });
+    }
+
+    function confirmDeletePengguna(userId, userName) {
+        kawwanConfirm({
+            title: 'Hapus Akun Pengguna',
+            message: `PERINGATAN: Apakah Anda yakin ingin menghapus akun <strong>${userName}</strong> secara permanen?`,
+            detail: 'Tindakan ini tidak dapat dibatalkan. Seluruh data akun akan dihapus dari basis data.',
+            type: 'danger',
+            confirmText: 'Ya, Hapus Permanen',
+            cancelText: 'Batal',
+            onConfirm: () => {
+                document.getElementById(`formDeletePengguna_${userId}`).submit();
+            }
+        });
     }
 </script>
 @endpush

@@ -70,6 +70,14 @@ class User extends Authenticatable
         return $this->hasMany(Hewan::class, 'user_id');
     }
 
+    /**
+     * Kirim notifikasi pengaturan ulang kata sandi dengan template KAWWAN.
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
+
     public function pemesanan(): HasMany
     {
         return $this->hasMany(Pemesanan::class, 'user_id');

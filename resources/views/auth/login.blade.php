@@ -60,24 +60,42 @@
                     </div>
                 @endif
 
+                @if (session('success'))
+                    <div class="auth-alert auth-alert-success" role="alert">
+                        <i class="fa-solid fa-circle-check auth-alert-icon"></i>
+                        <div class="auth-alert-content">
+                            <p>{{ session('success') }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if (session('status'))
+                    <div class="auth-alert auth-alert-success" role="alert">
+                        <i class="fa-solid fa-circle-check auth-alert-icon"></i>
+                        <div class="auth-alert-content">
+                            <p>{{ session('status') }}</p>
+                        </div>
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ route('login') }}" class="auth-form" novalidate>
                     @csrf
 
                     <div class="form-group">
-                        <label for="login" class="form-label">NIK / NIP</label>
-                        <div class="input-wrapper @error('login') is-invalid @enderror">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-wrapper @error('email') is-invalid @enderror">
                             <span class="input-icon">
                                 <i class="fa-regular fa-id-card"></i>
                             </span>
                             <input
-                                type="text"
-                                id="login"
-                                name="login"
-                                value="{{ old('login') }}"
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="{{ old('email') }}"
                                 required
                                 autofocus
                                 class="form-input"
-                                placeholder="Masukkan NIK atau nomor identitas Anda"
+                                placeholder="Masukkan email Anda"
                             >
                         </div>
                     </div>
@@ -118,7 +136,7 @@
                             <span>Ingat saya</span>
                         </label>
 
-                        <a href="{{ route('landing') }}#layanan" class="forgot-link">
+                        <a href="{{ route('password.request') }}" class="forgot-link">
                             Lupa password?
                         </a>
                     </div>
