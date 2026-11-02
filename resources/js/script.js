@@ -427,3 +427,32 @@ function initAdminCharts() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('profilForm');
+    if (!form) return;
+
+    const input = document.getElementById('profilFoto');
+    const preview = document.getElementById('profilFotoPreview');
+    const inisial = document.getElementById('profilFotoInisial');
+    const editables = form.querySelectorAll('[data-edit]');
+
+    const setEditing = (on) => {
+        form.classList.toggle('is-editing', on);
+        editables.forEach((el) => { el.disabled = !on; });
+    };
+
+    setEditing(form.classList.contains('is-editing'));
+
+    const editBtn = document.getElementById('profilEditBtn');
+    if (editBtn) editBtn.addEventListener('click', () => setEditing(true));
+
+    if (input) {
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            if (!file) return;
+            preview.src = URL.createObjectURL(file);
+            preview.hidden = false;
+            if (inisial) inisial.hidden = true;
+        });
+    }
+});
