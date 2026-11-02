@@ -58,6 +58,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 Route::middleware(['auth', 'role:dokter_hewan,dokter'])->prefix('dokter')->name('dokter.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Dokter\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/riwayat', [App\Http\Controllers\Dokter\RiwayatController::class, 'index'])->name('riwayat.index');
+    Route::get('/riwayat/{hewan}', [App\Http\Controllers\Dokter\RiwayatController::class, 'show'])->name('riwayat.show');
+    Route::get('/profil', [App\Http\Controllers\Dokter\ProfilController::class, 'edit'])->name('profil');
+    Route::put('/profil', [App\Http\Controllers\Dokter\ProfilController::class, 'update'])->name('profil.update');
 });
 
 Route::middleware(['auth', 'role:kader'])->prefix('kader')->name('kader.')->group(function () {

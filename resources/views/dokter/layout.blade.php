@@ -21,35 +21,7 @@
 
         <div class="dokter-backdrop" id="dokterBackdrop"></div>
 
-        <aside class="dokter-sidebar" id="dokterSidebar">
-            <a href="{{ route('dokter.dashboard') }}" class="dokter-brand">
-                <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
-            </a>
-
-            <p class="dokter-menu-label">Menu Dokter</p>
-
-            <nav class="dokter-menu" aria-label="Navigasi dokter">
-                <a href="{{ route('dokter.dashboard') }}" class="{{ request()->routeIs('dokter.dashboard') ? 'active' : '' }}">
-                    <svg class="menu-icon-grid" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg> Dashboard
-                </a>
-                <a href="#">
-                    <i class="fa-solid fa-calendar-check"></i> Jadwal Pemeriksaan
-                </a>
-                <a href="#">
-                    <i class="fa-solid fa-stethoscope"></i> Pemeriksaan
-                </a>
-                <a href="#">
-                    <i class="fa-solid fa-file-medical"></i> Riwayat Pemeriksaan
-                </a>
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="dokter-logout">
-                @csrf
-                <button type="submit" class="btn btn-outline">
-                    Keluar <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </button>
-            </form>
-        </aside>
+        @include('dokter.partials.navbar')
 
         <div class="dokter-main">
             <header class="dokter-topbar">
@@ -61,7 +33,13 @@
                 </div>
 
                 <div class="dokter-user">
-                    <div class="dokter-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    <div class="dokter-avatar">
+                        @if (auth()->user()->foto)
+                            <img src="{{ asset('storage/'.auth()->user()->foto) }}" alt="Foto {{ auth()->user()->name }}">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
                     <div>
                         <span class="dokter-user-name">{{ auth()->user()->name }}</span>
                         <span class="dokter-user-role">Dokter Hewan</span>
