@@ -107,6 +107,66 @@ class UserController extends Controller
     }
 
     /**
+     * Perbarui data pengguna (Update profil / kredensial).
+     */
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'nik' => ['nullable', 'string', 'max:20', Rule::unique('users', 'nik')->ignore($user->id)],
+            'nomor_telepon' => ['required', 'string', 'max:20'],
+            'alamat' => ['nullable', 'string', 'max:500'],
+            'role' => ['required', Rule::in([
+                User::ROLE_PEMILIK,
+                User::ROLE_DOKTER,
+                User::ROLE_KADER,
+                User::ROLE_ADMIN,
+                'pemilik',
+                'dokter',
+            ])],
+            'status' => ['required', Rule::in([
+                User::STATUS_AKTIF,
+                User::STATUS_MENUNGGU,
+                User::STATUS_DITOLAK,
+                User::STATUS_NONAKTIF,
+            ])],
+            'password' => ['nullable', 'string', 'min:8'],
+        ], [
+            'name.required' => 'Nama pengguna wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.unique' => 'Email ini sudah digunakan oleh akun lain.',
+            'nik.unique' => 'NIK sudah digunakan oleh akun lain.',
+            'nomor_telepon.required' => 'Nomor telepon wajib diisi.',
+            'role.required' => 'Peran pengguna wajib dipilih.',
+            'status.required' => 'Status pengguna wajib dipilih.',
+            'password.min' => 'Password baru minimal 8 karakter.',
+        ]);
+
+        $updateData = [
+            'name' => trim($validated['name']),
+            'email' => trim($validated['email']),
+            'nik' => ! empty($validated['nik']) ? trim($validated['nik']) : null,
+            'nomor_telepon' => trim($validated['nomor_telepon']),
+            'alamat' => ! empty($validated['alamat']) ? trim($validated['alamat']) : null,
+            'status' => $validated['status'],
+        ];
+
+        // Jangan izinkan admin menghapus role admin dari dirinya sendiri
+        if ($user->id !== Auth::id()) {
+            $updateData['role'] = $validated['role'];
+        }
+
+        if (! empty($validated['password'])) {
+            $updateData['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($updateData);
+
+        return back()->with('success', "Data pengguna {$user->name} berhasil diperbarui.");
+    }
+
+    /**
      * Perbarui role pengguna.
      */
     public function updateRole(Request $request, User $user): RedirectResponse

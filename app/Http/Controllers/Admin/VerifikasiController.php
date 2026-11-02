@@ -9,6 +9,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Mail\AccountStatusMail;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class VerifikasiController extends Controller
 {
@@ -70,9 +73,6 @@ class VerifikasiController extends Controller
         return view('admin.verifikasi.index', compact('penggunaList', 'counter', 'statusFilter', 'search', 'roleFilter'));
     }
 
-    /**
-     * Setujui / Verifikasi akun pengguna.
-     */
     public function approve(Request $request, User $user): RedirectResponse
     {
         $catatan = $request->filled('catatan')
@@ -86,9 +86,31 @@ class VerifikasiController extends Controller
             'catatan_verifikasi' => $catatan,
         ]);
 
-        return back()->with('success', "Akun pengguna {$user->name} (NIK: {$user->nik}) berhasil diverifikasi dan diaktifkan.");
-    }
+        if (empty($user->email)) {
+            return back()->with(
+                'warning',
+                "Akun {$user->name} berhasil disetujui, tetapi tidak memiliki alamat email."
+            );
+        }
 
+        try {
+            Mail::to($user->email)->send(
+                new AccountStatusMail($user, 'approved')
+            );
+
+            return back()->with(
+                'success',
+                "Akun {$user->name} berhasil disetujui dan email pemberitahuan telah dikirim."
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->with(
+                'warning',
+                "Akun {$user->name} berhasil disetujui, tetapi email gagal dikirim."
+            );
+        }
+    }
     /**
      * Tolak verifikasi akun pengguna.
      */
@@ -150,20 +172,43 @@ class VerifikasiController extends Controller
             'user_ids.min' => 'Pilih setidaknya satu pengguna.',
         ]);
 
-        $userIds = $request->input('user_ids');
+        $users = User::whereIn('id', $request->input('user_ids'))
+            ->where('status', User::STATUS_MENUNGGU)
+            ->get();
 
-        $updatedCount = User::whereIn('id', $userIds)
-            ->where('status', '!=', User::STATUS_AKTIF)
-            ->update([
+        $sentCount = 0;
+        $failedCount = 0;
+
+        foreach ($users as $user) {
+            $user->update([
                 'status' => User::STATUS_AKTIF,
                 'verified_at' => now(),
                 'verified_by' => Auth::id(),
                 'catatan_verifikasi' => 'Verifikasi massal disetujui oleh Administrator.',
             ]);
 
-        return back()->with('success', "Sebanyak {$updatedCount} pengguna berhasil diverifikasi dan diaktifkan secara massal.");
-    }
+            if (empty($user->email)) {
+                $failedCount++;
+                continue;
+            }
 
+            try {
+                Mail::to($user->email)->send(
+                    new AccountStatusMail($user, 'approved')
+                );
+
+                $sentCount++;
+            } catch (Throwable $e) {
+                report($e);
+                $failedCount++;
+            }
+        }
+
+        return back()->with(
+            'success',
+            "Sebanyak {$users->count()} akun diproses. Email berhasil dikirim ke {$sentCount} pengguna dan gagal dikirim ke {$failedCount} pengguna."
+        );
+    }
     /**
      * Ambil data detail pengguna (untuk modal popup detail).
      */

@@ -138,21 +138,48 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_login_with_nik_redirects_admin_to_dashboard(): void
+    public function test_admin_can_update_user_profile(): void
     {
-        $response = $this->post('/login', [
-            'login' => $this->admin->nik,
-            'password' => 'password',
+        $response = $this->actingAs($this->admin)->put("/admin/pengguna/{$this->pendingUser->id}", [
+            'name' => 'Budi Santoso Terupdate',
+            'email' => 'budi.updated@example.com',
+            'nik' => '3201010101019999',
+            'nomor_telepon' => '081234567899',
+            'alamat' => 'Jl. Anggrek Baru No. 12',
+            'role' => User::ROLE_PEMILIK,
+            'status' => User::STATUS_AKTIF,
         ]);
 
-        $response->assertRedirect('/admin/dashboard');
-        $this->assertAuthenticatedAs($this->admin);
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('users', [
+            'id' => $this->pendingUser->id,
+            'name' => 'Budi Santoso Terupdate',
+            'email' => 'budi.updated@example.com',
+            'nik' => '3201010101019999',
+            'nomor_telepon' => '081234567899',
+            'status' => User::STATUS_AKTIF,
+        ]);
+    }
+
+    public function test_admin_can_delete_user(): void
+    {
+        $targetUser = User::factory()->create([
+            'name' => 'User To Delete',
+            'role' => User::ROLE_PEMILIK,
+        ]);
+
+        $response = $this->actingAs($this->admin)->delete("/admin/pengguna/{$targetUser->id}");
+
+        $response->assertSessionHas('info');
+        $this->assertDatabaseMissing('users', [
+            'id' => $targetUser->id,
+        ]);
     }
 
     public function test_login_with_email_redirects_admin_to_dashboard(): void
     {
         $response = $this->post('/login', [
-            'login' => $this->admin->email,
+            'email' => $this->admin->email,
             'password' => 'password',
         ]);
 
@@ -163,12 +190,12 @@ class AdminTest extends TestCase
     public function test_login_with_invalid_credentials_does_not_crash(): void
     {
         $response = $this->post('/login', [
-            'login' => 'nonexistent@kawwan.com',
+            'email' => 'nonexistent@kawwan.com',
             'password' => 'wrongpassword',
         ]);
 
         $response->assertStatus(302);
-        $response->assertSessionHasErrors(['login']);
+        $response->assertSessionHasErrors(['email']);
         $this->assertGuest();
     }
 }

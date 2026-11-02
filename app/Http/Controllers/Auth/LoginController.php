@@ -35,61 +35,42 @@ class LoginController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $request->validate([
-            'login' => ['required', 'string'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ], [
-            'login.required' => 'NIK atau nomor identitas wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        $loginInput = trim((string) $request->input('login'));
-        $password = (string) $request->input('password');
+        $email = Str::lower(trim($request->input('email')));
+        $password = $request->input('password');
         $remember = $request->boolean('remember');
 
         // Rate limiting: maksimal 5 percobaan per menit per identitas/IP
-        $throttleKey = Str::transliterate(Str::lower($loginInput).'|'.$request->ip());
+        $throttleKey = Str::transliterate($email.'|'.$request->ip());
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
 
             return back()->withErrors([
-                'login' => "Terlalu banyak percobaan masuk. Silakan coba lagi dalam {$seconds} detik.",
-            ])->onlyInput('login');
+                'email' => "Terlalu banyak percobaan masuk. Silakan coba lagi dalam {$seconds} detik.",
+            ])->onlyInput('email');
         }
 
-        $fieldType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'nik';
-        $fallbackType = ($fieldType === 'email') ? 'nik' : 'email';
-
-        $credentials = [
-            $fieldType => $loginInput,
+        if (Auth::attempt([
+            'email' => $email,
             'password' => $password,
-        ];
+        ], $remember)) {
 
-        $attemptSuccess = Auth::attempt($credentials, $remember)
-            || Auth::attempt([$fallbackType => $loginInput, 'password' => $password], $remember);
-
-        // Dukungan jika pengguna mengetik nama/username pendek seperti "admin"
-        if (! $attemptSuccess) {
-            $userCandidate = User::where('name', $loginInput)
-                ->orWhere('email', $loginInput.'@kawwan.com')
-                ->first();
-
-            if ($userCandidate && Hash::check($password, $userCandidate->password)) {
-                Auth::login($userCandidate, $remember);
-                $attemptSuccess = true;
-            }
-        }
-
-        if ($attemptSuccess) {
-            /** @var User $user */
             $user = Auth::user();
 
             if ($user->status === User::STATUS_NONAKTIF) {
                 Auth::logout();
 
                 return back()->withErrors([
-                    'login' => 'Akun Anda telah dinonaktifkan oleh Administrator. Silakan hubungi layanan bantuan.',
-                ])->onlyInput('login');
+                    'email' => 'Akun Anda telah dinonaktifkan oleh Administrator.',
+                ])->onlyInput('email');
             }
 
             RateLimiter::clear($throttleKey);
@@ -101,16 +82,14 @@ class LoginController extends Controller
         RateLimiter::hit($throttleKey, 60);
 
         return back()->withErrors([
-            'login' => 'NIK / Email atau password yang Anda masukkan tidak sesuai.',
-        ])->onlyInput('login');
+            'email' => 'Email atau password yang Anda masukkan tidak sesuai.',
+        ])->onlyInput('email');
     }
 
-    /**
-     * Proses keluar sistem (logout).
-     */
     public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
@@ -129,7 +108,13 @@ class LoginController extends Controller
         $defaultUrl = route($defaultRoute);
         $intendedUrl = session()->pull('url.intended');
 
-        if (! $intendedUrl || in_array(rtrim($intendedUrl, '/'), [rtrim(url('/'), '/'), rtrim(route('login'), '/')], true)) {
+        if (
+            !$intendedUrl ||
+            in_array(rtrim($intendedUrl, '/'), [
+                rtrim(url('/'), '/'),
+                rtrim(route('login'), '/')
+            ], true)
+        ) {
             return redirect()->to($defaultUrl);
         }
 

@@ -83,6 +83,24 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="email" class="form-label">Email Aktif</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">
+                                <i class="fa-regular fa-envelope"></i>
+                            </span>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                required
+                                class="form-input"
+                                placeholder="Masukkan email aktif Anda"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="nik" class="form-label">NIK</label>
                         <div class="input-wrapper @error('nik') is-invalid @enderror">
                             <span class="input-icon">
