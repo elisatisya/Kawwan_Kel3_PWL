@@ -4907,3 +4907,47 @@ img {
     font-size: 1rem;
     color: #7a716b;
 }
+
+/* ===== KADER ===== */
+.kader-aksi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.kader-aksi form {
+    margin: 0;
+}
+
+.kader-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 18px;
+}
+
+.kader-filter .form-control {
+    width: auto;
+    min-width: 170px;
+}
+
+.kader-form {
+    display: grid;
+    gap: 16px;
+    max-width: 640px;
+    margin-top: 16px;
+}
+
+.kader-error {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #991B1B;
+}
+
+@media (max-width: 560px) {
+    .kader-form .form-row-2 {
+        grid-template-columns: 1fr;
+    }
+}
