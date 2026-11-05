@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pemesanan extends Model
 {
@@ -39,4 +40,21 @@ class Pemesanan extends Model
     {
         return $this->hasOne(Pemeriksaan::class);
     }
+
+    public function pembayaran(): HasOne
+    {
+        return $this->hasOne(Pembayaran::class);
+    }
+
+    // Detail layanan dalam satu pemesanan
+    public function pemesananLayanan(): HasMany
+    {
+        return $this->hasMany(PemesananLayanan::class);
+    }
+    // Antrean untuk setiap dokter dalam pemesanan
+    public function antrean(): HasMany
+    {
+        return $this->hasMany(Antrean::class);
+    }
 }
+

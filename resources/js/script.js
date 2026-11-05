@@ -456,3 +456,45 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+/* ===== KADER: dropdown hewan mengikuti pemilik ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    const sumber = document.getElementById('kaderHewanData');
+    const pemilik = document.getElementById('kaderPemilik');
+    const hewan = document.getElementById('kaderHewan');
+
+    if (!sumber || !pemilik || !hewan) return;
+
+    const data = JSON.parse(sumber.textContent);
+
+    const isiHewan = () => {
+        const daftar = data[pemilik.value] || [];
+        const terpilih = hewan.dataset.selected || '';
+
+        hewan.innerHTML = '';
+
+        const kosong = document.createElement('option');
+        kosong.value = '';
+        kosong.textContent = !pemilik.value
+            ? 'Pilih pemilik dulu'
+            : (daftar.length ? 'Pilih hewan' : 'Pemilik belum punya data hewan');
+        hewan.appendChild(kosong);
+
+        daftar.forEach((h) => {
+            const opt = document.createElement('option');
+            opt.value = h.id;
+            opt.textContent = `${h.nama} (${h.jenis})`;
+            if (String(h.id) === String(terpilih)) opt.selected = true;
+            hewan.appendChild(opt);
+        });
+
+        hewan.disabled = daftar.length === 0;
+    };
+
+    pemilik.addEventListener('change', () => {
+        hewan.dataset.selected = '';
+        isiHewan();
+    });
+
+    isiHewan();
+});

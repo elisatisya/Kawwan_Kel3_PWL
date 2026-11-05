@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 
 class User extends Authenticatable
 {
@@ -78,11 +80,19 @@ class User extends Authenticatable
         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
 
-    public function pemesanan(): HasMany
+    public function layananDokter(): BelongsToMany
     {
-        return $this->hasMany(Pemesanan::class, 'user_id');
+        return $this->belongsToMany(
+            Layanan::class,
+            'dokter_layanan',
+            'dokter_id',
+            'layanan_id'
+        )->withTimestamps();
     }
-
+        public function antreanDokter(): HasMany
+    {
+        return $this->hasMany(Antrean::class, 'dokter_id');
+    }
     public function artikel(): HasMany
     {
         return $this->hasMany(Artikel::class, 'user_id');
@@ -182,5 +192,10 @@ class User extends Authenticatable
             self::ROLE_PEMILIK, 'pemilik' => 'Pemilik Hewan',
             default => ucfirst(str_replace('_', ' ', (string) $this->role)),
         };
+    }
+
+    public function jadwalPelayanan(): HasMany
+    {
+        return $this->hasMany(JadwalPelayanan::class, 'dokter_id');
     }
 }
