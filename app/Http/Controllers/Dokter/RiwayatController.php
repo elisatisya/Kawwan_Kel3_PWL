@@ -16,16 +16,18 @@ class RiwayatController extends Controller
         $pasien = Hewan::with(['pemilik', 'pemesanan.pemeriksaan'])
             ->whereHas('pemesanan.pemeriksaan')
             ->when($q !== '', function ($query) use ($q) {
-                $query->where(function ($w) use ($q) {
-                    $w->where('nama', 'ilike', "%{$q}%")
-                        ->orWhereHas('pemilik', fn ($p) => $p->where('name', 'ilike', "%{$q}%"));
+                $keyword = '%'.strtolower($q).'%';
+                $query->where(function ($w) use ($keyword) {
+                    $w->whereRaw('LOWER(jenis) LIKE ?', [$keyword])
+                        ->orWhereRaw('LOWER(COALESCE(ras, \'\')) LIKE ?', [$keyword])
+                        ->orWhereHas('pemilik', fn ($p) => $p->whereRaw('LOWER(name) LIKE ?', [$keyword]));
                 });
             })
-            ->orderBy('nama')
+            ->orderBy('jenis')
             ->paginate(10)
             ->withQueryString();
 
-        return view('dokter.riwayat.index', compact('pasien', 'q'));
+        return view('dokter.riwayat', compact('pasien', 'q'));
     }
 
     public function show(Hewan $hewan)
@@ -37,6 +39,6 @@ class RiwayatController extends Controller
             ->latest()
             ->get();
 
-        return view('dokter.riwayat.show', compact('hewan', 'riwayat'));
+        return view('dokter.riwayat', compact('hewan', 'riwayat'));
     }
 }

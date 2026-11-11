@@ -238,10 +238,12 @@ function initStatCounters() {
 }
 
 function initDokterCharts() {
+    const container = document.getElementById('dokterChartContainer');
     const sumber = document.getElementById('dokterChartData');
-    if (!sumber || typeof Chart === 'undefined') return;
+    const rawJson = container?.dataset?.chart || sumber?.textContent;
+    if (!rawJson || typeof Chart === 'undefined') return;
 
-    const grafik = JSON.parse(sumber.textContent);
+    const grafik = JSON.parse(rawJson);
 
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.color = '#81766E';
@@ -463,9 +465,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const pemilik = document.getElementById('kaderPemilik');
     const hewan = document.getElementById('kaderHewan');
 
-    if (!sumber || !pemilik || !hewan) return;
+    if (!pemilik || !hewan) return;
 
-    const data = JSON.parse(sumber.textContent);
+    const rawHewan = pemilik.dataset.hewan || sumber?.textContent;
+    if (!rawHewan) return;
+
+    const data = JSON.parse(rawHewan);
 
     const isiHewan = () => {
         const daftar = data[pemilik.value] || [];
@@ -483,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
         daftar.forEach((h) => {
             const opt = document.createElement('option');
             opt.value = h.id;
-            opt.textContent = `${h.nama} (${h.jenis})`;
+            opt.textContent = h.ras ? `${h.jenis} (${h.ras})` : h.jenis;
             if (String(h.id) === String(terpilih)) opt.selected = true;
             hewan.appendChild(opt);
         });
@@ -499,51 +504,146 @@ document.addEventListener('DOMContentLoaded', () => {
     isiHewan();
 });
 
-
-/* ===== KADER: Modal Pembatalan Booking ===== */
-(function () {
+/* ===== KADER: modal pembatalan booking & konfirmasi form ===== */
+document.addEventListener('DOMContentLoaded', () => {
     let bookingCancelForm = null;
+    const modal = document.getElementById('bookingCancelModal');
+    const backBtn = document.getElementById('bookingModalBackBtn');
+    const confirmBtn = document.getElementById('bookingModalConfirmBtn');
 
-    window.openBookingModal = function (button) {
+    const openBookingModal = (button) => {
+        if (!modal) return;
         bookingCancelForm = button.closest('form');
-        const modal = document.getElementById('bookingCancelModal');
-        if (modal) modal.classList.add('show');
+        modal.classList.add('show');
     };
 
-    window.closeBookingModal = function () {
-        const modal = document.getElementById('bookingCancelModal');
-        if (modal) modal.classList.remove('show');
+    const closeBookingModal = () => {
+        if (!modal) return;
+        modal.classList.remove('show');
         bookingCancelForm = null;
     };
 
-    window.confirmBookingCancel = function () {
+    const confirmBookingCancel = () => {
         if (bookingCancelForm) {
             bookingCancelForm.submit();
         }
     };
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const modal = document.getElementById('bookingCancelModal');
-        if (!modal) return;
+    window.openBookingModal = openBookingModal;
+    window.closeBookingModal = closeBookingModal;
+    window.confirmBookingCancel = confirmBookingCancel;
 
-        modal.addEventListener('click', function (event) {
-            if (event.target === this) {
+    document.querySelectorAll('[data-action="open-booking-modal"]').forEach((btn) => {
+        btn.addEventListener('click', () => openBookingModal(btn));
+    });
+
+    if (backBtn) {
+        backBtn.addEventListener('click', closeBookingModal);
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', confirmBookingCancel);
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
                 closeBookingModal();
             }
         });
 
-        document.addEventListener('keydown', function (event) {
+        document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 closeBookingModal();
             }
         });
-    });
-})();
+    }
 
-// ============================================================
-// Admin: Global Toast Notification Helper
-// ============================================================
-window.kawwanToast = function(message, type = 'success', title = null) {
+    document.querySelectorAll('form[data-confirm]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (form.dataset.confirmed === 'true') {
+                return;
+            }
+            const message = form.getAttribute('data-confirm');
+            if (message) {
+                event.preventDefault();
+                window.kawwanConfirm({
+                    title: 'Konfirmasi Tindakan',
+                    message: message,
+                    type: 'warning',
+                    confirmText: 'Ya, Lanjutkan',
+                    cancelText: 'Batal',
+                    onConfirm: () => {
+                        form.dataset.confirmed = 'true';
+                        form.submit();
+                    },
+                });
+            }
+        });
+    });
+});
+
+/* ===== PEMILIK: kalkulasi estimasi biaya pemesanan antrean ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('pemilikBookingForm');
+    const totalEl = document.getElementById('pemilikTotalEstimasi');
+
+    if (!form || !totalEl) return;
+
+    const checkboxes = form.querySelectorAll('input[name="layanan_ids[]"][data-biaya]');
+
+    const hitungTotal = () => {
+        let total = 0;
+        checkboxes.forEach((cb) => {
+            if (cb.checked) {
+                total += parseInt(cb.getAttribute('data-biaya') || '0', 10);
+            }
+        });
+        totalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
+    };
+
+    checkboxes.forEach((cb) => {
+        cb.addEventListener('change', hitungTotal);
+    });
+
+    hitungTotal();
+});
+
+/* ===== GLOBAL TOAST & CONFIRM DIALOG HELPERS ===== */
+function ensureKawwanOverlayDOM() {
+    if (!document.getElementById('kawwanToastContainer')) {
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'kawwan-toast-container';
+        toastContainer.id = 'kawwanToastContainer';
+        document.body.appendChild(toastContainer);
+    }
+
+    if (!document.getElementById('kawwanConfirmBackdrop')) {
+        const backdrop = document.createElement('div');
+        backdrop.className = 'kawwan-dialog-backdrop';
+        backdrop.id = 'kawwanConfirmBackdrop';
+        backdrop.innerHTML = `
+            <div class="kawwan-dialog type-primary" id="kawwanConfirmDialog">
+                <div class="kawwan-dialog-header">
+                    <span class="kawwan-dialog-tag" id="kawwanConfirmTag">Konfirmasi</span>
+                    <h3 class="kawwan-dialog-title" id="kawwanConfirmTitle">Konfirmasi Tindakan</h3>
+                </div>
+                <div class="kawwan-dialog-body">
+                    <p class="kawwan-dialog-desc" id="kawwanConfirmMessage">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+                    <div class="kawwan-dialog-box" id="kawwanConfirmDetail" style="display: none;"></div>
+                </div>
+                <div class="kawwan-dialog-actions">
+                    <button type="button" class="btn btn-outline btn-sm" id="kawwanConfirmCancelBtn">Batal</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="kawwanConfirmOkBtn">Lanjutkan</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(backdrop);
+    }
+}
+
+window.kawwanToast = function (message, type = 'success', title = null) {
+    ensureKawwanOverlayDOM();
     const container = document.getElementById('kawwanToastContainer');
     if (!container) return;
 
@@ -551,7 +651,7 @@ window.kawwanToast = function(message, type = 'success', title = null) {
         success: 'Berhasil',
         warning: 'Perhatian',
         error: 'Terjadi Kesalahan',
-        info: 'Informasi'
+        info: 'Informasi',
     };
 
     const toast = document.createElement('div');
@@ -577,18 +677,16 @@ window.kawwanToast = function(message, type = 'success', title = null) {
     setTimeout(closeToast, 4500);
 };
 
-// ============================================================
-// Admin: Global Custom Confirmation Dialog
-// ============================================================
-window.kawwanConfirm = function({
+window.kawwanConfirm = function ({
     title = 'Konfirmasi Tindakan',
     message = 'Apakah Anda yakin ingin melanjutkan tindakan ini?',
     detail = null,
     type = 'primary',
     confirmText = 'Lanjutkan',
     cancelText = 'Batal',
-    onConfirm = null
+    onConfirm = null,
 }) {
+    ensureKawwanOverlayDOM();
     const backdrop = document.getElementById('kawwanConfirmBackdrop');
     const dialog = document.getElementById('kawwanConfirmDialog');
     const tagEl = document.getElementById('kawwanConfirmTag');
@@ -606,7 +704,7 @@ window.kawwanConfirm = function({
         success: 'Persetujuan',
         danger: 'Tindakan Berisiko',
         warning: 'Peringatan',
-        primary: 'Konfirmasi'
+        primary: 'Konfirmasi',
     };
     tagEl.textContent = tags[type] || 'Konfirmasi';
 
@@ -654,368 +752,51 @@ window.kawwanConfirm = function({
     };
 };
 
-// ============================================================
-// Admin: Confirm Logout
-// ============================================================
-window.confirmLogout = function() {
-    if (typeof kawwanConfirm !== 'function') return;
-    kawwanConfirm({
+function detectCurrentRoleLabel() {
+    const roleEl = document.querySelector('.admin-user-role, .dokter-user-role, .pemilik-user-role');
+    if (roleEl && roleEl.textContent.trim()) {
+        return roleEl.textContent.trim().toLowerCase();
+    }
+    const path = window.location.pathname;
+    if (path.startsWith('/dokter')) return 'dokter hewan';
+    if (path.startsWith('/kader')) return 'kader puskesmas';
+    if (path.startsWith('/pemilik')) return 'pemilik hewan';
+    return 'administrator';
+}
+
+window.confirmLogout = function (customRole = null, formElement = null) {
+    const roleName = (customRole || detectCurrentRoleLabel()).toLowerCase();
+    const targetForm =
+        formElement ||
+        document.getElementById('formLogout') ||
+        document.querySelector('form.admin-logout, form.dokter-logout, form.pemilik-logout');
+
+    window.kawwanConfirm({
         title: 'Konfirmasi Keluar',
-        message: 'Apakah Anda yakin ingin mengakhiri sesi administrator dan keluar dari sistem?',
+        message: `Apakah Anda yakin ingin mengakhiri sesi ${roleName} dan keluar dari sistem?`,
         type: 'warning',
         confirmText: 'Ya, Keluar',
         cancelText: 'Tetap di Sini',
         onConfirm: () => {
-            const form = document.getElementById('formLogout');
-            if (form) form.submit();
-        }
+            if (targetForm) {
+                targetForm.dataset.confirmed = 'true';
+                targetForm.submit();
+            }
+        },
     });
 };
 
-// ============================================================
-// Admin Pengguna: Modal Functions
-// ============================================================
-(function() {
-    if (!document.getElementById('modalCreateBackdrop')) return;
+document.addEventListener('DOMContentLoaded', () => {
+    ensureKawwanOverlayDOM();
 
-    window.openCreateUserModal = function() {
-        document.getElementById('modalCreateBackdrop').classList.add('is-open');
-    };
-    window.closeCreateUserModal = function() {
-        document.getElementById('modalCreateBackdrop').classList.remove('is-open');
-    };
-
-    window.openEditUserModal = function(user) {
-        const form = document.getElementById('formEditUser');
-        form.action = `/admin/pengguna/${user.id}`;
-        document.getElementById('editName').value = user.name || '';
-        document.getElementById('editEmail').value = user.email || '';
-        document.getElementById('editNik').value = user.nik || '';
-        document.getElementById('editTelp').value = user.nomor_telepon || '';
-        document.getElementById('editAlamat').value = user.alamat || '';
-        document.getElementById('editRole').value = user.role || '';
-        document.getElementById('editStatus').value = user.status || '';
-        document.getElementById('editPassword').value = '';
-
-        const roleSelect = document.getElementById('editRole');
-        const roleHint = document.getElementById('editRoleHint');
-        if (user.is_self) {
-            roleSelect.disabled = true;
-            roleHint.style.display = 'block';
-        } else {
-            roleSelect.disabled = false;
-            roleHint.style.display = 'none';
-        }
-        document.getElementById('modalEditBackdrop').classList.add('is-open');
-    };
-    window.closeEditUserModal = function() {
-        document.getElementById('modalEditBackdrop').classList.remove('is-open');
-    };
-
-    window.openDetailModal = async function(userId) {
-        const backdrop = document.getElementById('modalDetailBackdrop');
-        const content = document.getElementById('modalDetailContent');
-        backdrop.classList.add('is-open');
-        content.innerHTML = '<div class="admin-modal-loading">Memuat data pengguna...</div>';
-        try {
-            const res = await fetch(`/admin/verifikasi/${userId}`);
-            if (!res.ok) throw new Error('Gagal memuat data');
-            const data = await res.json();
-            let hewanHtml = '<p class="text-muted" style="margin: 6px 0;">Belum ada hewan terdaftar.</p>';
-            if (data.hewan && data.hewan.length > 0) {
-                hewanHtml = `<div class="detail-hewan-grid">${data.hewan.map(h => `<div class="detail-hewan-card"><strong>${h.nama}</strong><span>${h.jenis} (${h.ras}) &bull; ${h.jenis_kelamin}</span><small class="text-muted">Umur: ${h.umur}</small></div>`).join('')}</div>`;
+    document.querySelectorAll('form.dokter-logout, form.pemilik-logout, form.admin-logout').forEach((form) => {
+        form.addEventListener('submit', (e) => {
+            if (form.dataset.confirmed === 'true') {
+                return;
             }
-            content.innerHTML = `
-                <div class="admin-detail-layout">
-                    <div class="detail-profile-top">
-                        <div class="admin-avatar-lg">${data.name.charAt(0).toUpperCase()}</div>
-                        <div>
-                            <h3 style="margin:0;">${data.name}</h3>
-                            <span class="admin-user-role-badge">${data.role_label}</span>
-                            <span class="admin-status-badge ${data.status_badge_class}" style="margin-left:6px;">${data.status_label}</span>
-                        </div>
-                    </div>
-                    <div class="detail-grid">
-                        <div class="detail-item"><span class="detail-label">NIK</span><span class="detail-val"><code>${data.nik}</code></span></div>
-                        <div class="detail-item"><span class="detail-label">Nomor Telepon</span><span class="detail-val">${data.nomor_telepon}</span></div>
-                        <div class="detail-item"><span class="detail-label">Email</span><span class="detail-val">${data.email}</span></div>
-                        <div class="detail-item"><span class="detail-label">Terdaftar Sejak</span><span class="detail-val">${data.created_at_formatted}</span></div>
-                    </div>
-                    <div class="detail-section"><span class="detail-label">Alamat Domisili</span><p class="detail-address-box">${data.alamat}</p></div>
-                    ${data.catatan_verifikasi ? `<div class="detail-section"><span class="detail-label">Catatan Verifikasi</span><p class="detail-note-box">${data.catatan_verifikasi}</p>${data.verified_by_name ? `<small class="text-muted">Diverifikasi oleh: ${data.verified_by_name} pada ${data.verified_at_formatted}</small>` : ''}</div>` : ''}
-                    <div class="detail-section" style="margin-top:14px;"><span class="detail-label">Hewan Peliharaan Terdaftar (${data.hewan.length})</span>${hewanHtml}</div>
-                </div>`;
-        } catch (e) {
-            content.innerHTML = `<div class="admin-alert is-error">Gagal mengambil data pengguna: ${e.message}</div>`;
-        }
-    };
-    window.closeDetailModal = function() {
-        document.getElementById('modalDetailBackdrop').classList.remove('is-open');
-    };
-
-    window.confirmChangeRole = function(selectEl, userId, userName, originalRole) {
-        const newRoleText = selectEl.options[selectEl.selectedIndex].text;
-        kawwanConfirm({
-            title: 'Ubah Peran Pengguna',
-            message: `Apakah Anda yakin ingin mengubah peran <strong>${userName}</strong> menjadi <strong>${newRoleText}</strong>?`,
-            detail: 'Perubahan peran ini akan langsung mempengaruhi hak akses fitur pengguna di sistem.',
-            type: 'warning',
-            confirmText: 'Ya, Ubah Peran',
-            cancelText: 'Batal',
-            onConfirm: () => { document.getElementById(`formRole_${userId}`).submit(); }
+            e.preventDefault();
+            const roleLabel = form.getAttribute('data-role') || detectCurrentRoleLabel();
+            window.confirmLogout(roleLabel, form);
         });
-        const cancelBtn = document.getElementById('kawwanConfirmCancelBtn');
-        const prevHandler = cancelBtn.onclick;
-        cancelBtn.onclick = () => {
-            selectEl.value = originalRole;
-            if (typeof prevHandler === 'function') prevHandler();
-        };
-    };
-
-    window.confirmTogglePengguna = function(userId, userName, currentStatus) {
-        const isAktif = currentStatus === 'aktif';
-        kawwanConfirm({
-            title: isAktif ? 'Nonaktifkan Akun Pengguna' : 'Aktifkan Akun Pengguna',
-            message: isAktif
-                ? `Apakah Anda yakin ingin menonaktifkan akun <strong>${userName}</strong>? Pengguna tidak akan dapat mengakses sistem.`
-                : `Aktifkan kembali akun <strong>${userName}</strong> agar dapat mengakses seluruh layanan?`,
-            type: isAktif ? 'warning' : 'success',
-            confirmText: isAktif ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
-            cancelText: 'Batal',
-            onConfirm: () => { document.getElementById(`formTogglePengguna_${userId}`).submit(); }
-        });
-    };
-
-    window.confirmDeletePengguna = function(userId, userName) {
-        kawwanConfirm({
-            title: 'Hapus Akun Pengguna',
-            message: `PERINGATAN: Apakah Anda yakin ingin menghapus akun <strong>${userName}</strong> secara permanen?`,
-            detail: 'Tindakan ini tidak dapat dibatalkan. Seluruh data akun akan dihapus dari basis data.',
-            type: 'danger',
-            confirmText: 'Ya, Hapus Permanen',
-            cancelText: 'Batal',
-            onConfirm: () => { document.getElementById(`formDeletePengguna_${userId}`).submit(); }
-        });
-    };
-})();
-
-// ============================================================
-// Admin Verifikasi: Modal Functions
-// ============================================================
-(function() {
-    if (!document.getElementById('modalApproveBackdrop')) return;
-
-    window.confirmApprove = function(userId, userName) {
-        const form = document.getElementById('formApprove');
-        form.action = `/admin/verifikasi/${userId}/approve`;
-        document.getElementById('approveUserName').textContent = userName;
-        document.getElementById('approveCatatan').value = 'Verifikasi NIK dan identitas disetujui oleh Administrator.';
-        document.getElementById('modalApproveBackdrop').classList.add('is-open');
-    };
-    window.closeApproveModal = function() {
-        document.getElementById('modalApproveBackdrop').classList.remove('is-open');
-    };
-
-    window.openRejectModal = function(userId, userName, userNik) {
-        const form = document.getElementById('formReject');
-        form.action = `/admin/verifikasi/${userId}/reject`;
-        document.getElementById('rejectUserName').textContent = userName;
-        document.getElementById('rejectUserNik').textContent = userNik || '-';
-        document.getElementById('rejectCatatan').value = '';
-        document.getElementById('modalRejectBackdrop').classList.add('is-open');
-    };
-    window.closeRejectModal = function() {
-        document.getElementById('modalRejectBackdrop').classList.remove('is-open');
-    };
-
-    window.setRejectReason = function(reason) {
-        document.getElementById('rejectCatatan').value = reason;
-    };
-
-    window.openDetailModal = async function(userId) {
-        const backdrop = document.getElementById('modalDetailBackdrop');
-        const content = document.getElementById('modalDetailContent');
-        backdrop.classList.add('is-open');
-        content.innerHTML = '<div class="admin-modal-loading">Memuat data pengguna...</div>';
-        try {
-            const res = await fetch(`/admin/verifikasi/${userId}`);
-            if (!res.ok) throw new Error('Gagal memuat data');
-            const data = await res.json();
-            let hewanHtml = '<p class="text-muted" style="margin: 6px 0;">Belum ada hewan terdaftar.</p>';
-            if (data.hewan && data.hewan.length > 0) {
-                hewanHtml = `<div class="detail-hewan-grid">${data.hewan.map(h => `<div class="detail-hewan-card"><strong>${h.nama}</strong><span>${h.jenis} (${h.ras}) &bull; ${h.jenis_kelamin}</span><small class="text-muted">Umur: ${h.umur}</small></div>`).join('')}</div>`;
-            }
-            content.innerHTML = `
-                <div class="admin-detail-layout">
-                    <div class="detail-profile-top">
-                        <div class="admin-avatar-lg">${data.name.charAt(0).toUpperCase()}</div>
-                        <div>
-                            <h3 style="margin:0;">${data.name}</h3>
-                            <span class="admin-user-role-badge">${data.role_label}</span>
-                            <span class="admin-status-badge ${data.status_badge_class}" style="margin-left:6px;">${data.status_label}</span>
-                        </div>
-                    </div>
-                    <div class="detail-grid">
-                        <div class="detail-item"><span class="detail-label">NIK</span><span class="detail-val"><code>${data.nik}</code></span></div>
-                        <div class="detail-item"><span class="detail-label">Nomor Telepon</span><span class="detail-val">${data.nomor_telepon}</span></div>
-                        <div class="detail-item"><span class="detail-label">Email</span><span class="detail-val">${data.email}</span></div>
-                        <div class="detail-item"><span class="detail-label">Terdaftar Sejak</span><span class="detail-val">${data.created_at_formatted}</span></div>
-                    </div>
-                    <div class="detail-section"><span class="detail-label">Alamat Domisili</span><p class="detail-address-box">${data.alamat}</p></div>
-                    ${data.catatan_verifikasi ? `<div class="detail-section"><span class="detail-label">Catatan Verifikasi</span><p class="detail-note-box">${data.catatan_verifikasi}</p>${data.verified_by_name ? `<small class="text-muted">Diverifikasi oleh: ${data.verified_by_name} pada ${data.verified_at_formatted}</small>` : ''}</div>` : ''}
-                    <div class="detail-section" style="margin-top:14px;"><span class="detail-label">Hewan Peliharaan Terdaftar (${data.hewan.length})</span>${hewanHtml}</div>
-                </div>`;
-        } catch (e) {
-            content.innerHTML = `<div class="admin-alert is-error">Gagal mengambil data pengguna: ${e.message}</div>`;
-        }
-    };
-    window.closeDetailModal = function() {
-        document.getElementById('modalDetailBackdrop').classList.remove('is-open');
-    };
-
-    const checkAll = document.getElementById('checkAll');
-    if (checkAll) {
-        checkAll.addEventListener('change', function() {
-            document.querySelectorAll('.user-checkbox').forEach(box => box.checked = checkAll.checked);
-            updateBatchBar();
-        });
-    }
-
-    window.updateBatchBar = function() {
-        const checked = document.querySelectorAll('.user-checkbox:checked');
-        const bar = document.getElementById('adminBatchBar');
-        const countSpan = document.getElementById('batchSelectedCount');
-        if (!bar) return;
-        if (checked.length > 0) {
-            bar.style.display = 'flex';
-            countSpan.textContent = checked.length;
-        } else {
-            bar.style.display = 'none';
-        }
-    };
-
-    window.confirmBatchApprove = function() {
-        const count = document.querySelectorAll('.user-checkbox:checked').length;
-        if (count === 0) {
-            kawwanToast('Pilih setidaknya satu pengguna terlebih dahulu.', 'warning');
-            return;
-        }
-        kawwanConfirm({
-            title: 'Verifikasi Massal Pengguna',
-            message: `Apakah Anda yakin ingin memverifikasi dan mengaktifkan <strong>${count} pengguna</strong> terpilih secara massal?`,
-            detail: 'Semua akun yang dipilih akan langsung aktif dan status verifikasi NIK disetujui.',
-            type: 'success',
-            confirmText: 'Ya, Verifikasi Semua',
-            cancelText: 'Batal',
-            onConfirm: () => { document.getElementById('formBatchApprove').submit(); }
-        });
-    };
-
-    window.confirmToggleVerifikasi = function(userId, userName, currentStatus) {
-        const isAktif = currentStatus === 'aktif';
-        kawwanConfirm({
-            title: isAktif ? 'Nonaktifkan Akun Pengguna' : 'Aktifkan Kembali Akun',
-            message: isAktif
-                ? `Apakah Anda yakin ingin menonaktifkan akun <strong>${userName}</strong>? Pengguna tidak akan dapat mengakses layanan selama akun dinonaktifkan.`
-                : `Aktifkan kembali akun <strong>${userName}</strong> agar dapat mengakses seluruh layanan Puskeswan?`,
-            type: isAktif ? 'warning' : 'success',
-            confirmText: isAktif ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
-            cancelText: 'Batal',
-            onConfirm: () => { document.getElementById(`formToggleVerifikasi_${userId}`).submit(); }
-        });
-    };
-
-    window.copyToClipboard = function(text, btn) {
-        navigator.clipboard.writeText(text).then(() => {
-            const original = btn.textContent;
-            btn.textContent = 'Tersalin!';
-            kawwanToast(`NIK ${text} berhasil disalin ke clipboard!`, 'info');
-            setTimeout(() => { btn.textContent = original; }, 1500);
-        });
-    };
-})();
-
-// ============================================================
-// Admin Dashboard: Verifikasi Modal Functions
-// ============================================================
-(function() {
-    if (!document.getElementById('modalRejectBackdrop') && !document.getElementById('formApproveUser_')) return;
-
-    window.confirmApproveDashboard = function(userId, userName) {
-        kawwanConfirm({
-            title: 'Verifikasi & Aktifkan Akun',
-            message: `Apakah Anda yakin ingin memverifikasi dan mengaktifkan akun <strong>${userName}</strong>?`,
-            detail: 'Setelah disetujui, akun pemilik hewan akan langsung aktif dan dapat mendaftarkan hewan serta memesan antrean pelayanan.',
-            type: 'success',
-            confirmText: 'Ya, Setujui',
-            cancelText: 'Batal',
-            onConfirm: () => {
-                document.getElementById(`formApproveUser_${userId}`).submit();
-            }
-        });
-    };
-
-    window.openRejectModal = window.openRejectModal || function(userId, userName, userNik) {
-        const form = document.getElementById('formReject');
-        if (!form) return;
-        form.action = `/admin/verifikasi/${userId}/reject`;
-        document.getElementById('rejectUserName').textContent = userName;
-        document.getElementById('rejectUserNik').textContent = userNik || '-';
-        document.getElementById('rejectCatatan').value = '';
-        document.getElementById('modalRejectBackdrop').classList.add('is-open');
-    };
-
-    window.closeRejectModal = window.closeRejectModal || function() {
-        const el = document.getElementById('modalRejectBackdrop');
-        if (el) el.classList.remove('is-open');
-    };
-
-    window.setRejectReason = window.setRejectReason || function(reason) {
-        const el = document.getElementById('rejectCatatan');
-        if (el) el.value = reason;
-    };
-
-    window.openDetailModal = window.openDetailModal || async function(userId) {
-        const backdrop = document.getElementById('modalDetailBackdrop');
-        const content = document.getElementById('modalDetailContent');
-        if (!backdrop) return;
-        backdrop.classList.add('is-open');
-        content.innerHTML = '<div class="admin-modal-loading">Memuat data pengguna...</div>';
-        try {
-            const res = await fetch(`/admin/verifikasi/${userId}`);
-            if (!res.ok) throw new Error('Gagal memuat data');
-            const data = await res.json();
-            let hewanHtml = '<p class="text-muted" style="margin: 6px 0;">Belum ada hewan terdaftar.</p>';
-            if (data.hewan && data.hewan.length > 0) {
-                hewanHtml = `<div class="detail-hewan-grid">${data.hewan.map(h => `<div class="detail-hewan-card"><strong>${h.nama}</strong><span>${h.jenis} (${h.ras}) &bull; ${h.jenis_kelamin}</span><small class="text-muted">Umur: ${h.umur}</small></div>`).join('')}</div>`;
-            }
-            content.innerHTML = `
-                <div class="admin-detail-layout">
-                    <div class="detail-profile-top">
-                        <div class="admin-avatar-lg">${data.name.charAt(0).toUpperCase()}</div>
-                        <div>
-                            <h3 style="margin:0;">${data.name}</h3>
-                            <span class="admin-user-role-badge">${data.role_label}</span>
-                            <span class="admin-status-badge ${data.status_badge_class}" style="margin-left:6px;">${data.status_label}</span>
-                        </div>
-                    </div>
-                    <div class="detail-grid">
-                        <div class="detail-item"><span class="detail-label">NIK</span><span class="detail-val"><code>${data.nik}</code></span></div>
-                        <div class="detail-item"><span class="detail-label">Nomor Telepon</span><span class="detail-val">${data.nomor_telepon}</span></div>
-                        <div class="detail-item"><span class="detail-label">Email</span><span class="detail-val">${data.email}</span></div>
-                        <div class="detail-item"><span class="detail-label">Terdaftar Sejak</span><span class="detail-val">${data.created_at_formatted}</span></div>
-                    </div>
-                    <div class="detail-section"><span class="detail-label">Alamat Domisili</span><p class="detail-address-box">${data.alamat}</p></div>
-                    ${data.catatan_verifikasi ? `<div class="detail-section"><span class="detail-label">Catatan Verifikasi</span><p class="detail-note-box">${data.catatan_verifikasi}</p>${data.verified_by_name ? `<small class="text-muted">Diverifikasi oleh: ${data.verified_by_name} pada ${data.verified_at_formatted}</small>` : ''}</div>` : ''}
-                    <div class="detail-section" style="margin-top:14px;"><span class="detail-label">Hewan Peliharaan Terdaftar (${data.hewan.length})</span>${hewanHtml}</div>
-                </div>`;
-        } catch (e) {
-            content.innerHTML = `<div class="admin-alert is-error">Gagal mengambil data pengguna: ${e.message}</div>`;
-        }
-    };
-
-    window.closeDetailModal = window.closeDetailModal || function() {
-        const el = document.getElementById('modalDetailBackdrop');
-        if (el) el.classList.remove('is-open');
-    };
-})();
+    });
+});

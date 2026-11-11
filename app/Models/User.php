@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
 
 class User extends Authenticatable
 {
@@ -32,10 +32,13 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'gelar_depan',
+        'gelar_belakang',
         'email',
         'nik',
         'nomor_telepon',
         'alamat',
+        'foto',
         'password',
         'role',
         'status',
@@ -72,12 +75,17 @@ class User extends Authenticatable
         return $this->hasMany(Hewan::class, 'user_id');
     }
 
+    public function pemesanan(): HasMany
+    {
+        return $this->hasMany(Pemesanan::class, 'user_id');
+    }
+
     /**
      * Kirim notifikasi pengaturan ulang kata sandi dengan template KAWWAN.
      */
     public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
     {
-        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     public function layananDokter(): BelongsToMany
@@ -89,10 +97,12 @@ class User extends Authenticatable
             'layanan_id'
         )->withTimestamps();
     }
-        public function antreanDokter(): HasMany
+
+    public function antreanDokter(): HasMany
     {
         return $this->hasMany(Antrean::class, 'dokter_id');
     }
+
     public function artikel(): HasMany
     {
         return $this->hasMany(Artikel::class, 'user_id');
