@@ -1,122 +1,8 @@
-
 @extends('kader.layout')
 
 @section('title', 'Edit Layanan')
 
 @section('content')
-
-<style>
-    .form-layanan {
-        max-width: 750px;
-        background: #fff;
-        padding: 25px;
-        border: 1px solid #f1ddcf;
-        border-radius: 14px;
-    }
-
-    .form-layanan h1 {
-        font-size: 23px;
-        font-weight: 800;
-        margin-bottom: 7px;
-    }
-
-    .form-layanan h1 span {
-        color: #ff6900;
-    }
-
-    .form-layanan p {
-        color: #777;
-        font-size: 13px;
-        margin-bottom: 25px;
-    }
-
-    .form-group {
-        margin-bottom: 18px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 11px 13px;
-        border: 1px solid #ead8cc;
-        border-radius: 9px;
-        font-family: inherit;
-        font-size: 13px;
-        box-sizing: border-box;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #ff6900;
-    }
-
-    .dokter-list {
-        border: 1px solid #ead8cc;
-        border-radius: 9px;
-        padding: 13px;
-    }
-
-    .dokter-option {
-        display: flex !important;
-        align-items: center;
-        gap: 9px;
-        padding: 8px 0;
-        font-size: 13px !important;
-        font-weight: 400 !important;
-    }
-
-    .dokter-option input {
-        width: auto;
-        accent-color: #ff6900;
-    }
-
-    .form-error {
-        color: #c0392b;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-
-    .form-hint {
-        color: #888;
-        font-size: 12px;
-        margin-top: 7px;
-    }
-
-    .form-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 25px;
-    }
-
-    .form-btn {
-        padding: 11px 17px;
-        border-radius: 9px;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-        text-decoration: none;
-        border: 1px solid #ddd;
-    }
-
-    .form-primary {
-        background: #ff6900;
-        color: #fff;
-        border-color: #ff6900;
-    }
-
-    .form-secondary {
-        background: #fff;
-        color: #444;
-    }
-</style>
 
 <div class="form-layanan">
 
@@ -239,3 +125,4 @@
 </div>
 
 @endsection
+

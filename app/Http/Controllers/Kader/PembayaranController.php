@@ -34,7 +34,7 @@ class PembayaranController extends Controller
                 ]);
         }
 
-        return view('kader.pembayaran.show', [
+        return view('kader.pembayaran-show', [
             'pemesanan' => $pemesanan,
             'pembayaran' => $pemesanan->pembayaran,
         ]);
@@ -184,3 +184,4 @@ class PembayaranController extends Controller
             ->with('success', 'Bukti pembayaran berhasil ditolak.');
     }
 }
+

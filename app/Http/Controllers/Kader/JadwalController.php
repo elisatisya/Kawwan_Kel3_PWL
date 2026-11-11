@@ -26,6 +26,7 @@ class JadwalController extends Controller
             ->orderBy('waktu_mulai')
             ->paginate(10);
 
-        return view('kader.jadwal.index', compact('jadwal'));
+        return view('kader.jadwal-index', compact('jadwal'));
     }
 }
+

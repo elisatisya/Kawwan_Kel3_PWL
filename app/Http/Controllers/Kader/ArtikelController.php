@@ -16,13 +16,13 @@ class ArtikelController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('kader.artikel.index', compact('artikel'));
+        return view('kader.artikel', compact('artikel'));
     }
 
     // Menampilkan form tambah artikel
     public function create()
     {
-        return view('kader.artikel.create');
+        return view('kader.artikel-create');
     }
 
     // Menyimpan artikel baru
@@ -57,7 +57,7 @@ class ArtikelController extends Controller
     {
         $artikel = $this->artikelMilikKader($artikel);
 
-        return view('kader.artikel.edit', compact('artikel'));
+        return view('kader.artikel-edit', compact('artikel'));
     }
 
     // Memperbarui artikel
@@ -154,3 +154,4 @@ class ArtikelController extends Controller
         return $slug;
     }
 }
+

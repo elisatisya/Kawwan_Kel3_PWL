@@ -13,7 +13,7 @@ class ProfilController extends Controller
     {
         $user = auth()->user();
 
-        return view('kader.profil.edit', compact('user'));
+        return view('kader.profil', compact('user'));
     }
 
     public function update(Request $request)
@@ -46,3 +46,4 @@ class ProfilController extends Controller
             ->with('success', 'Profil berhasil diperbarui.');
     }
 }
+

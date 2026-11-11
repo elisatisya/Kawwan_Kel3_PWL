@@ -96,7 +96,7 @@ class PemesananController extends Controller
             ->get()
             ->keyBy('pemesanan_id');
 
-        return view('kader.pemesanan.index', [
+        return view('kader.pemesanan-index', [
             'pemesanan' => $pemesanan,
             'pembayaran' => $pembayaran,
             'tanggal' => $tanggal,
@@ -144,7 +144,7 @@ class PemesananController extends Controller
             )
             ->values();
 
-        return view('kader.pemesanan.create', [
+        return view('kader.pemesanan-create', [
             'pemilik' => $pemilik,
             'hewanPerPemilik' => $hewanPerPemilik,
             'jadwal' => $jadwal,
@@ -302,3 +302,4 @@ class PemesananController extends Controller
         return back()->with('success', $pesan);
     }
 }
+
