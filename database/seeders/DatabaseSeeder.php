@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Layanan bawaan KAWWAN
         $this->call([
+            KaderSeeder::class,
             LayananSeeder::class,
         ]);
     }

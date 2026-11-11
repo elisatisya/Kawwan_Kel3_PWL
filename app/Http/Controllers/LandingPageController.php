@@ -6,6 +6,7 @@ use App\Models\Artikel;
 use App\Models\Hewan;
 use App\Models\JadwalPelayanan;
 use App\Models\Pemesanan;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,7 +14,21 @@ class LandingPageController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
+        if (Auth::check()) {
+            /** @var User $user */
+            $user = Auth::user();
+
+            $dashboardRoute = match ($user->role) {
+                User::ROLE_ADMIN => 'admin.dashboard',
+                User::ROLE_DOKTER, 'dokter' => 'dokter.dashboard',
+                User::ROLE_KADER => 'kader.dashboard',
+                default => 'pemilik.dashboard',
+            };
+
+            return redirect()->route($dashboardRoute);
+        }
+
+        $user = null;
 
         $jumlahHewan = $user ? Hewan::where('user_id', $user->id)->count() : 0;
 

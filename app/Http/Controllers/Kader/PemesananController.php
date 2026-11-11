@@ -61,6 +61,7 @@ class PemesananController extends Controller
     {
         $tanggal = $request->query('tanggal');
         $status = $request->query('status');
+        $statusPembayaran = $request->query('status_pembayaran');
         $cari = trim((string) $request->query('cari', ''));
 
         $pemesanan = Pemesanan::with([
@@ -76,14 +77,25 @@ class PemesananController extends Controller
             ->when($status, function ($q) use ($status) {
                 $q->where('status', $status);
             })
-            ->when($cari !== '', function ($q) use ($cari) {
-                $q->where(function ($sub) use ($cari) {
-                    $sub->whereHas('user', function ($u) use ($cari) {
-                        $u->where('name', 'ILIKE', "%{$cari}%");
-                    })
-                    ->orWhereHas('hewan', function ($h) use ($cari) {
-                        $h->where('nama', 'ILIKE', "%{$cari}%");
+            ->when($statusPembayaran, function ($q) use ($statusPembayaran) {
+                if ($statusPembayaran === 'belum_dibayar') {
+                    $q->whereDoesntHave('pembayaran');
+                } else {
+                    $q->whereHas('pembayaran', function ($b) use ($statusPembayaran) {
+                        $b->where('status', $statusPembayaran);
                     });
+                }
+            })
+            ->when($cari !== '', function ($q) use ($cari) {
+                $keyword = '%'.strtolower($cari).'%';
+                $q->where(function ($sub) use ($keyword) {
+                    $sub->whereHas('user', function ($u) use ($keyword) {
+                        $u->whereRaw('LOWER(name) LIKE ?', [$keyword]);
+                    })
+                        ->orWhereHas('hewan', function ($h) use ($keyword) {
+                            $h->whereRaw('LOWER(jenis) LIKE ?', [$keyword])
+                                ->orWhereRaw('LOWER(COALESCE(ras, \'\')) LIKE ?', [$keyword]);
+                        });
                 });
             })
             ->latest('id')
@@ -96,11 +108,12 @@ class PemesananController extends Controller
             ->get()
             ->keyBy('pemesanan_id');
 
-        return view('kader.pemesanan-index', [
+        return view('kader.pemesanan', [
             'pemesanan' => $pemesanan,
             'pembayaran' => $pembayaran,
             'tanggal' => $tanggal,
             'status' => $status,
+            'statusPembayaran' => $statusPembayaran,
             'cari' => $cari,
             'labelStatus' => self::LABEL_STATUS,
             'transisi' => self::TRANSISI,
@@ -124,27 +137,25 @@ class PemesananController extends Controller
         $hewanPerPemilik = $pemilik->mapWithKeys(fn ($u) => [
             $u->id => $u->hewan->map(fn ($h) => [
                 'id' => $h->id,
-                'nama' => $h->nama,
                 'jenis' => $h->jenis,
+                'ras' => $h->ras,
             ])->values(),
         ]);
 
         // Menghitung kuota jadwal yang masih terpakai.
         $jadwal = JadwalPelayanan::withCount([
-            'pemesanan as terpakai' => fn ($q) =>
-                $q->whereNotIn('status', self::STATUS_TIDAK_AKTIF),
+            'pemesanan as terpakai' => fn ($q) => $q->whereNotIn('status', self::STATUS_TIDAK_AKTIF),
         ])
             ->tersedia()
             ->whereDate('tanggal', '>=', now()->toDateString())
             ->orderBy('tanggal')
             ->orderBy('waktu_mulai')
             ->get()
-            ->filter(fn ($j) =>
-                $j->kuota === null || $j->terpakai < $j->kuota
+            ->filter(fn ($j) => $j->kuota === null || $j->terpakai < $j->kuota
             )
             ->values();
 
-        return view('kader.pemesanan-create', [
+        return view('kader.pemesanan', [
             'pemilik' => $pemilik,
             'hewanPerPemilik' => $hewanPerPemilik,
             'jadwal' => $jadwal,
@@ -286,20 +297,15 @@ class PemesananController extends Controller
         ]);
 
         $pesan = match ($request->input('status')) {
-            'dikonfirmasi' =>
-                'Kehadiran pemilik berhasil dikonfirmasi.',
+            'dikonfirmasi' => 'Kehadiran pemilik berhasil dikonfirmasi.',
 
-            'tidak_hadir' =>
-                'Pemesanan berhasil ditandai tidak hadir.',
+            'tidak_hadir' => 'Pemesanan berhasil ditandai tidak hadir.',
 
-            'dibatalkan' =>
-                'Pemesanan berhasil dibatalkan.',
+            'dibatalkan' => 'Pemesanan berhasil dibatalkan.',
 
-            default =>
-                'Status pemesanan berhasil diperbarui.',
+            default => 'Status pemesanan berhasil diperbarui.',
         };
 
         return back()->with('success', $pesan);
     }
 }
-

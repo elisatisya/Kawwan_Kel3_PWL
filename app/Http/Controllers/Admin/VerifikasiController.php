@@ -70,7 +70,7 @@ class VerifikasiController extends Controller
             'nonaktif' => User::where('status', User::STATUS_NONAKTIF)->count(),
         ];
 
-        return view('admin.verifikasi.index', compact('penggunaList', 'counter', 'statusFilter', 'search', 'roleFilter'));
+        return view('admin.verifikasi', compact('penggunaList', 'counter', 'statusFilter', 'search', 'roleFilter'));
     }
 
     public function approve(Request $request, User $user): RedirectResponse
