@@ -7,6 +7,7 @@ use App\Models\Artikel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
 class ArtikelController extends Controller
 {
     // Menampilkan daftar artikel milik kader
@@ -22,7 +23,11 @@ class ArtikelController extends Controller
     // Menampilkan form tambah artikel
     public function create()
     {
+<<<<<<< HEAD
+        return view('kader.artikel', ['mode' => 'create']);
+=======
         return view('kader.artikel-create');
+>>>>>>> origin/main
     }
 
     // Menyimpan artikel baru
@@ -57,7 +62,11 @@ class ArtikelController extends Controller
     {
         $artikel = $this->artikelMilikKader($artikel);
 
+<<<<<<< HEAD
+        return view('kader.artikel', ['mode' => 'edit', 'artikel' => $artikel]);
+=======
         return view('kader.artikel-edit', compact('artikel'));
+>>>>>>> origin/main
     }
 
     // Memperbarui artikel
@@ -147,7 +156,7 @@ class ArtikelController extends Controller
         $counter = 1;
 
         while (Artikel::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
             $counter++;
         }
 

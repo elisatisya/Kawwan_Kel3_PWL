@@ -59,7 +59,7 @@ class UserController extends Controller
             'admin' => User::where('role', User::ROLE_ADMIN)->count(),
         ];
 
-        return view('admin.pengguna.index', compact('users', 'search', 'roleFilter', 'statusFilter', 'roleCounts'));
+        return view('admin.pengguna', compact('users', 'search', 'roleFilter', 'statusFilter', 'roleCounts'));
     }
 
     /**

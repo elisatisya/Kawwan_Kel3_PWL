@@ -18,20 +18,6 @@
 </head>
 <body class="auth-page">
 
-    <header class="auth-header">
-        <a href="{{ route('landing') }}" class="auth-back-btn" aria-label="Kembali ke beranda">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
-
-        <a href="{{ route('landing') }}" class="auth-brand" aria-label="KAWWAN Home">
-            <img
-                src="{{ asset('images/logo-kawwan.png') }}"
-                alt="Logo KAWWAN"
-                class="auth-brand-logo"
-            >
-        </a>
-    </header>
-
     <main class="auth-container">
         <div class="auth-illustration-wrap">
             <img
@@ -43,6 +29,10 @@
 
         <div class="auth-card-wrap">
             <div class="auth-card auth-card-register">
+                <a href="{{ route('landing') }}" class="auth-back-btn" aria-label="Kembali ke beranda">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+
                 <h1 class="auth-title">Daftar Akun</h1>
                 <p class="auth-subtitle">
                     Buat akun untuk mulai menggunakan<br>

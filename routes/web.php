@@ -1,31 +1,33 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Admin\UserController;
 // Auth Controllers
+use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-
 // Landing Page
-use App\Http\Controllers\LandingPageController;
-
+use App\Http\Controllers\Auth\ResetPasswordController;
 // Pemilik Controllers
-use App\Http\Controllers\Pemilik\DashboardController;
-
-// Admin Controllers
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\VerifikasiController;
-
-// Kader Controllers
+use App\Http\Controllers\Dokter\ProfilController;
+use App\Http\Controllers\Dokter\RiwayatController;
 use App\Http\Controllers\Kader\AntreanController;
+use App\Http\Controllers\Kader\ArtikelController;
+// Admin Controllers
+use App\Http\Controllers\Kader\JadwalController;
 use App\Http\Controllers\Kader\LayananController;
-
+// Kader Controllers
+use App\Http\Controllers\Kader\PembayaranController;
+use App\Http\Controllers\Kader\PemesananController;
+use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\Pemilik\DashboardController;
+use App\Http\Controllers\Pemilik\HewanController as PemilikHewanController;
+use App\Http\Controllers\Pemilik\JadwalController as PemilikJadwalController;
+use App\Http\Controllers\Pemilik\PemesananController as PemilikPemesananController;
+use Illuminate\Support\Facades\Route;
 
 // LANDING PAGE
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
-
 
 // AUTENTIKASI
 Route::middleware('guest')->group(function () {
@@ -44,12 +46,10 @@ Route::middleware('guest')->group(function () {
 
 });
 
-
 // LOGOUT
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
-
 
 // PEMILIK HEWAN
 Route::middleware(['auth', 'role:pemilik_hewan,pemilik'])
@@ -60,8 +60,23 @@ Route::middleware(['auth', 'role:pemilik_hewan,pemilik'])
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/beranda', [DashboardController::class, 'index'])->name('beranda');
 
-    });
+        // Data Hewan
+        Route::get('/hewan', [PemilikHewanController::class, 'index'])->name('hewan.index');
+        Route::post('/hewan', [PemilikHewanController::class, 'store'])->name('hewan.store');
+        Route::get('/hewan/{hewan}/edit', [PemilikHewanController::class, 'edit'])->name('hewan.edit');
+        Route::put('/hewan/{hewan}', [PemilikHewanController::class, 'update'])->name('hewan.update');
+        Route::delete('/hewan/{hewan}', [PemilikHewanController::class, 'destroy'])->name('hewan.destroy');
 
+        // Jadwal & Layanan Pelayanan
+        Route::get('/jadwal', [PemilikJadwalController::class, 'index'])->name('jadwal.index');
+
+        // Pemesanan Antrean
+        Route::get('/pemesanan', [PemilikPemesananController::class, 'index'])->name('pemesanan.index');
+        Route::post('/pemesanan', [PemilikPemesananController::class, 'store'])->name('pemesanan.store');
+        Route::post('/pemesanan/{pemesanan}/pembayaran', [PemilikPemesananController::class, 'bayar'])->name('pemesanan.bayar');
+        Route::patch('/pemesanan/{pemesanan}/batal', [PemilikPemesananController::class, 'batal'])->name('pemesanan.batal');
+
+    });
 
 // ADMIN
 Route::middleware(['auth', 'role:admin'])
@@ -97,7 +112,6 @@ Route::middleware(['auth', 'role:admin'])
 
     });
 
-
 // DOKTER
 Route::middleware(['auth', 'role:dokter_hewan,dokter'])
     ->prefix('dokter')
@@ -107,20 +121,19 @@ Route::middleware(['auth', 'role:dokter_hewan,dokter'])
         Route::get('/dashboard', [App\Http\Controllers\Dokter\DashboardController::class, 'index'])
             ->name('dashboard');
 
-        Route::get('/riwayat', [App\Http\Controllers\Dokter\RiwayatController::class, 'index'])
+        Route::get('/riwayat', [RiwayatController::class, 'index'])
             ->name('riwayat.index');
 
-        Route::get('/riwayat/{hewan}', [App\Http\Controllers\Dokter\RiwayatController::class, 'show'])
+        Route::get('/riwayat/{hewan}', [RiwayatController::class, 'show'])
             ->name('riwayat.show');
 
-        Route::get('/profil', [App\Http\Controllers\Dokter\ProfilController::class, 'edit'])
+        Route::get('/profil', [ProfilController::class, 'edit'])
             ->name('profil');
 
-        Route::put('/profil', [App\Http\Controllers\Dokter\ProfilController::class, 'update'])
+        Route::put('/profil', [ProfilController::class, 'update'])
             ->name('profil.update');
 
     });
-
 
 // KADER
 Route::middleware(['auth', 'role:kader'])
@@ -133,20 +146,20 @@ Route::middleware(['auth', 'role:kader'])
             ->name('dashboard');
 
         // Jadwal Pelayanan (Kader hanya memantau jadwal dokter)
-        Route::get('/jadwal', [App\Http\Controllers\Kader\JadwalController::class, 'index'])
+        Route::get('/jadwal', [JadwalController::class, 'index'])
             ->name('jadwal.index');
 
         // Pemesanan
-        Route::get('/pemesanan', [App\Http\Controllers\Kader\PemesananController::class, 'index'])
+        Route::get('/pemesanan', [PemesananController::class, 'index'])
             ->name('pemesanan.index');
 
-        Route::get('/pemesanan/create', [App\Http\Controllers\Kader\PemesananController::class, 'create'])
+        Route::get('/pemesanan/create', [PemesananController::class, 'create'])
             ->name('pemesanan.create');
 
-        Route::post('/pemesanan', [App\Http\Controllers\Kader\PemesananController::class, 'store'])
+        Route::post('/pemesanan', [PemesananController::class, 'store'])
             ->name('pemesanan.store');
 
-        Route::patch('/pemesanan/{pemesanan}/status', [App\Http\Controllers\Kader\PemesananController::class, 'updateStatus'])
+        Route::patch('/pemesanan/{pemesanan}/status', [PemesananController::class, 'updateStatus'])
             ->name('pemesanan.status');
 
         // Antrean
@@ -154,13 +167,13 @@ Route::middleware(['auth', 'role:kader'])
             ->name('antrean.index');
 
         // Pembayaran dan Verifikasi
-        Route::get('/pemesanan/{pemesanan}/pembayaran', [App\Http\Controllers\Kader\PembayaranController::class, 'show'])
+        Route::get('/pemesanan/{pemesanan}/pembayaran', [PembayaranController::class, 'show'])
             ->name('pembayaran.show');
 
-        Route::patch('/pemesanan/{pemesanan}/pembayaran/verifikasi', [App\Http\Controllers\Kader\PembayaranController::class, 'verifikasi'])
+        Route::patch('/pemesanan/{pemesanan}/pembayaran/verifikasi', [PembayaranController::class, 'verifikasi'])
             ->name('pembayaran.verifikasi');
 
-        Route::patch('/pemesanan/{pemesanan}/pembayaran/tolak', [App\Http\Controllers\Kader\PembayaranController::class, 'tolak'])
+        Route::patch('/pemesanan/{pemesanan}/pembayaran/tolak', [PembayaranController::class, 'tolak'])
             ->name('pembayaran.tolak');
 
         // Pengelolaan Layanan dan Harga
@@ -171,10 +184,10 @@ Route::middleware(['auth', 'role:kader'])
             ->name('layanan.status');
 
         // Artikel
-        Route::resource('artikel', App\Http\Controllers\Kader\ArtikelController::class)
+        Route::resource('artikel', ArtikelController::class)
             ->except('show');
 
-        Route::patch('/artikel/{artikel}/ajukan', [App\Http\Controllers\Kader\ArtikelController::class, 'ajukan'])
+        Route::patch('/artikel/{artikel}/ajukan', [ArtikelController::class, 'ajukan'])
             ->name('artikel.ajukan');
 
         // Profil

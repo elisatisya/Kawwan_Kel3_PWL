@@ -12,17 +12,11 @@ use Illuminate\View\View;
 
 class ForgotPasswordController extends Controller
 {
-    /**
-     * Tampilkan formulir permintaan tautan reset password.
-     */
     public function showLinkRequestForm(): View
     {
         return view('auth.forgot-password');
     }
 
-    /**
-     * Kirim email berisi tautan reset password kepada pengguna.
-     */
     public function sendResetLinkEmail(Request $request): RedirectResponse
     {
         $request->validate([
@@ -35,7 +29,7 @@ class ForgotPasswordController extends Controller
         $email = Str::lower(trim((string) $request->input('email')));
 
         // Pembatasan permintaan (throttling): maksimal 3 kali per 2 menit
-        $throttleKey = 'forgot-password|' . Str::transliterate($email . '|' . $request->ip());
+        $throttleKey = 'forgot-password|'.Str::transliterate($email.'|'.$request->ip());
 
         if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
             $seconds = RateLimiter::availableIn($throttleKey);

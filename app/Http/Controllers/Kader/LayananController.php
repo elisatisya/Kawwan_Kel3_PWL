@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Kader;
 use App\Http\Controllers\Controller;
 use App\Models\Layanan;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class LayananController extends Controller
 {
@@ -18,17 +18,28 @@ class LayananController extends Controller
             ->latest()
             ->paginate(10);
 
+<<<<<<< HEAD
+        return view('kader.layanan', compact('layanan'));
+=======
         return view('kader.layanan-index', compact('layanan'));
+>>>>>>> origin/main
     }
 
     public function create()
     {
         $dokter = User::whereIn('role', [
             User::ROLE_DOKTER,
-            'dokter'
+            'dokter',
         ])->orderBy('name')->get();
 
+<<<<<<< HEAD
+        return view('kader.layanan', [
+            'dokter' => $dokter,
+            'mode' => 'create',
+        ]);
+=======
         return view('kader.layanan-create', compact('dokter'));
+>>>>>>> origin/main
     }
 
     public function store(Request $request): RedirectResponse
@@ -45,7 +56,7 @@ class LayananController extends Controller
                 Rule::exists('users', 'id')->where(function ($query) {
                     $query->whereIn('role', [
                         User::ROLE_DOKTER,
-                        'dokter'
+                        'dokter',
                     ]);
                 }),
             ],
@@ -74,12 +85,20 @@ class LayananController extends Controller
     {
         $dokter = User::whereIn('role', [
             User::ROLE_DOKTER,
-            'dokter'
+            'dokter',
         ])->orderBy('name')->get();
 
         $layanan->load('dokter');
 
+<<<<<<< HEAD
+        return view('kader.layanan', [
+            'layanan' => $layanan,
+            'dokter' => $dokter,
+            'mode' => 'edit',
+        ]);
+=======
         return view('kader.layanan-edit', compact('layanan', 'dokter'));
+>>>>>>> origin/main
     }
 
     public function update(Request $request, Layanan $layanan): RedirectResponse
@@ -96,7 +115,7 @@ class LayananController extends Controller
                 Rule::exists('users', 'id')->where(function ($query) {
                     $query->whereIn('role', [
                         User::ROLE_DOKTER,
-                        'dokter'
+                        'dokter',
                     ]);
                 }),
             ],
@@ -122,7 +141,7 @@ class LayananController extends Controller
     public function toggleStatus(Layanan $layanan): RedirectResponse
     {
         $layanan->update([
-            'aktif' => !$layanan->aktif,
+            'aktif' => ! $layanan->aktif,
         ]);
 
         return redirect()
