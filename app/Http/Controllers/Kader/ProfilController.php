@@ -46,3 +46,4 @@ class ProfilController extends Controller
             ->with('success', 'Profil berhasil diperbarui.');
     }
 }
+

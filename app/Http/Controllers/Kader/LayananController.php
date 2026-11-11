@@ -18,7 +18,11 @@ class LayananController extends Controller
             ->latest()
             ->paginate(10);
 
+<<<<<<< HEAD
         return view('kader.layanan', compact('layanan'));
+=======
+        return view('kader.layanan-index', compact('layanan'));
+>>>>>>> origin/main
     }
 
     public function create()
@@ -28,10 +32,14 @@ class LayananController extends Controller
             'dokter',
         ])->orderBy('name')->get();
 
+<<<<<<< HEAD
         return view('kader.layanan', [
             'dokter' => $dokter,
             'mode' => 'create',
         ]);
+=======
+        return view('kader.layanan-create', compact('dokter'));
+>>>>>>> origin/main
     }
 
     public function store(Request $request): RedirectResponse
@@ -82,11 +90,15 @@ class LayananController extends Controller
 
         $layanan->load('dokter');
 
+<<<<<<< HEAD
         return view('kader.layanan', [
             'layanan' => $layanan,
             'dokter' => $dokter,
             'mode' => 'edit',
         ]);
+=======
+        return view('kader.layanan-edit', compact('layanan', 'dokter'));
+>>>>>>> origin/main
     }
 
     public function update(Request $request, Layanan $layanan): RedirectResponse
@@ -142,3 +154,4 @@ class LayananController extends Controller
             );
     }
 }
+

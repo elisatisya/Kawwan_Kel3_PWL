@@ -23,7 +23,11 @@ class ArtikelController extends Controller
     // Menampilkan form tambah artikel
     public function create()
     {
+<<<<<<< HEAD
         return view('kader.artikel', ['mode' => 'create']);
+=======
+        return view('kader.artikel-create');
+>>>>>>> origin/main
     }
 
     // Menyimpan artikel baru
@@ -58,7 +62,11 @@ class ArtikelController extends Controller
     {
         $artikel = $this->artikelMilikKader($artikel);
 
+<<<<<<< HEAD
         return view('kader.artikel', ['mode' => 'edit', 'artikel' => $artikel]);
+=======
+        return view('kader.artikel-edit', compact('artikel'));
+>>>>>>> origin/main
     }
 
     // Memperbarui artikel
@@ -155,3 +163,4 @@ class ArtikelController extends Controller
         return $slug;
     }
 }
+

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -84,6 +85,14 @@
             </header>
 
             <main class="dokter-content">
+=======
+@extends('kader.layout')
+
+@section('title', 'Daftar Antrean')
+
+@section('content')
+
+>>>>>>> origin/main
 <div class="antrean-page">
 
     <div class="antrean-heading">
@@ -109,7 +118,11 @@
                         <th>Nomor Antrean</th>
                         <th>Tanggal</th>
                         <th>Pemilik</th>
+<<<<<<< HEAD
                         <th>Jenis Hewan</th>
+=======
+                        <th>Hewan</th>
+>>>>>>> origin/main
                         <th>Layanan</th>
                         <th>Dokter</th>
                         <th>Status</th>
@@ -136,7 +149,11 @@
                             </td>
 
                             <td>
+<<<<<<< HEAD
                                 {{ ucfirst($item->pemesanan?->hewan?->jenis ?? '-') }}{{ $item->pemesanan?->hewan?->ras ? ' (' . $item->pemesanan->hewan->ras . ')' : '' }}
+=======
+                                {{ $item->pemesanan?->hewan?->nama ?? '-' }}
+>>>>>>> origin/main
                             </td>
 
                             <td>
@@ -184,6 +201,7 @@
 
     </section>
 </div>
+<<<<<<< HEAD
             </main>
         </div>
 
@@ -191,3 +209,8 @@
 
 </body>
 </html>
+=======
+
+@endsection
+
+>>>>>>> origin/main
