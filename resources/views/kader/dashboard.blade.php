@@ -1,37 +1,8 @@
-
 @extends('kader.layout')
 
 @section('title', 'Dashboard Kader')
 
 @section('content')
-
-<style>
-    /* DASHBOARD STATISTIK */
-    .kader-dashboard-stats {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 18px;
-        margin-bottom: 22px;
-    }
-
-    .kader-dashboard-stats .dokter-card {
-        margin: 0;
-        min-width: 0;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 1100px) {
-        .kader-dashboard-stats {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 600px) {
-        .kader-dashboard-stats {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
 
 {{-- HEADER --}}
 <div class="dokter-head">

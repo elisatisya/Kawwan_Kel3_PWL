@@ -20,6 +20,6 @@ class AntreanController extends Controller
         ->orderBy('nomor_antrean')
         ->get();
 
-        return view('kader.antrean.index', compact('antrean'));
+        return view('kader.antrean', compact('antrean'));
     }
 }

@@ -1,37 +1,8 @@
-
 @extends('kader.layout')
 
 @section('title', 'Layanan & Harga')
 
 @section('content')
-
-<style>
-    .layanan-page { display:flex; flex-direction:column; gap:20px; }
-    .layanan-heading h1 { font-size:25px; font-weight:800; margin:0 0 7px; }
-    .layanan-heading h1 span { color:#ff6900; }
-    .layanan-heading p { color:#777; font-size:14px; margin:0; }
-    .layanan-panel { background:#fff; border:1px solid #f1ddcf; border-radius:14px; padding:22px; }
-    .layanan-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
-    .layanan-toolbar h2 { font-size:17px; font-weight:800; margin:0; }
-    .layanan-btn { display:inline-flex; align-items:center; gap:7px; padding:10px 15px; border-radius:9px; border:1px solid #ff6900; background:#ff6900; color:#fff; text-decoration:none; font-size:13px; font-weight:700; cursor:pointer; }
-    .layanan-btn:hover { background:#e95f00; color:#fff; }
-    .layanan-table-wrap { overflow-x:auto; }
-    .layanan-table { width:100%; min-width:900px; border-collapse:collapse; }
-    .layanan-table th { padding:14px; background:#f8f1ec; color:#776d66; font-size:11px; text-align:left; text-transform:uppercase; }
-    .layanan-table td { padding:15px 14px; border-bottom:1px solid #f0e9e4; font-size:13px; vertical-align:middle; }
-    .layanan-badge { display:inline-block; padding:6px 10px; border-radius:20px; font-size:11px; font-weight:700; }
-    .layanan-aktif { background:#dcf5e7; color:#16834c; }
-    .layanan-nonaktif { background:#fde5e5; color:#b33b3b; }
-    .layanan-free { color:#16834c; font-weight:700; }
-    .layanan-actions { display:flex; gap:7px; flex-wrap:wrap; }
-    .layanan-action { padding:7px 10px; border:1px solid #ead8cc; border-radius:7px; background:#fff; color:#444; font-size:11px; font-weight:700; text-decoration:none; cursor:pointer; }
-    .layanan-action:hover { border-color:#ff6900; color:#e95f00; }
-    .layanan-alert { padding:13px 16px; border-radius:9px; background:#e4f6eb; color:#187746; font-size:13px; }
-    .layanan-empty { padding:40px; text-align:center; color:#888; }
-    .dokter-tags { display:flex; flex-wrap:wrap; gap:5px; }
-    .dokter-tag { display:inline-block; padding:5px 9px; background:#fff1e7; color:#bd570d; border-radius:6px; font-size:11px; font-weight:600; }
-    .dokter-kosong { color:#999; font-size:12px; }
-</style>
 
 <div class="layanan-page">
 
@@ -164,3 +135,4 @@
 </div>
 
 @endsection
+

@@ -19,7 +19,7 @@
                     <option value="">Pilih pemilik</option>
                     @foreach ($pemilik as $u)
                         <option value="{{ $u->id }}" @selected(old('user_id') == $u->id)>
-                            {{ $u->name }}{{ $u->nomor_telepon ? ' — '.$u->nomor_telepon : '' }}
+                            {{ $u->name }}{{ $u->nomor_telepon ? ' – '.$u->nomor_telepon : '' }}
                         </option>
                     @endforeach
                 </select>
@@ -61,3 +61,4 @@
     <script id="kaderHewanData" type="application/json">@json($hewanPerPemilik)</script>
 
 @endsection
+

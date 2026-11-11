@@ -1,4 +1,3 @@
-
 @extends('kader.layout')
 
 @section('title', 'Artikel')
@@ -110,3 +109,4 @@
     @endif
 </div>
 @endsection
+
