@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Kader;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class ProfilController extends Controller
 {
@@ -13,7 +13,7 @@ class ProfilController extends Controller
     {
         $user = auth()->user();
 
-        return view('kader.profil.edit', compact('user'));
+        return view('kader.profil', compact('user'));
     }
 
     public function update(Request $request)

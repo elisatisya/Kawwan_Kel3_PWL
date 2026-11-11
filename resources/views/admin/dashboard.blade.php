@@ -1,10 +1,119 @@
-@extends('admin.layout')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Dashboard Administrator' }} — KAWWAN</title>
 
-@section('title', 'Dashboard Administrator')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-@section('content')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 
-    {{-- Header Sambutan --}}
+    @vite(['resources/css/styles.css', 'resources/js/script.js'])
+</head>
+<body>
+
+    <div class="kawwan-toast-container" id="kawwanToastContainer"></div>
+
+    <div class="kawwan-dialog-backdrop" id="kawwanConfirmBackdrop">
+        <div class="kawwan-dialog type-primary" id="kawwanConfirmDialog">
+            <div class="kawwan-dialog-header">
+                <span class="kawwan-dialog-tag" id="kawwanConfirmTag">Konfirmasi</span>
+                <h3 class="kawwan-dialog-title" id="kawwanConfirmTitle">Konfirmasi Tindakan</h3>
+            </div>
+            <div class="kawwan-dialog-body">
+                <p class="kawwan-dialog-desc" id="kawwanConfirmMessage">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+                <div class="kawwan-dialog-box" id="kawwanConfirmDetail" style="display: none;"></div>
+            </div>
+            <div class="kawwan-dialog-actions">
+                <button type="button" class="btn btn-outline btn-sm" id="kawwanConfirmCancelBtn">Batal</button>
+                <button type="button" class="btn btn-primary btn-sm" id="kawwanConfirmOkBtn">Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-shell">
+
+        <div class="admin-backdrop" id="adminBackdrop"></div>
+
+        <aside class="admin-sidebar" id="adminSidebar">
+            <a href="{{ route('admin.dashboard') }}" class="admin-brand">
+                <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
+            </a>
+
+            <div class="admin-badge-role">
+                Panel Administrator
+            </div>
+
+            <p class="admin-menu-label">Menu Utama</p>
+
+            @php
+                $pendingCount = \App\Models\User::where('status', \App\Models\User::STATUS_MENUNGGU)->count();
+            @endphp
+
+            <nav class="admin-menu" aria-label="Navigasi admin">
+                <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="{{ route('admin.verifikasi.index') }}" class="{{ request()->routeIs('admin.verifikasi.*') ? 'active' : '' }}">
+                    <span>Verifikasi Pengguna</span>
+                    @if($pendingCount > 0)
+                        <span class="admin-menu-counter">{{ $pendingCount }}</span>
+                    @endif
+                </a>
+
+                <a href="{{ route('admin.pengguna.index') }}" class="{{ request()->routeIs('admin.pengguna.*') ? 'active' : '' }}">
+                    <span>Pengelolaan Pengguna</span>
+                </a>
+
+                <p class="admin-menu-label" style="margin-top: 14px;">Operasional Sistem</p>
+
+                <a href="{{ route('admin.dashboard') }}#operasional" class="is-stub">
+                    <span>Jadwal Pelayanan</span>
+                </a>
+
+                <a href="{{ route('admin.dashboard') }}#antrean" class="is-stub">
+                    <span>Pemesanan Antrean</span>
+                </a>
+
+                <a href="{{ url('/') }}" target="_blank">
+                    <span>Lihat Halaman Publik</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <form action="{{ route('logout') }}" method="POST" class="admin-logout" id="formLogout">
+                @csrf
+                <button type="button" class="btn btn-outline admin-btn-logout" onclick="confirmLogout('administrator')">
+                    Keluar
+                </button>
+            </form>
+            </div>
+        </aside>
+
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-topbar-left">
+                    <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
+                        Menu
+                    </button>
+                    <h2>{{ 'Dashboard Administrator' }}</h2>
+                </div>
+
+                <div class="admin-user">
+                    <div class="admin-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    <div>
+                        <span class="admin-user-name">{{ auth()->user()->name }}</span>
+                        <span class="admin-user-role">Administrator</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="admin-content">
+{{-- Header Sambutan --}}
     <div class="admin-head">
         <div class="admin-head-info">
             <h1>Halo, <span>{{ auth()->user()->name }}</span></h1>
@@ -238,8 +347,8 @@
                         <tr>
                             <th>Waktu Pelayanan</th>
                             <th>Pemilik Hewan</th>
-                            <th>Hewan Pasien</th>
-                            <th>Jenis & Ras</th>
+                            <th>Jenis Hewan</th>
+                            <th>Ras</th>
                             <th>Status Pelayanan</th>
                         </tr>
                     </thead>
@@ -253,8 +362,8 @@
                                     </strong>
                                 </td>
                                 <td>{{ $pemesanan->user?->name ?? '-' }}</td>
-                                <td><strong>{{ $pemesanan->hewan?->nama ?? '-' }}</strong></td>
-                                <td>{{ $pemesanan->hewan?->jenis ?? '-' }} ({{ $pemesanan->hewan?->ras ?: '-' }})</td>
+                                <td><strong>{{ ucfirst($pemesanan->hewan?->jenis ?? '-') }}</strong></td>
+                                <td>{{ $pemesanan->hewan?->ras ?: '-' }}</td>
                                 <td>
                                     <span class="admin-status-badge is-{{ str_replace(' ', '_', strtolower($pemesanan->status)) }}">
                                         {{ ucfirst($pemesanan->status) }}
@@ -321,11 +430,33 @@
 
     {{-- Chart Data JSON Script --}}
     <script id="adminChartData" type="application/json">@json($grafik)</script>
+            </main>
+        </div>
 
-@endsection
+    </div>
 
-@push('scripts')
-<script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            @if(session('success'))
+                window.kawwanToast && kawwanToast(@json(session('success')), 'success');
+            @endif
+            @if(session('warning'))
+                window.kawwanToast && kawwanToast(@json(session('warning')), 'warning');
+            @endif
+            @if(session('info'))
+                window.kawwanToast && kawwanToast(@json(session('info')), 'info');
+            @endif
+            @if(session('error'))
+                window.kawwanToast && kawwanToast(@json(session('error')), 'error');
+            @endif
+            @if($errors->any())
+                @foreach($errors->all() as $err)
+                    window.kawwanToast && kawwanToast(@json($err), 'error');
+                @endforeach
+            @endif
+        });
+    </script>
+    <script>
     function confirmApproveDashboard(userId, userName) {
         kawwanConfirm({
             title: 'Verifikasi & Aktifkan Akun',
@@ -375,8 +506,8 @@
                     <div class="detail-hewan-grid">
                         ${data.hewan.map(h => `
                             <div class="detail-hewan-card">
-                                <strong>${h.nama}</strong>
-                                <span>${h.jenis} (${h.ras}) &bull; ${h.jenis_kelamin}</span>
+                                <strong>${h.jenis}</strong>
+                                <span>Ras: ${h.ras} &bull; ${h.jenis_kelamin}</span>
                                 <small class="text-muted">Umur: ${h.umur}</small>
                             </div>
                         `).join('')}
@@ -442,4 +573,6 @@
         document.getElementById('modalDetailBackdrop').classList.remove('is-open');
     }
 </script>
-@endpush
+
+</body>
+</html>

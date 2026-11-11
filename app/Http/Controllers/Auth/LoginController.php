@@ -105,19 +105,6 @@ class LoginController extends Controller
             default => 'pemilik.dashboard',
         };
 
-        $defaultUrl = route($defaultRoute);
-        $intendedUrl = session()->pull('url.intended');
-
-        if (
-            !$intendedUrl ||
-            in_array(rtrim($intendedUrl, '/'), [
-                rtrim(url('/'), '/'),
-                rtrim(route('login'), '/')
-            ], true)
-        ) {
-            return redirect()->to($defaultUrl);
-        }
-
-        return redirect()->to($intendedUrl);
+        return redirect()->route($defaultRoute);
     }
 }

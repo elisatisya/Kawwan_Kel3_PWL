@@ -26,7 +26,7 @@ class PembayaranController extends Controller
             'pemesananLayanan.dokter',
         ]);
 
-        if (!$pemesanan->pembayaran) {
+        if (! $pemesanan->pembayaran) {
             return redirect()
                 ->route('kader.pemesanan.index')
                 ->withErrors([
@@ -34,7 +34,7 @@ class PembayaranController extends Controller
                 ]);
         }
 
-        return view('kader.pembayaran.show', [
+        return view('kader.pembayaran', [
             'pemesanan' => $pemesanan,
             'pembayaran' => $pemesanan->pembayaran,
         ]);
@@ -65,14 +65,19 @@ class PembayaranController extends Controller
 
             $tanggal = $pemesanan->jadwalPelayanan?->tanggal;
 
-            if (!$tanggal) {
+            if (! $tanggal) {
                 abort(422, 'Jadwal pelayanan tidak ditemukan.');
             }
 
             $dokterIds = $pemesanan->pemesananLayanan
                 ->pluck('dokter_id')
+                ->filter()
                 ->unique()
                 ->values();
+
+            if ($dokterIds->isEmpty() && $pemesanan->jadwalPelayanan?->dokter_id) {
+                $dokterIds = collect([$pemesanan->jadwalPelayanan->dokter_id]);
+            }
 
             if ($dokterIds->isEmpty()) {
                 abort(422, 'Belum ada dokter yang ditugaskan pada booking ini.');
@@ -118,7 +123,7 @@ class PembayaranController extends Controller
                     })
                     ->max() ?? 0;
 
-                $nomorBaru = 'A' . str_pad(
+                $nomorBaru = 'A'.str_pad(
                     $nomorTerakhir + 1,
                     3,
                     '0',

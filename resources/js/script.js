@@ -238,10 +238,12 @@ function initStatCounters() {
 }
 
 function initDokterCharts() {
+    const container = document.getElementById('dokterChartContainer');
     const sumber = document.getElementById('dokterChartData');
-    if (!sumber || typeof Chart === 'undefined') return;
+    const rawJson = container?.dataset?.chart || sumber?.textContent;
+    if (!rawJson || typeof Chart === 'undefined') return;
 
-    const grafik = JSON.parse(sumber.textContent);
+    const grafik = JSON.parse(rawJson);
 
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.color = '#81766E';
@@ -463,9 +465,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const pemilik = document.getElementById('kaderPemilik');
     const hewan = document.getElementById('kaderHewan');
 
-    if (!sumber || !pemilik || !hewan) return;
+    if (!pemilik || !hewan) return;
 
-    const data = JSON.parse(sumber.textContent);
+    const rawHewan = pemilik.dataset.hewan || sumber?.textContent;
+    if (!rawHewan) return;
+
+    const data = JSON.parse(rawHewan);
 
     const isiHewan = () => {
         const daftar = data[pemilik.value] || [];
@@ -483,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
         daftar.forEach((h) => {
             const opt = document.createElement('option');
             opt.value = h.id;
-            opt.textContent = `${h.nama} (${h.jenis})`;
+            opt.textContent = h.ras ? `${h.jenis} (${h.ras})` : h.jenis;
             if (String(h.id) === String(terpilih)) opt.selected = true;
             hewan.appendChild(opt);
         });
@@ -497,4 +502,301 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     isiHewan();
+});
+
+/* ===== KADER: modal pembatalan booking & konfirmasi form ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    let bookingCancelForm = null;
+    const modal = document.getElementById('bookingCancelModal');
+    const backBtn = document.getElementById('bookingModalBackBtn');
+    const confirmBtn = document.getElementById('bookingModalConfirmBtn');
+
+    const openBookingModal = (button) => {
+        if (!modal) return;
+        bookingCancelForm = button.closest('form');
+        modal.classList.add('show');
+    };
+
+    const closeBookingModal = () => {
+        if (!modal) return;
+        modal.classList.remove('show');
+        bookingCancelForm = null;
+    };
+
+    const confirmBookingCancel = () => {
+        if (bookingCancelForm) {
+            bookingCancelForm.submit();
+        }
+    };
+
+    window.openBookingModal = openBookingModal;
+    window.closeBookingModal = closeBookingModal;
+    window.confirmBookingCancel = confirmBookingCancel;
+
+    document.querySelectorAll('[data-action="open-booking-modal"]').forEach((btn) => {
+        btn.addEventListener('click', () => openBookingModal(btn));
+    });
+
+    if (backBtn) {
+        backBtn.addEventListener('click', closeBookingModal);
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', confirmBookingCancel);
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeBookingModal();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeBookingModal();
+            }
+        });
+    }
+
+    document.querySelectorAll('form[data-confirm]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (form.dataset.confirmed === 'true') {
+                return;
+            }
+            const message = form.getAttribute('data-confirm');
+            if (message) {
+                event.preventDefault();
+                window.kawwanConfirm({
+                    title: 'Konfirmasi Tindakan',
+                    message: message,
+                    type: 'warning',
+                    confirmText: 'Ya, Lanjutkan',
+                    cancelText: 'Batal',
+                    onConfirm: () => {
+                        form.dataset.confirmed = 'true';
+                        form.submit();
+                    },
+                });
+            }
+        });
+    });
+});
+
+/* ===== PEMILIK: kalkulasi estimasi biaya pemesanan antrean ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('pemilikBookingForm');
+    const totalEl = document.getElementById('pemilikTotalEstimasi');
+
+    if (!form || !totalEl) return;
+
+    const checkboxes = form.querySelectorAll('input[name="layanan_ids[]"][data-biaya]');
+
+    const hitungTotal = () => {
+        let total = 0;
+        checkboxes.forEach((cb) => {
+            if (cb.checked) {
+                total += parseInt(cb.getAttribute('data-biaya') || '0', 10);
+            }
+        });
+        totalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
+    };
+
+    checkboxes.forEach((cb) => {
+        cb.addEventListener('change', hitungTotal);
+    });
+
+    hitungTotal();
+});
+
+/* ===== GLOBAL TOAST & CONFIRM DIALOG HELPERS ===== */
+function ensureKawwanOverlayDOM() {
+    if (!document.getElementById('kawwanToastContainer')) {
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'kawwan-toast-container';
+        toastContainer.id = 'kawwanToastContainer';
+        document.body.appendChild(toastContainer);
+    }
+
+    if (!document.getElementById('kawwanConfirmBackdrop')) {
+        const backdrop = document.createElement('div');
+        backdrop.className = 'kawwan-dialog-backdrop';
+        backdrop.id = 'kawwanConfirmBackdrop';
+        backdrop.innerHTML = `
+            <div class="kawwan-dialog type-primary" id="kawwanConfirmDialog">
+                <div class="kawwan-dialog-header">
+                    <span class="kawwan-dialog-tag" id="kawwanConfirmTag">Konfirmasi</span>
+                    <h3 class="kawwan-dialog-title" id="kawwanConfirmTitle">Konfirmasi Tindakan</h3>
+                </div>
+                <div class="kawwan-dialog-body">
+                    <p class="kawwan-dialog-desc" id="kawwanConfirmMessage">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+                    <div class="kawwan-dialog-box" id="kawwanConfirmDetail" style="display: none;"></div>
+                </div>
+                <div class="kawwan-dialog-actions">
+                    <button type="button" class="btn btn-outline btn-sm" id="kawwanConfirmCancelBtn">Batal</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="kawwanConfirmOkBtn">Lanjutkan</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(backdrop);
+    }
+}
+
+window.kawwanToast = function (message, type = 'success', title = null) {
+    ensureKawwanOverlayDOM();
+    const container = document.getElementById('kawwanToastContainer');
+    if (!container) return;
+
+    const titles = {
+        success: 'Berhasil',
+        warning: 'Perhatian',
+        error: 'Terjadi Kesalahan',
+        info: 'Informasi',
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `kawwan-toast is-${type}`;
+    toast.innerHTML = `
+        <div class="kawwan-toast-header">
+            <span class="kawwan-toast-badge">${titles[type] || 'Notifikasi'}</span>
+            <button type="button" class="kawwan-toast-close" aria-label="Tutup notifikasi">&times;</button>
+        </div>
+        ${title ? `<p class="kawwan-toast-title">${title}</p>` : ''}
+        <p class="kawwan-toast-message">${message}</p>
+        <div class="kawwan-toast-progress"></div>
+    `;
+
+    container.appendChild(toast);
+
+    const closeToast = () => {
+        toast.classList.add('is-hiding');
+        setTimeout(() => toast.remove(), 320);
+    };
+
+    toast.querySelector('.kawwan-toast-close').addEventListener('click', closeToast);
+    setTimeout(closeToast, 4500);
+};
+
+window.kawwanConfirm = function ({
+    title = 'Konfirmasi Tindakan',
+    message = 'Apakah Anda yakin ingin melanjutkan tindakan ini?',
+    detail = null,
+    type = 'primary',
+    confirmText = 'Lanjutkan',
+    cancelText = 'Batal',
+    onConfirm = null,
+}) {
+    ensureKawwanOverlayDOM();
+    const backdrop = document.getElementById('kawwanConfirmBackdrop');
+    const dialog = document.getElementById('kawwanConfirmDialog');
+    const tagEl = document.getElementById('kawwanConfirmTag');
+    const titleEl = document.getElementById('kawwanConfirmTitle');
+    const msgEl = document.getElementById('kawwanConfirmMessage');
+    const detailEl = document.getElementById('kawwanConfirmDetail');
+    const cancelBtn = document.getElementById('kawwanConfirmCancelBtn');
+    const okBtn = document.getElementById('kawwanConfirmOkBtn');
+
+    if (!backdrop) return;
+
+    dialog.className = `kawwan-dialog type-${type}`;
+
+    const tags = {
+        success: 'Persetujuan',
+        danger: 'Tindakan Berisiko',
+        warning: 'Peringatan',
+        primary: 'Konfirmasi',
+    };
+    tagEl.textContent = tags[type] || 'Konfirmasi';
+
+    titleEl.textContent = title;
+    msgEl.innerHTML = message;
+
+    if (detail) {
+        detailEl.innerHTML = detail;
+        detailEl.style.display = 'block';
+    } else {
+        detailEl.style.display = 'none';
+    }
+
+    cancelBtn.textContent = cancelText;
+    okBtn.textContent = confirmText;
+
+    if (type === 'danger') {
+        okBtn.className = 'btn btn-danger btn-sm';
+    } else if (type === 'success') {
+        okBtn.className = 'btn btn-action is-approve btn-sm';
+    } else {
+        okBtn.className = 'btn btn-primary btn-sm';
+    }
+
+    backdrop.classList.add('is-open');
+
+    const cleanup = () => {
+        backdrop.classList.remove('is-open');
+        cancelBtn.onclick = null;
+        okBtn.onclick = null;
+    };
+
+    cancelBtn.onclick = cleanup;
+    okBtn.onclick = () => {
+        cleanup();
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    };
+
+    backdrop.onclick = (e) => {
+        if (e.target === backdrop) {
+            cleanup();
+        }
+    };
+};
+
+function detectCurrentRoleLabel() {
+    const roleEl = document.querySelector('.admin-user-role, .dokter-user-role, .pemilik-user-role');
+    if (roleEl && roleEl.textContent.trim()) {
+        return roleEl.textContent.trim().toLowerCase();
+    }
+    const path = window.location.pathname;
+    if (path.startsWith('/dokter')) return 'dokter hewan';
+    if (path.startsWith('/kader')) return 'kader puskesmas';
+    if (path.startsWith('/pemilik')) return 'pemilik hewan';
+    return 'administrator';
+}
+
+window.confirmLogout = function (customRole = null, formElement = null) {
+    const roleName = (customRole || detectCurrentRoleLabel()).toLowerCase();
+    const targetForm =
+        formElement ||
+        document.getElementById('formLogout') ||
+        document.querySelector('form.admin-logout, form.dokter-logout, form.pemilik-logout');
+
+    window.kawwanConfirm({
+        title: 'Konfirmasi Keluar',
+        message: `Apakah Anda yakin ingin mengakhiri sesi ${roleName} dan keluar dari sistem?`,
+        type: 'warning',
+        confirmText: 'Ya, Keluar',
+        cancelText: 'Tetap di Sini',
+        onConfirm: () => {
+            if (targetForm) {
+                targetForm.dataset.confirmed = 'true';
+                targetForm.submit();
+            }
+        },
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    ensureKawwanOverlayDOM();
+
+    document.querySelectorAll('form.dokter-logout, form.pemilik-logout, form.admin-logout').forEach((form) => {
+        form.addEventListener('submit', (e) => {
+            if (form.dataset.confirmed === 'true') {
+                return;
+            }
+            e.preventDefault();
+            const roleLabel = form.getAttribute('data-role') || detectCurrentRoleLabel();
+            window.confirmLogout(roleLabel, form);
+        });
+    });
 });

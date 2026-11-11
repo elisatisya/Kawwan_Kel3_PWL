@@ -44,60 +44,23 @@
             <a href="#artikel">Artikel</a>
             <a href="#tentang">Tentang</a>
 
-            @auth
-                <a href="{{ url('/profil') }}" class="mobile-profile">
-                    <i class="fa-regular fa-user"></i> Profil
-                </a>
-
-                <form action="{{ route('logout') }}" method="POST" class="mobile-logout">
-                    @csrf
-                    <button type="submit" class="btn btn-primary">
-                        Keluar <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    </button>
-                </form>
-            @else
-                <div class="mobile-auth">
-                    <a href="{{ url('/login') }}" class="btn btn-outline">Login</a>
-                    <a href="{{ url('/register') }}" class="btn btn-primary">Daftar</a>
-                </div>
-            @endauth
+            <div class="mobile-auth">
+                <a href="{{ url('/login') }}" class="btn btn-outline">Login</a>
+                <a href="{{ url('/register') }}" class="btn btn-primary">Daftar</a>
+            </div>
         </nav>
 
-        @auth
-            <div class="nav-actions">
-                <a href="{{ url('/profil') }}" class="profile-link">
-                    <i class="fa-regular fa-user"></i>
-                    Profil
-                </a>
-
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-primary">
-                        Keluar <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    </button>
-                </form>
-            </div>
-        @else
-            <div class="nav-actions">
-                <a href="{{ url('/login') }}" class="btn btn-outline">Login</a>
-                <a href="{{ url('/register') }}" class="btn btn-primary">
-                    Daftar <i class="fa-solid fa-arrow-right"></i>
-                </a>
-            </div>
-        @endauth
+        <div class="nav-actions">
+            <a href="{{ url('/login') }}" class="btn btn-outline">Login</a>
+            <a href="{{ url('/register') }}" class="btn btn-primary">
+                Daftar <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
     </header>
 
     <main>
         <section class="hero">
             <div class="hero-content">
-                <p class="eyebrow">
-                    KESEHATAN HEWAN
-                    <span>•</span>
-                    LEBIH DEKAT
-                    <span>•</span>
-                    LEBIH MUDAH
-                </p>
-
                 <h1>
                     Rawat Hewan<br>
                     Kesayanganmu<br>
@@ -109,24 +72,6 @@
                     layanan kesehatan hewan, memantau riwayat pemeriksaan,
                     dan mendapatkan informasi terpercaya.
                 </p>
-
-                <div class="hero-buttons">
-                    @auth
-                        <a href="#layanan" class="btn btn-primary btn-large">
-                            Jelajahi Layanan
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    @else
-                        <a href="{{ url('/register') }}" class="btn btn-primary btn-large">
-                            Mulai Sekarang
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    @endauth
-
-                    <a href="#layanan" class="btn btn-outline btn-large">
-                        Pelajari Layanan
-                    </a>
-                </div>
 
                 <div class="hero-features">
                     <div class="feature">
@@ -164,7 +109,7 @@
             <div class="hero-visual">
                 <img
                     src="{{ asset('images/klinik-hewan.png') }}"
-                    alt="Dokter hewan sedang memeriksa anjing di klinik"
+                    alt="Ilustrasi Klinik Hewan KAWWAN"
                     class="hero-image"
                 >
             </div>

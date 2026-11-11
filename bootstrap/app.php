@@ -15,6 +15,21 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
+
+        $middleware->redirectUsersTo(function (Request $request) {
+            $user = $request->user();
+
+            if (! $user) {
+                return '/';
+            }
+
+            return match ($user->role) {
+                \App\Models\User::ROLE_ADMIN => route('admin.dashboard'),
+                \App\Models\User::ROLE_DOKTER, 'dokter' => route('dokter.dashboard'),
+                \App\Models\User::ROLE_KADER => route('kader.dashboard'),
+                default => route('pemilik.dashboard'),
+            };
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
