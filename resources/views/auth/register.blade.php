@@ -20,19 +20,22 @@
 
     <main class="auth-container">
         <div class="auth-illustration-wrap">
-            <img
-                src="{{ asset('images/klinik-hewan.png') }}"
-                alt="Ilustrasi Klinik Hewan KAWWAN"
-                class="auth-illustration-img"
-            >
+            <a href="{{ route('landing') }}" class="auth-back-btn" aria-label="Kembali ke beranda">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Kembali ke Beranda</span>
+            </a>
+            <h2 class="auth-illustration-title">
+                Rawat hewan<br>
+                kesayanganmu<br>
+                dengan lebih mudah
+            </h2>
+            <p class="auth-illustration-footer">
+                Praktis &nbsp;&bull;&nbsp; Terpercaya &nbsp;&bull;&nbsp; Terintegrasi
+            </p>
         </div>
 
         <div class="auth-card-wrap">
             <div class="auth-card auth-card-register">
-                <a href="{{ route('landing') }}" class="auth-back-btn" aria-label="Kembali ke beranda">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-
                 <h1 class="auth-title">Daftar Akun</h1>
                 <p class="auth-subtitle">
                     Buat akun untuk mulai menggunakan<br>
@@ -74,7 +77,7 @@
 
                     <div class="form-group">
                         <label for="email" class="form-label">Email Aktif</label>
-                        <div class="input-wrapper">
+                        <div class="input-wrapper @error('email') is-invalid @enderror">
                             <span class="input-icon">
                                 <i class="fa-regular fa-envelope"></i>
                             </span>

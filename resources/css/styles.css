@@ -2864,39 +2864,50 @@ img {
 .auth-back-btn {
     align-self: flex-start;
     width: auto;
-    height: 32px;
-    padding: 0 13px;
-    margin-bottom: 16px;
-    border-radius: 999px;
-    border: 1px solid #E5E7EB;
-    background: #F9FAFB;
-    color: #4B5563;
+    height: auto;
+    padding: 0;
+    margin-bottom: 24px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    color: #FFFFFF;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 12px;
+    gap: 8px;
+    font-size: 14px;
     font-weight: 600;
-    transition: 0.2s ease;
+    letter-spacing: -0.2px;
+    box-shadow: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
     flex-shrink: 0;
+    text-decoration: none;
+    opacity: 0.92;
+}
+
+.auth-back-btn i {
+    font-size: 13px;
+    color: #FFFFFF;
+    transition: transform 0.2s ease;
 }
 
 .auth-card-register .auth-back-btn {
-    margin-bottom: 12px;
-    height: 30px;
-}
-
-.auth-back-btn::after {
-    content: "Kembali ke Beranda";
-    font-size: 12px;
-    font-weight: 600;
+    margin-bottom: 16px;
 }
 
 .auth-back-btn:hover {
-    background: #FFF5ED;
-    border-color: var(--orange);
-    transform: translateX(-2px);
-    color: var(--orange);
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    opacity: 1;
+    transform: none;
+    text-decoration: none;
+}
+
+.auth-back-btn:hover i {
+    color: #FFFFFF;
+    transform: translateX(-3px);
 }
 
 .auth-brand {
@@ -2919,7 +2930,7 @@ img {
     padding: 12px;
     box-shadow: none;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.25fr 0.85fr;
     align-items: stretch;
     gap: 0;
     max-width: 100%;
@@ -2935,8 +2946,8 @@ img {
     align-items: flex-start;
     justify-content: space-between;
     width: 100%;
-    padding: 48px 44px 34px;
-    border-radius: 20px;
+    padding: 40px 48px 36px;
+    border-radius: 24px;
     background-color: #1F0F05;
     background-image:
         radial-gradient(at 12% 15%, rgba(255, 122, 26, 0.88) 0px, transparent 50%),
@@ -2949,27 +2960,25 @@ img {
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.24);
 }
 
-.auth-illustration-wrap::before {
-    content: "Rawat hewan\A kesayanganmu\A dengan lebih mudah";
-    white-space: pre-line;
+.auth-illustration-title {
     color: var(--pure-white);
-    font-size: clamp(26px, 2.8vw, 36px);
-    font-weight: 700;
-    line-height: 1.22;
-    letter-spacing: -0.8px;
-    margin-top: 8px;
+    font-size: clamp(28px, 3.2vw, 42px);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.9px;
+    margin: auto 0;
 }
 
-.auth-illustration-wrap::after {
-    content: "Praktis   •   Terpercaya   •   Terintegrasi";
+.auth-illustration-footer {
     width: 100%;
     text-align: center;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.92);
     font-size: 13px;
     font-weight: 600;
-    letter-spacing: 0.5px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    letter-spacing: 0.6px;
+    padding-top: 20px;
+    margin: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .auth-card-wrap {
@@ -2977,6 +2986,7 @@ img {
     align-items: center;
     justify-content: center;
     width: 100%;
+    padding: 24px 32px;
 }
 
 .auth-illustration-img {
@@ -2988,7 +2998,7 @@ img {
     border: none;
     border-radius: 0;
     box-shadow: none;
-    padding: 32px 40px;
+    padding: 28px 36px;
     width: 100%;
     max-width: 440px;
     min-height: auto;
@@ -2998,8 +3008,8 @@ img {
 }
 
 .auth-card-register {
-    max-width: 520px;
-    padding: 24px 36px;
+    max-width: 540px;
+    padding: 20px 24px;
 }
 
 .auth-title {
@@ -4492,16 +4502,23 @@ img {
         max-width: 100%;
         margin: 0;
         padding: 22px 22px 18px;
-        border-radius: 14px;
+        border-radius: 16px;
     }
 
-    .auth-illustration-wrap::before {
+    .auth-back-btn {
+        height: auto;
+        padding: 0;
+        margin-bottom: 14px;
+        font-size: 13px;
+    }
+
+    .auth-illustration-title {
         font-size: 20px;
         margin-top: 0;
         margin-bottom: 14px;
     }
 
-    .auth-illustration-wrap::after {
+    .auth-illustration-footer {
         font-size: 11px;
         padding-top: 10px;
     }
