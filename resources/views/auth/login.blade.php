@@ -19,19 +19,22 @@
 <body class="auth-page">
     <main class="auth-container">
         <div class="auth-illustration-wrap">
-            <img
-                src="{{ asset('images/klinik-hewan.png') }}"
-                alt="Ilustrasi Klinik Hewan KAWWAN"
-                class="auth-illustration-img"
-            >
+            <a href="{{ route('landing') }}" class="auth-back-btn" aria-label="Kembali ke beranda">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Kembali ke Beranda</span>
+            </a>
+            <h2 class="auth-illustration-title">
+                Rawat hewan<br>
+                kesayanganmu<br>
+                dengan lebih mudah
+            </h2>
+            <p class="auth-illustration-footer">
+                Praktis &nbsp;&bull;&nbsp; Terpercaya &nbsp;&bull;&nbsp; Terintegrasi
+            </p>
         </div>
 
         <div class="auth-card-wrap">
             <div class="auth-card">
-                <a href="{{ route('landing') }}" class="auth-back-btn" aria-label="Kembali ke beranda">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-
                 <h1 class="auth-title">Login</h1>
                 <p class="auth-subtitle">
                     Selamat datang kembali di KAWWAN.<br>
@@ -107,6 +110,7 @@
                                 type="button"
                                 class="password-toggle"
                                 id="togglePassword"
+                                data-target="password"
                                 aria-label="Tampilkan atau sembunyikan password"
                             >
                                 <i class="fa-regular fa-eye"></i>
