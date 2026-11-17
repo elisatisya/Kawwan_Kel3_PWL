@@ -1,30 +1,37 @@
 <?php
 
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\LandingPageController;
+use Illuminate\Support\Facades\Route;
+
 // Auth Controllers
-use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-// Landing Page
 use App\Http\Controllers\Auth\ResetPasswordController;
-// Pemilik Controllers
-use App\Http\Controllers\Dokter\ProfilController;
-use App\Http\Controllers\Dokter\RiwayatController;
-use App\Http\Controllers\Kader\AntreanController;
-use App\Http\Controllers\Kader\ArtikelController;
+
 // Admin Controllers
-use App\Http\Controllers\Kader\JadwalController;
-use App\Http\Controllers\Kader\LayananController;
-// Kader Controllers
-use App\Http\Controllers\Kader\PembayaranController;
-use App\Http\Controllers\Kader\PemesananController;
-use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VerifikasiController;
+
+// Pemilik Controllers
 use App\Http\Controllers\Pemilik\DashboardController;
 use App\Http\Controllers\Pemilik\HewanController as PemilikHewanController;
 use App\Http\Controllers\Pemilik\JadwalController as PemilikJadwalController;
 use App\Http\Controllers\Pemilik\PemesananController as PemilikPemesananController;
-use Illuminate\Support\Facades\Route;
+
+// Dokter Controllers
+use App\Http\Controllers\Dokter\JadwalController as DokterJadwalController;
+use App\Http\Controllers\Dokter\PemeriksaanController;
+use App\Http\Controllers\Dokter\ProfilController;
+use App\Http\Controllers\Dokter\RiwayatController;
+
+// Kader Controllers
+use App\Http\Controllers\Kader\AntreanController;
+use App\Http\Controllers\Kader\ArtikelController;
+use App\Http\Controllers\Kader\JadwalController;
+use App\Http\Controllers\Kader\LayananController;
+use App\Http\Controllers\Kader\PembayaranController;
+use App\Http\Controllers\Kader\PemesananController;
 
 // LANDING PAGE
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
@@ -132,6 +139,20 @@ Route::middleware(['auth', 'role:dokter_hewan,dokter'])
 
         Route::put('/profil', [ProfilController::class, 'update'])
             ->name('profil.update');
+
+        // Jadwal pelayanan milik dokter
+        Route::get('/jadwal', [DokterJadwalController::class, 'index'])->name('jadwal.index');
+        Route::get('/jadwal/create', [DokterJadwalController::class, 'create'])->name('jadwal.create');
+        Route::post('/jadwal', [DokterJadwalController::class, 'store'])->name('jadwal.store');
+        Route::get('/jadwal/{jadwal}/edit', [DokterJadwalController::class, 'edit'])->name('jadwal.edit');
+        Route::put('/jadwal/{jadwal}', [DokterJadwalController::class, 'update'])->name('jadwal.update');
+        Route::delete('/jadwal/{jadwal}', [DokterJadwalController::class, 'destroy'])->name('jadwal.destroy');
+
+        // Pemeriksaan (antrean pasien)
+        Route::get('/pemeriksaan', [PemeriksaanController::class, 'index'])->name('pemeriksaan.index');
+        Route::get('/pemeriksaan/{antrean}', [PemeriksaanController::class, 'show'])->name('pemeriksaan.show');
+        Route::patch('/pemeriksaan/{antrean}/mulai', [PemeriksaanController::class, 'mulai'])->name('pemeriksaan.mulai');
+        Route::post('/pemeriksaan/{antrean}', [PemeriksaanController::class, 'simpan'])->name('pemeriksaan.simpan');
 
     });
 

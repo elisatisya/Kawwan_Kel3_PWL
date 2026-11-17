@@ -28,9 +28,15 @@
 
             <p class="dokter-menu-label">Menu Dokter</p>
 
-            <nav class="dokter-menu" aria-label="Navigasi dokter">
+              <nav class="dokter-menu" aria-label="Navigasi dokter">
                 <a href="{{ route('dokter.dashboard') }}" class="{{ request()->routeIs('dokter.dashboard') ? 'active' : '' }}">
                     Dashboard
+                </a>
+                <a href="{{ route('dokter.jadwal.index') }}" class="{{ request()->routeIs('dokter.jadwal.*') ? 'active' : '' }}">
+                    Jadwal Praktik
+                </a>
+                <a href="{{ route('dokter.pemeriksaan.index') }}" class="{{ request()->routeIs('dokter.pemeriksaan.*') ? 'active' : '' }}">
+                    Pemeriksaan
                 </a>
                 <a href="{{ route('dokter.riwayat.index') }}" class="{{ request()->routeIs('dokter.riwayat.*') ? 'active' : '' }}">
                     Riwayat Pemeriksaan
@@ -112,10 +118,13 @@
             @endforelse
         </div>
     @else
-        <div class="riwayat-head">
-            <h2 class="riwayat-judul">Daftar Pasien Hewan</h2>
-            <p class="riwayat-sub">Pilih hewan untuk melihat catatan pemeriksaannya.</p>
-        </div>
+            <section class="dokter-card">
+            <div class="dokter-card-head">
+                <div>
+                    <h3>Daftar Pasien Hewan</h3>
+                    <p class="dokter-card-sub">Pilih hewan untuk melihat catatan pemeriksaannya.</p>
+                </div>
+            </div>
 
         <section class="dokter-card">
             <form method="GET" action="{{ route('dokter.riwayat.index') }}" class="riwayat-search">
