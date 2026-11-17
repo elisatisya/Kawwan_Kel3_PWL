@@ -28,9 +28,15 @@
 
             <p class="dokter-menu-label">Menu Dokter</p>
 
-            <nav class="dokter-menu" aria-label="Navigasi dokter">
+                <nav class="dokter-menu" aria-label="Navigasi dokter">
                 <a href="{{ route('dokter.dashboard') }}" class="{{ request()->routeIs('dokter.dashboard') ? 'active' : '' }}">
                     Dashboard
+                </a>
+                <a href="{{ route('dokter.jadwal.index') }}" class="{{ request()->routeIs('dokter.jadwal.*') ? 'active' : '' }}">
+                    Jadwal Dokter
+                </a>
+                <a href="{{ route('dokter.pemeriksaan.index') }}" class="{{ request()->routeIs('dokter.pemeriksaan.*') ? 'active' : '' }}">
+                    Pemeriksaan
                 </a>
                 <a href="{{ route('dokter.riwayat.index') }}" class="{{ request()->routeIs('dokter.riwayat.*') ? 'active' : '' }}">
                     Riwayat Pemeriksaan
