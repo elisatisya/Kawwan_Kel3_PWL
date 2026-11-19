@@ -14,21 +14,7 @@ class LandingPageController extends Controller
 {
     public function index()
     {
-        if (Auth::check()) {
-            /** @var User $user */
-            $user = Auth::user();
-
-            $dashboardRoute = match ($user->role) {
-                User::ROLE_ADMIN => 'admin.dashboard',
-                User::ROLE_DOKTER, 'dokter' => 'dokter.dashboard',
-                User::ROLE_KADER => 'kader.dashboard',
-                default => 'pemilik.dashboard',
-            };
-
-            return redirect()->route($dashboardRoute);
-        }
-
-        $user = null;
+        $user = Auth::user();
 
         $jumlahHewan = $user ? Hewan::where('user_id', $user->id)->count() : 0;
 

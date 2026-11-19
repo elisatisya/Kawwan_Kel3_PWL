@@ -2689,11 +2689,20 @@ img {
     font-size: 12.5px;
     font-weight: 700;
     color: var(--orange);
-    transition: gap 0.2s ease;
+    transition: gap 0.2s ease, color 0.2s ease;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    text-align: left;
 }
 
 .service-link:hover {
-    gap: 10px;
+    gap: 9px;
+    color: #E85F00;
 }
 
 .about {
@@ -4801,4 +4810,426 @@ img {
     .dokter-form-row {
         grid-template-columns: 1fr;
     }
+}
+
+/* ==========================================================================
+   LANDING PAGE: SERVICES SECTION & MODAL (KAWWAN)
+   ========================================================================== */
+.services-section {
+    padding: 70px 20px;
+    background-color: var(--pure-white, #FFFFFF);
+    font-family: 'Inter', sans-serif;
+}
+
+.services-section .container {
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.section-header {
+    margin-bottom: 45px;
+    text-align: center;
+}
+
+.badge-sub {
+    display: inline-block;
+    padding: 6px 14px;
+    background-color: var(--soft-peach, #F3DCC9);
+    color: var(--orange, #FF6B00);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--near-black, #181310);
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+}
+
+.section-subtitle {
+    font-size: 14.5px;
+    color: var(--warm-grey, #81766E);
+    max-width: 620px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Services Grid */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+}
+
+.service-card {
+    background-color: var(--pure-white, #FFFFFF);
+    border: 1px solid #ECE7E3;
+    border-radius: 16px;
+    padding: 24px 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+    border-color: var(--soft-peach, #F3DCC9);
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: var(--warm-white, #F2EBE6);
+    color: var(--orange, #FF6B00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 18px;
+}
+
+.service-category {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--warm-grey, #81766E);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.service-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--near-black, #181310);
+    margin: 0 0 8px 0;
+}
+
+.service-desc {
+    font-size: 13px;
+    color: var(--warm-grey, #81766E);
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+
+.service-meta {
+    background-color: var(--warm-white, #F2EBE6);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--near-black, #181310);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.meta-item:last-child {
+    margin-bottom: 0;
+}
+.meta-item i {
+    color: var(--orange, #FF6B00);
+    width: 14px;
+    text-align: center;
+}
+
+.card-actions {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid #F2EBE6;
+}
+
+.btn-detail {
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--near-black, #181310);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 0;
+    transition: color 0.2s;
+}
+
+.btn-detail:hover {
+    color: var(--orange, #FF6B00);
+}
+
+.btn-primary-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--orange, #FF6B00);
+    color: #FFFFFF !important;
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.btn-primary-action:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.btn-secondary-action {
+    background-color: var(--warm-white, #F2EBE6);
+    color: var(--near-black, #181310);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+}
+
+/* ==================== KAWWAN MODAL ==================== */
+.kawwan-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.kawwan-modal.active {
+    display: flex;
+}
+
+.kawwan-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(24, 19, 16, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.kawwan-modal-content {
+    position: relative;
+    background: var(--pure-white, #FFFFFF);
+    border-radius: 16px;
+    max-width: 560px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: modalFadeIn 0.25s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 22px 14px;
+    border-bottom: 1px solid #ECE7E3;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--near-black, #181310);
+    margin: 4px 0 0;
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--warm-grey, #81766E);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+
+.modal-body {
+    padding: 18px 22px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-desc {
+    font-size: 13.5px;
+    color: var(--warm-grey, #81766E);
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.info-box {
+    background: var(--warm-white, #F2EBE6);
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+
+.info-label {
+    font-size: 11px;
+    color: var(--warm-grey, #81766E);
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.info-label i {
+    color: var(--orange, #FF6B00);
+}
+
+.info-value {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--near-black, #181310);
+}
+
+.prep-note {
+    background: #FFF9F5;
+    border-left: 3px solid var(--orange, #FF6B00);
+    padding: 12px 14px;
+    border-radius: 6px;
+}
+
+.prep-note h4 {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--near-black, #181310);
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.prep-note h4 i {
+    color: var(--orange, #FF6B00);
+}
+
+.prep-note ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+    color: var(--warm-grey, #81766E);
+    line-height: 1.6;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 22px;
+    border-top: 1px solid #ECE7E3;
+    background: #FAFAFA;
+}
+
+/* Card Actions for Landing Page */
+.card-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #F5ECE3;
+}
+
+.btn-detail-link {
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--warm-grey, #81766E);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color 0.2s ease;
+}
+
+.btn-detail-link:hover {
+    color: var(--orange, #FF6B00);
+}
+
+.btn-detail-link i {
+    color: var(--orange, #FF6B00);
+    font-size: 13px;
+}
+
+/* Enhanced Pill Button for Service Card Footer */
+.service-card-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #F5ECE3;
+}
+
+.btn-lihat-detail {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 9px 18px;
+    border-radius: 999px;
+    background-color: #FFF5EE;
+    border: 1.5px solid #FFD4BA;
+    color: #FF6B00;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.btn-lihat-detail i {
+    transition: transform 0.22s ease;
+    font-size: 12px;
+}
+
+.btn-lihat-detail:hover {
+    background-color: #FF6B00;
+    border-color: #FF6B00;
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(255, 107, 0, 0.28);
+    transform: translateY(-2px);
+}
+
+.btn-lihat-detail:hover i {
+    transform: translateX(4px);
 }

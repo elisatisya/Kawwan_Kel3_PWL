@@ -800,3 +800,131 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+/* ===== LANDING PAGE: MODAL DETAIL LAYANAN KAWWAN ===== */
+const KAWWAN_LAYANAN_DATA = {
+    hewan: {
+        tag: "Data Hewan Peliharaan",
+        title: "Manajemen Data Hewan",
+        desc: "Simpan profil lengkap hewan kesayangan Anda, mulai dari nama, jenis, ras, jenis kelamin, tanggal lahir, hingga ciri fisik. Data ini akan otomatis terhubung dengan setiap proses antrean dan catatan rekam medis dokter.",
+        jam: "Akses 24 Jam Mandiri",
+        hari: "Tersedia Setiap Hari",
+        dokter: "Terkoneksi ke Dokter & Kader",
+        akses: "Data Terproteksi & Akurat",
+        url: "/pemilik/hewan",
+        actionText: "Buka Kelola Data Hewan",
+        loginText: "Login untuk Kelola Data",
+        points: [
+            "Pencatatan identitas resmi anabul untuk kepastian riwayat medis.",
+            "Kemudahan mendaftarkan lebih dari satu hewan dalam satu akun.",
+            "Mempercepat verifikasi oleh kader saat tiba di klinik/puskesmas.",
+            "Pembaruan data hewan kapan saja tanpa birokrasi rumit."
+        ]
+    },
+    antrean: {
+        tag: "Pemesanan Jadwal & Antrean",
+        title: "Pemesanan Antrean Online",
+        desc: "Pilih tanggal, jam operasional, dan dokter spesialis yang bertugas secara real-time. Dapatkan estimasi antrean yang jelas sehingga Anda tidak perlu menunggu lama di ruang tunggu puskeswan.",
+        jam: "08.00 - 15.30 WIB",
+        hari: "Senin s/d Sabtu",
+        dokter: "drh. Amanda / drh. Reza",
+        akses: "Sistem Kuota Terintegrasi",
+        url: "/pemilik/jadwal",
+        actionText: "Lihat Jadwal & Pesan Antrean",
+        loginText: "Login untuk Pesan Antrean",
+        points: [
+            "Melihat kuota pasien yang masih tersedia pada setiap sesi layanan.",
+            "Pilih layanan yang diinginkan: Vaksinasi, Pemeriksaan Umum, atau Konsultasi.",
+            "Konfirmasi status pemesanan secara transparan dan terdata aman.",
+            "Pemberitahuan nomor antrean langsung di perangkat Anda."
+        ]
+    },
+    riwayat: {
+        tag: "Catatan Medis & Pemeriksaan",
+        title: "Rekam Medis Digital Hewan",
+        desc: "Pantau riwayat kesehatan, diagnosa penyakit, tindakan medis, resep obat, serta catatan khusus dari dokter hewan pemeriksa yang tersimpan secara terstruktur dan aman.",
+        jam: "Akses Riwayat 24 Jam",
+        hari: "Tersedia Kapan Saja",
+        dokter: "Diverifikasi Tim Dokter Resmi",
+        akses: "Privasi Terjaga Antar Pemilik",
+        url: "/pemilik/pemesanan",
+        actionText: "Lihat Riwayat Pemeriksaan",
+        loginText: "Login untuk Lihat Riwayat",
+        points: [
+            "Riwayat catatan medis tersimpan permanen dan tidak hilang.",
+            "Melihat rincian tindakan dan instruksi perawatan dari dokter.",
+            "Mempermudah penanganan saat pemeriksaan berkala atau rujukan.",
+            "Hanya bisa diakses oleh pemilik hewan yang bersangkutan."
+        ]
+    }
+};
+
+window.openLayananModal = function(key) {
+    const data = KAWWAN_LAYANAN_DATA[key];
+    if (!data) return;
+
+    const modal = document.getElementById('modalLayanan');
+    if (!modal) return;
+
+    const tagEl = document.getElementById('modalLayananTag');
+    const titleEl = document.getElementById('modalLayananTitle');
+    const descEl = document.getElementById('modalLayananDesc');
+    const jamEl = document.getElementById('modalLayananJam');
+    const hariEl = document.getElementById('modalLayananHari');
+    const dokterEl = document.getElementById('modalLayananDokter');
+    const aksesEl = document.getElementById('modalLayananAkses');
+
+    if (tagEl) tagEl.textContent = data.tag;
+    if (titleEl) titleEl.textContent = data.title;
+    if (descEl) descEl.textContent = data.desc;
+    if (jamEl) jamEl.textContent = data.jam;
+    if (hariEl) hariEl.textContent = data.hari;
+    if (dokterEl) dokterEl.textContent = data.dokter;
+    if (aksesEl) aksesEl.textContent = data.akses;
+
+    const actionBtn = document.getElementById('modalActionBtn');
+    const actionText = document.getElementById('modalActionText');
+    if (actionBtn && actionText) {
+        actionBtn.href = data.url;
+        actionText.textContent = data.actionText;
+    }
+
+    const loginText = document.getElementById('modalLoginText');
+    if (loginText) {
+        loginText.textContent = data.loginText || "Login untuk Akses";
+    }
+
+    const pointsList = document.getElementById('modalLayananPoints');
+    if (pointsList) {
+        pointsList.innerHTML = '';
+        data.points.forEach(point => {
+            const li = document.createElement('li');
+            li.textContent = point;
+            pointsList.appendChild(li);
+        });
+    }
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeLayananModal = function() {
+    const modal = document.getElementById('modalLayanan');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    document.body.style.overflow = '';
+};
+
+window.confirmLoginFirst = function(fiturName) {
+    if (window.kawwanToast) {
+        window.kawwanToast(`Silakan login terlebih dahulu untuk mengakses ${fiturName}.`, 'warning', 'Login Diperlukan');
+    }
+    return true;
+};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        window.closeLayananModal();
+    }
+});
