@@ -18,7 +18,10 @@ class LayananController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('kader.layanan', compact('layanan'));
+        return view('kader.layanan', [
+            'layanan'     => $layanan,
+            'currentMode' => 'index',
+        ]);
     }
 
     public function create()
@@ -29,8 +32,8 @@ class LayananController extends Controller
         ])->orderBy('name')->get();
 
         return view('kader.layanan', [
-            'dokter' => $dokter,
-            'mode' => 'create',
+            'dokter'      => $dokter,
+            'currentMode' => 'create',
         ]);
     }
 
@@ -83,9 +86,9 @@ class LayananController extends Controller
         $layanan->load('dokter');
 
         return view('kader.layanan', [
-            'layanan' => $layanan,
-            'dokter' => $dokter,
-            'mode' => 'edit',
+            'layanan'     => $layanan,
+            'dokter'      => $dokter,
+            'currentMode' => 'edit',
         ]);
     }
 

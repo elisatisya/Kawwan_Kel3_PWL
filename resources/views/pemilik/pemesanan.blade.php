@@ -285,7 +285,18 @@
                                             @endif
                                         @endif
                                         <div class="pemilik-text-muted">
-                                            Rp {{ number_format($bayar->jumlah, 0, ',', '.') }} ({{ strtoupper($bayar->metode) }})
+                                            Rp {{ number_format($bayar->jumlah, 0, ',', '.') }}
+                                            ({{ match($bayar->metode) {
+                                                'qris'             => 'QRIS',
+                                                'gopay'            => 'GoPay',
+                                                'ovo'              => 'OVO',
+                                                'dana'             => 'DANA',
+                                                'transfer_bca'     => 'Transfer BCA',
+                                                'transfer_bri'     => 'Transfer BRI',
+                                                'transfer_mandiri' => 'Transfer Mandiri',
+                                                'transfer_bni'     => 'Transfer BNI',
+                                                default            => strtoupper($bayar->metode),
+                                            } }})
                                         </div>
                                     @else
                                         <span class="pemilik-badge is-neutral">Belum Dibayar</span>
@@ -293,28 +304,83 @@
                                 </td>
                                 <td>
                                     @if (! in_array($p->status, ['dibatalkan', 'tidak_hadir', 'selesai']) && (! $bayar || $bayar->status === 'ditolak'))
+                                        {{-- FORM PEMBAYARAN ONLINE --}}
                                         <form method="POST"
                                               action="{{ route('pemilik.pemesanan.bayar', $p) }}"
                                               enctype="multipart/form-data"
-                                              class="pemilik-inline-pay-form">
+                                              class="pemilik-inline-pay-form"
+                                              id="pay-form-{{ $p->id }}">
                                             @csrf
-                                            <input type="number"
-                                                   name="jumlah"
-                                                   value="{{ $totalBiaya }}"
-                                                   min="0"
-                                                   placeholder="Nominal (Rp)"
-                                                   required>
-                                            <select name="metode" required>
-                                                <option value="transfer">Transfer</option>
-                                                <option value="qris">QRIS</option>
-                                                <option value="tunai">Tunai</option>
+
+                                            {{-- Jumlah otomatis dari biaya layanan --}}
+                                            <input type="hidden" name="jumlah" value="{{ $totalBiaya > 0 ? $totalBiaya : 0 }}">
+
+                                            {{-- Pilih Metode --}}
+                                            <select name="metode" required
+                                                    onchange="togglePayInfo(this, {{ $p->id }})">
+                                                <option value="">-- Pilih Metode --</option>
+                                                <optgroup label="QRIS">
+                                                    <option value="qris">QRIS (Scan QR)</option>
+                                                </optgroup>
+                                                <optgroup label="E-Wallet">
+                                                    <option value="gopay">GoPay</option>
+                                                    <option value="ovo">OVO</option>
+                                                    <option value="dana">DANA</option>
+                                                </optgroup>
+                                                <optgroup label="Transfer Bank">
+                                                    <option value="transfer_bca">Transfer BCA</option>
+                                                    <option value="transfer_bri">Transfer BRI</option>
+                                                    <option value="transfer_mandiri">Transfer Mandiri</option>
+                                                    <option value="transfer_bni">Transfer BNI</option>
+                                                </optgroup>
                                             </select>
-                                            <input type="file"
-                                                   name="bukti_pembayaran"
-                                                   accept=".jpg,.jpeg,.png,.webp"
-                                                   title="Unggah bukti pembayaran">
-                                            <button type="submit" class="pemilik-btn-sm">
-                                                Kirim Pembayaran
+
+                                            {{-- Panel Info Pembayaran (muncul setelah pilih metode) --}}
+                                            <div class="pay-info-panel" id="pay-info-{{ $p->id }}" style="display:none">
+
+                                                {{-- QR Code (hanya untuk QRIS) --}}
+                                                <div class="pay-qr-wrap" id="pay-qr-{{ $p->id }}" style="display:none">
+                                                    @if (file_exists(public_path('images/qris-kawwan.png')))
+                                                        <img src="{{ asset('images/qris-kawwan.png') }}"
+                                                             alt="QR Code QRIS KAWWAN"
+                                                             class="pay-qr-img">
+                                                    @else
+                                                        <div class="pay-qr-placeholder">
+                                                            <i class="fa-solid fa-qrcode"></i>
+                                                            <span>QR Code KAWWAN Puskesmas</span>
+                                                        </div>
+                                                    @endif
+                                                    <p class="pay-qr-note">Scan QR di atas lalu upload bukti pembayaran.</p>
+                                                </div>
+
+                                                {{-- Instruksi Transfer / E-Wallet --}}
+                                                <div class="pay-transfer-info" id="pay-transfer-{{ $p->id }}" style="display:none">
+                                                    <div class="pay-rekening-label" id="pay-rek-label-{{ $p->id }}"></div>
+                                                    <div class="pay-rekening-no" id="pay-rek-no-{{ $p->id }}"></div>
+                                                    <div class="pay-rekening-name" id="pay-rek-name-{{ $p->id }}"></div>
+                                                </div>
+
+                                                {{-- Nominal --}}
+                                                <div class="pay-amount-row">
+                                                    <span>Total Pembayaran:</span>
+                                                    <strong>Rp {{ number_format($totalBiaya, 0, ',', '.') }}</strong>
+                                                </div>
+
+                                                {{-- Upload Bukti --}}
+                                                <label class="pay-upload-label">
+                                                    <i class="fa-solid fa-paperclip"></i>
+                                                    Upload Bukti Pembayaran
+                                                    <input type="file"
+                                                           name="bukti_pembayaran"
+                                                           accept=".jpg,.jpeg,.png,.webp"
+                                                           class="pay-file-input"
+                                                           required>
+                                                </label>
+                                                <span class="pay-file-name" id="pay-fname-{{ $p->id }}">Belum ada file dipilih</span>
+                                            </div>
+
+                                            <button type="submit" class="pemilik-btn-sm" id="pay-btn-{{ $p->id }}" style="display:none">
+                                                <i class="fa-solid fa-paper-plane"></i> Kirim Pembayaran
                                             </button>
                                         </form>
                                     @endif

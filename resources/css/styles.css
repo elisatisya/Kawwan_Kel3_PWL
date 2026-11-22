@@ -5233,3 +5233,138 @@ img {
 .btn-lihat-detail:hover i {
     transform: translateX(4px);
 }
+
+/* ============================================================
+   PEMBAYARAN ONLINE — UI pilih metode & panel info
+   ============================================================ */
+.pemilik-inline-pay-form select {
+    display: block;
+    width: 100%;
+    padding: .45rem .75rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: .9rem;
+    background: #fff;
+    color: #1e293b;
+    margin-bottom: .5rem;
+    cursor: pointer;
+}
+
+.pay-info-panel {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: .5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+/* QR Code */
+.pay-qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+}
+.pay-qr-img {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+}
+.pay-qr-placeholder {
+    width: 160px;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    color: #94a3b8;
+    gap: .4rem;
+    font-size: .82rem;
+    text-align: center;
+}
+.pay-qr-placeholder i { font-size: 2rem; }
+.pay-qr-note {
+    font-size: .8rem;
+    color: #64748b;
+    text-align: center;
+}
+
+/* Transfer info */
+.pay-transfer-info {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: .75rem 1rem;
+}
+.pay-rekening-label {
+    font-size: .78rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.pay-rekening-no {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: .05em;
+    margin: .15rem 0;
+}
+.pay-rekening-name {
+    font-size: .82rem;
+    color: #475569;
+}
+
+/* Nominal row */
+.pay-amount-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .9rem;
+    padding: .4rem .6rem;
+    background: #eff6ff;
+    border-radius: 6px;
+    color: #1e40af;
+}
+.pay-amount-row strong { font-size: 1rem; }
+
+/* Upload bukti */
+.pay-upload-label {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .75rem;
+    background: #fff;
+    border: 1.5px dashed #94a3b8;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .85rem;
+    color: #475569;
+    transition: border-color .2s, background .2s;
+}
+.pay-upload-label:hover {
+    border-color: #e07b39;
+    background: #fff7ed;
+    color: #e07b39;
+}
+.pay-file-input {
+    display: none;
+}
+.pay-file-name {
+    font-size: .78rem;
+    color: #94a3b8;
+}
+
+/* Submit btn — inline-flex */
+.pemilik-btn-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}

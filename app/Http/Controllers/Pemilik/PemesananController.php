@@ -164,11 +164,21 @@ class PemesananController extends Controller
         abort_unless($pemesanan->user_id === $request->user()->id, 403);
 
         $data = $request->validate([
-            'metode' => ['required', Rule::in(['transfer', 'qris', 'tunai'])],
+            'metode' => ['required', Rule::in([
+                'qris',
+                'gopay',
+                'ovo',
+                'dana',
+                'transfer_bca',
+                'transfer_bri',
+                'transfer_mandiri',
+                'transfer_bni',
+            ])],
             'jumlah' => ['required', 'integer', 'min:0'],
             'bukti_pembayaran' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ], [
             'metode.required' => 'Pilih metode pembayaran.',
+            'metode.in'       => 'Metode pembayaran tidak valid.',
             'jumlah.required' => 'Nominal pembayaran wajib diisi.',
         ]);
 

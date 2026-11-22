@@ -192,7 +192,22 @@
 
                 <div class="payment-info-item">
                     <small>Metode Pembayaran</small>
-                    <strong>{{ strtoupper($pembayaran->metode) }}</strong>
+                    <strong>
+                        @php
+                            $labelMetode = match($pembayaran->metode) {
+                                'qris'             => 'QRIS',
+                                'gopay'            => 'GoPay',
+                                'ovo'              => 'OVO',
+                                'dana'             => 'DANA',
+                                'transfer_bca'     => 'Transfer BCA',
+                                'transfer_bri'     => 'Transfer BRI',
+                                'transfer_mandiri' => 'Transfer Mandiri',
+                                'transfer_bni'     => 'Transfer BNI',
+                                default            => strtoupper($pembayaran->metode),
+                            };
+                        @endphp
+                        {{ $labelMetode }}
+                    </strong>
                 </div>
 
                 <div class="payment-info-item">
@@ -211,7 +226,7 @@
                 <div class="payment-info-item">
                     <small>Waktu Verifikasi</small>
                     <strong>
-                        {{ $pembayaran->dibayar_at?->format('d M Y H:i') ?? '-' }}
+                        {{ $pembayaran->dibayar_at?->setTimezone('Asia/Jakarta')->format('d M Y H:i') ?? '-' }} WIB
                     </strong>
                 </div>
             </div>
