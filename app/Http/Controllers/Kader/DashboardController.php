@@ -20,29 +20,62 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $hariIni = now()->toDateString();
+        $hariIni  = now()->toDateString();
+        $aktifTdk = ['dibatalkan', 'tidak_hadir'];
 
+        // ── Pemesanan hari ini (untuk tabel bawah) ───────────────────────
         $pemesananHariIni = Pemesanan::with(['hewan', 'user', 'jadwalPelayanan'])
             ->whereHas('jadwalPelayanan', fn ($q) => $q->whereDate('tanggal', $hariIni))
             ->get()
             ->sortBy(fn ($p) => $p->jadwalPelayanan->waktu_mulai)
             ->values();
 
-        $pembayaran = Pembayaran::whereIn('pemesanan_id', $pemesananHariIni->pluck('id'))
+        // ── Pemesanan mendatang (60 hari ke depan, jika hari ini kosong) ──
+        $pemesananMendatang = Pemesanan::with(['hewan', 'user', 'jadwalPelayanan'])
+            ->whereHas('jadwalPelayanan', fn ($q) => $q
+                ->whereDate('tanggal', '>', $hariIni)
+                ->whereDate('tanggal', '<=', now()->addDays(60)->toDateString())
+            )
+            ->whereNotIn('status', $aktifTdk)
+            ->get()
+            ->sortBy(fn ($p) => [$p->jadwalPelayanan->tanggal, $p->jadwalPelayanan->waktu_mulai])
+            ->values();
+
+        // ── Ambil pembayaran untuk kedua kumpulan pemesanan ──────────────
+        $allIds  = $pemesananHariIni->pluck('id')
+            ->merge($pemesananMendatang->pluck('id'))
+            ->unique();
+
+        $pembayaran = Pembayaran::whereIn('pemesanan_id', $allIds)
             ->get()
             ->keyBy('pemesanan_id');
 
-        $aktif = $pemesananHariIni->whereNotIn('status', ['dibatalkan', 'tidak_hadir']);
+        // ── STAT GLOBAL (semua waktu, bukan hanya hari ini) ─────────────
+        $totalAktif         = Pemesanan::whereNotIn('status', $aktifTdk)->count();
+        $totalMenunggu      = Pemesanan::whereIn('status', ['menunggu', 'dikonfirmasi'])->count();
+        $totalBelumBayarIds = Pemesanan::whereNotIn('status', $aktifTdk)->pluck('id');
+
+        // "Belum dibayar" = tidak ada pembayaran SAMA SEKALI, atau pembayarannya ditolak
+        $sudahBayarIds = Pembayaran::whereIn('pemesanan_id', $totalBelumBayarIds)
+            ->whereIn('status', ['menunggu_verifikasi', 'lunas'])
+            ->pluck('pemesanan_id');
+        $totalBelumBayar = $totalBelumBayarIds->diff($sudahBayarIds)->count();
 
         $stat = [
-            'booking_hari_ini' => $pemesananHariIni->count(),
-            'menunggu_kedatangan' => $pemesananHariIni->whereIn('status', ['menunggu', 'dikonfirmasi'])->count(),
-            'belum_dibayar' => $aktif->filter(fn ($p) => ! $pembayaran->has($p->id))->count(),
-            'artikel_diajukan' => Artikel::where('user_id', auth()->id())->where('status', 'diajukan')->count(),
+            'booking_hari_ini'    => $pemesananHariIni->count(),       // tetap untuk info
+            'total_aktif'         => $totalAktif,
+            'menunggu_kedatangan' => $totalMenunggu,
+            'belum_dibayar'       => max(0, $totalBelumBayar),            'artikel_diajukan'    => Artikel::where('status', 'diajukan')->count(),
         ];
 
         $labelStatus = self::LABEL_STATUS;
 
-        return view('kader.dashboard', compact('stat', 'pemesananHariIni', 'pembayaran', 'labelStatus'));
+        return view('kader.dashboard', compact(
+            'stat',
+            'pemesananHariIni',
+            'pemesananMendatang',
+            'pembayaran',
+            'labelStatus'
+        ));
     }
 }

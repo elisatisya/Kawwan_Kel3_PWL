@@ -96,25 +96,31 @@
     <div class="dokter-card">
         <h3>Booking Hari Ini</h3>
         <h2>{{ $stat['booking_hari_ini'] }}</h2>
-        <p>Total pemesanan hari ini</p>
+        <p>Pemesanan jadwal hari ini</p>
     </div>
 
     <div class="dokter-card">
-        <h3>Menunggu Kedatangan</h3>
+        <h3>Total Booking Aktif</h3>
+        <h2>{{ $stat['total_aktif'] }}</h2>
+        <p>Semua booking belum selesai/batal</p>
+    </div>
+
+    <div class="dokter-card">
+        <h3>Menunggu Konfirmasi</h3>
         <h2>{{ $stat['menunggu_kedatangan'] }}</h2>
-        <p>Pemilik yang menunggu pelayanan</p>
+        <p>Pemilik menunggu kedatangan / konfirmasi</p>
     </div>
 
     <div class="dokter-card">
         <h3>Belum Dibayar</h3>
         <h2>{{ $stat['belum_dibayar'] }}</h2>
-        <p>Pemesanan belum memiliki pembayaran</p>
+        <p>Booking aktif belum ada pembayaran</p>
     </div>
 
     <div class="dokter-card">
         <h3>Artikel Diajukan</h3>
         <h2>{{ $stat['artikel_diajukan'] }}</h2>
-        <p>Artikel yang diajukan</p>
+        <p>Artikel menunggu review</p>
     </div>
 
 </div>
@@ -181,29 +187,13 @@
                             {{-- STATUS PEMBAYARAN --}}
                             <td>
                                 @if ($bayar && $bayar->status === 'lunas')
-
-                                    <span class="admin-status-badge is-aktif">
-                                        Lunas
-                                    </span>
-
+                                    <span class="admin-status-badge is-aktif">Lunas</span>
                                 @elseif ($bayar && $bayar->status === 'menunggu_verifikasi')
-
-                                    <span class="admin-status-badge is-menunggu">
-                                        Menunggu Verifikasi
-                                    </span>
-
+                                    <span class="admin-status-badge is-menunggu">Menunggu Verifikasi</span>
                                 @elseif ($bayar && $bayar->status === 'ditolak')
-
-                                    <span class="admin-status-badge is-menunggu">
-                                        Ditolak
-                                    </span>
-
+                                    <span class="admin-status-badge is-menunggu">Ditolak</span>
                                 @else
-
-                                    <span class="admin-status-badge is-menunggu">
-                                        Belum Dibayar
-                                    </span>
-
+                                    <span class="admin-status-badge is-menunggu">Belum Dibayar</span>
                                 @endif
                             </td>
 
@@ -218,6 +208,66 @@
     @endif
 
 </section>
+
+{{-- PEMESANAN MENDATANG (7 hari ke depan) --}}
+@if ($pemesananMendatang->isNotEmpty())
+<section class="dokter-card">
+
+    <h2>Pemesanan Mendatang <small style="font-size:.8rem;font-weight:400;color:#64748b">(dalam 60 hari ke depan)</small></h2>
+    <p>Daftar booking yang akan datang — belum dibatalkan.</p>
+
+    <div class="dokter-table-wrap">
+        <table class="dokter-table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Waktu</th>
+                    <th>Pemilik</th>
+                    <th>Jenis Hewan</th>
+                    <th>Status</th>
+                    <th>Pembayaran</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($pemesananMendatang as $p)
+                    @php $bayar = $pembayaran->get($p->id); @endphp
+                    <tr>
+                        <td>
+                            <strong>{{ $p->jadwalPelayanan->tanggal->format('d M Y') }}</strong>
+                        </td>
+                        <td>
+                            {{ substr($p->jadwalPelayanan->waktu_mulai, 0, 5) }}
+                            –
+                            {{ substr($p->jadwalPelayanan->waktu_selesai, 0, 5) }}
+                        </td>
+                        <td>{{ $p->user?->name ?? '-' }}</td>
+                        <td>
+                            {{ ucfirst($p->hewan?->jenis ?? '-') }}{{ $p->hewan?->ras ? ' (' . $p->hewan->ras . ')' : '' }}
+                        </td>
+                        <td>
+                            <span class="dokter-badge is-{{ $p->status }}">
+                                {{ $labelStatus[$p->status] ?? ucfirst($p->status) }}
+                            </span>
+                        </td>
+                        <td>
+                            @if ($bayar && $bayar->status === 'lunas')
+                                <span class="admin-status-badge is-aktif">Lunas</span>
+                            @elseif ($bayar && $bayar->status === 'menunggu_verifikasi')
+                                <span class="admin-status-badge is-menunggu">Menunggu Verifikasi</span>
+                            @elseif ($bayar && $bayar->status === 'ditolak')
+                                <span class="admin-status-badge is-menunggu">Ditolak</span>
+                            @else
+                                <span class="admin-status-badge is-menunggu">Belum Dibayar</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+</section>
+@endif
             </main>
         </div>
 
