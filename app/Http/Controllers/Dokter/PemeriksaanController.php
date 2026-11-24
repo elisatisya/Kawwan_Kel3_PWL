@@ -11,10 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 class PemeriksaanController extends Controller
 {
-    
+    // Antrean pasien milik dokter yang login (default: hari ini), bisa difilter status dan dicari
     public function index(Request $request)
     {
+        $request->validate([
+            'tanggal' => ['nullable', 'date'],
+            'status' => ['nullable', 'in:menunggu,sedang_dilayani,selesai'],
+        ]);
+
         $tanggal = $request->query('tanggal', now()->toDateString());
+        $status = $request->query('status');
+        $q = trim((string) $request->query('q', ''));
 
         $antrean = Antrean::with([
             'pemesanan.hewan',
@@ -24,13 +31,25 @@ class PemeriksaanController extends Controller
         ])
             ->where('dokter_id', auth()->id())
             ->whereDate('tanggal', $tanggal)
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($q !== '', function ($query) use ($q) {
+                $kw = '%'.strtolower($q).'%';
+
+                $query->whereHas('pemesanan', function ($p) use ($kw) {
+                    $p->where(function ($w) use ($kw) {
+                        $w->whereHas('user', fn ($u) => $u->whereRaw('LOWER(name) LIKE ?', [$kw]))
+                            ->orWhereHas('hewan', fn ($h) => $h->whereRaw('LOWER(jenis) LIKE ?', [$kw])
+                                ->orWhereRaw('LOWER(COALESCE(ras, \'\')) LIKE ?', [$kw]));
+                    });
+                });
+            })
             ->orderBy('nomor_antrean')
             ->get();
 
-        return view('dokter.pemeriksaan', compact('antrean', 'tanggal'));
+        return view('dokter.pemeriksaan', compact('antrean', 'tanggal', 'status', 'q'));
     }
 
-   
+    // Halaman form pemeriksaan untuk satu antrean
     public function show(Antrean $antrean)
     {
         $this->pastikanMilikSaya($antrean);
@@ -45,7 +64,25 @@ class PemeriksaanController extends Controller
         return view('dokter.pemeriksaan-form', compact('antrean'));
     }
 
-    
+    // Halaman siap cetak hasil pemeriksaan
+    public function cetak(Antrean $antrean)
+    {
+        $this->pastikanMilikSaya($antrean);
+
+        $antrean->load([
+            'pemesanan.hewan.pemilik',
+            'pemesanan.user',
+            'pemesanan.jadwalPelayanan',
+            'pemesanan.pemesananLayanan.layanan',
+            'pemesanan.pemeriksaan',
+        ]);
+
+        abort_unless($antrean->pemesanan->pemeriksaan, 404);
+
+        return view('dokter.pemeriksaan-cetak', compact('antrean'));
+    }
+
+    // Tombol "Mulai Pemeriksaan": dikonfirmasi -> sedang_dilayani
     public function mulai(Antrean $antrean): RedirectResponse
     {
         $this->pastikanMilikSaya($antrean);
@@ -65,7 +102,7 @@ class PemeriksaanController extends Controller
             ->with('success', 'Pemeriksaan dimulai.');
     }
 
-   
+    // Simpan hasil pemeriksaan: sedang_dilayani -> selesai
     public function simpan(Request $request, Antrean $antrean): RedirectResponse
     {
         $this->pastikanMilikSaya($antrean);
@@ -95,7 +132,7 @@ class PemeriksaanController extends Controller
 
             $antrean->update(['status' => 'selesai']);
 
-           
+            // Pemesanan baru "selesai" kalau semua antrean dokter-nya selesai
             $masihAda = $pemesanan->antrean()->where('status', '!=', 'selesai')->exists();
 
             $pemesanan->update([

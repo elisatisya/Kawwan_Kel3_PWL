@@ -5368,3 +5368,561 @@ img {
     align-items: center;
     gap: .4rem;
 }
+
+.jadwal-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.jadwal-tab {
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #6b7280;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    text-decoration: none;
+}
+
+.jadwal-tab:hover {
+    color: #ff6b00;
+}
+
+.jadwal-tab.is-active {
+    color: #ff6b00;
+    border-bottom-color: #ff6b00;
+}
+
+.jadwal-filter {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.jadwal-filter .form-group {
+    margin-bottom: 0;
+}
+
+.jadwal-hari-judul {
+    margin: 24px 0 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.dokter-table tr.is-mine td {
+    background: #fff7f0;
+}
+
+.dokter-badge.is-anda {
+    background: #ff6b00;
+    color: #fff;
+    margin-left: 6px;
+}
+
+@media (max-width: 640px) {
+    .jadwal-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.dokter-alert.is-warning {
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+/* Cetak Hasil Pemeriksaan (Dokter) */
+.cetak-page,
+.cetak-page * {
+    box-sizing: border-box;
+}
+
+.cetak-page {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #111;
+    background: #fff;
+    margin: 0;
+    padding: 32px;
+}
+
+.cetak-kop {
+    border-bottom: 3px solid #ff6b00;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.cetak-kop h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #ff6b00;
+}
+
+.cetak-kop p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.cetak-page h2 {
+    font-size: 16px;
+    margin: 24px 0 8px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+}
+
+.cetak-info {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.cetak-info td {
+    padding: 5px 0;
+    vertical-align: top;
+}
+
+.cetak-info td:first-child {
+    width: 170px;
+    color: #555;
+}
+
+.cetak-kotak {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+    white-space: pre-line;
+    min-height: 40px;
+}
+
+.cetak-ttd {
+    margin-top: 48px;
+    width: 240px;
+    margin-left: auto;
+    text-align: center;
+    font-size: 14px;
+}
+
+.cetak-garis {
+    margin-top: 64px;
+    border-top: 1px solid #111;
+    padding-top: 4px;
+    font-weight: bold;
+}
+
+.cetak-aksi {
+    margin-bottom: 20px;
+}
+
+.cetak-aksi button,
+.cetak-aksi a {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #ff6b00;
+    background: #ff6b00;
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.cetak-aksi a {
+    background: #fff;
+    color: #ff6b00;
+}
+
+@media print {
+    .cetak-aksi {
+        display: none;
+    }
+
+    .cetak-page {
+        padding: 0;
+    }
+}
+
+.kal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.kal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.kal-hari {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 8px;
+    min-height: 140px;
+    background: #fff;
+}
+
+.kal-hari.is-today {
+    border-color: #ff6b00;
+    box-shadow: 0 0 0 1px #ff6b00 inset;
+}
+
+.kal-hari-judul {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.kal-hari-judul span {
+    display: inline-block;
+    margin-left: 4px;
+    color: #111827;
+    font-size: 14px;
+}
+
+.kal-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    font-size: 12px;
+}
+
+.kal-item.is-mine {
+    background: #fff1e6;
+    border-left: 3px solid #ff6b00;
+}
+
+.kal-item.is-closed {
+    opacity: 0.55;
+    text-decoration: line-through;
+}
+
+.kal-kosong {
+    color: #d1d5db;
+    text-align: center;
+    margin: 12px 0;
+}
+
+
+.dokter-filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.dokter-filter-row input[type="text"],
+.dokter-filter-row select {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+@media (max-width: 900px) {
+    .kal-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.riwayat-card .riwayat-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.riwayat-item-aksi {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.riwayat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.riwayat-box {
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+.riwayat-box span {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.riwayat-box p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+    .riwayat-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Dokter: halaman cetak rekam medis ===== */
+@page {
+    size: A4;
+    margin: 16mm 18mm 18mm;
+}
+
+body.cetak-body {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 11.5pt;
+    color: #000;
+    line-height: 1.45;
+    margin: 0;
+    padding: 24px;
+    background: #e5e7eb;
+}
+
+.cetak-body * {
+    box-sizing: border-box;
+}
+
+.cetak-toolbar {
+    max-width: 794px;
+    margin: 0 auto 16px;
+    display: flex;
+    gap: 8px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.cetak-toolbar button,
+.cetak-toolbar a {
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: 1px solid #000;
+    background: #000;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.cetak-toolbar a {
+    background: #fff;
+    color: #000;
+}
+
+.cetak-kertas {
+    max-width: 794px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 36px 44px 32px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cetak-kop {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #000;
+    box-shadow: 0 4px 0 -2px #fff, 0 5px 0 -2px #000;
+    margin-bottom: 18px;
+}
+
+.cetak-kop img {
+    height: 58px;
+    width: auto;
+}
+
+.cetak-kop-teks {
+    flex: 1;
+    text-align: center;
+    padding-right: 58px;
+}
+
+.cetak-kop-teks h1 {
+    margin: 0;
+    font-size: 17pt;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.cetak-kop-teks p {
+    margin: 2px 0 0;
+    font-size: 10.5pt;
+}
+
+.cetak-judul {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.cetak-judul h2 {
+    margin: 0;
+    font-size: 13.5pt;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: underline;
+}
+
+.cetak-judul p {
+    margin: 4px 0 0;
+    font-size: 10.5pt;
+}
+
+.cetak-sec {
+    margin: 14px 0 6px;
+    padding-bottom: 2px;
+    font-size: 10.5pt;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #000;
+}
+
+.cetak-kv {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cetak-kv td {
+    padding: 2px 0;
+    vertical-align: top;
+}
+
+.cetak-kv td.cetak-k {
+    width: 150px;
+    white-space: nowrap;
+    padding-right: 0;
+}
+
+.cetak-kv.cetak-kv-sempit td.cetak-k {
+    width: 105px;
+}
+
+.cetak-kv td.cetak-t {
+    width: 14px;
+    padding: 2px 6px 2px 0;
+    text-align: left;
+}
+
+.cetak-kv td.cetak-v {
+    font-weight: bold;
+}
+
+.cetak-dua {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.cetak-kotak-judul {
+    margin: 0 0 4px;
+    font-size: 10.5pt;
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.cetak-isi {
+    min-height: 0;
+    padding: 4px 0 0;
+    border: 0;
+    white-space: pre-line;
+    text-align: justify;
+}
+
+.cetak-ttd {
+    width: 250px;
+    margin: 28px 0 0 auto;
+    text-align: center;
+    page-break-inside: avoid;
+}
+
+.cetak-ttd p {
+    margin: 0;
+}
+
+.cetak-ttd-ruang {
+    height: 70px;
+}
+
+.cetak-ttd-nama {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.cetak-ttd-ket {
+    font-size: 10pt;
+}
+
+.cetak-kaki {
+    margin-top: 22px;
+    padding-top: 6px;
+    border-top: 1px solid #000;
+    font-size: 9.5pt;
+    font-style: italic;
+}
+
+@media print {
+    body.cetak-body {
+        background: #fff;
+        padding: 0;
+    }
+
+    .cetak-toolbar {
+        display: none;
+    }
+
+    .cetak-kertas {
+        box-shadow: none;
+        padding: 0;
+        max-width: none;
+    }
+
+    .cetak-kop {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+@media (max-width: 640px) {
+    .cetak-dua {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Dokter: badge status di blok info ===== */
+.riwayat-info .dokter-badge {
+    display: inline-block;
+    width: auto;
+    margin: 0;
+}

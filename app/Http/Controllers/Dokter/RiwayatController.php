@@ -9,12 +9,22 @@ use Illuminate\Http\Request;
 
 class RiwayatController extends Controller
 {
+    // Hanya pemesanan yang punya antrean untuk dokter yang login
+    private function milikSaya(): \Closure
+    {
+        return fn ($q) => $q->whereHas('antrean', fn ($a) => $a->where('dokter_id', auth()->id()));
+    }
+
     public function index(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
+        $milikSaya = $this->milikSaya();
 
-        $pasien = Hewan::with(['pemilik', 'pemesanan.pemeriksaan'])
-            ->whereHas('pemesanan.pemeriksaan')
+        $pasien = Hewan::with([
+            'pemilik',
+            'pemesanan' => fn ($p) => $milikSaya($p)->with('pemeriksaan'),
+        ])
+            ->whereHas('pemesanan', fn ($p) => $milikSaya($p)->whereHas('pemeriksaan'))
             ->when($q !== '', function ($query) use ($q) {
                 $keyword = '%'.strtolower($q).'%';
                 $query->where(function ($w) use ($keyword) {
@@ -33,9 +43,13 @@ class RiwayatController extends Controller
     public function show(Hewan $hewan)
     {
         $hewan->load('pemilik');
+        $milikSaya = $this->milikSaya();
 
-        $riwayat = Pemeriksaan::with('pemesanan.jadwalPelayanan')
-            ->whereHas('pemesanan', fn ($q) => $q->where('hewan_id', $hewan->id))
+        $riwayat = Pemeriksaan::with([
+            'pemesanan.jadwalPelayanan',
+            'pemesanan.antrean' => fn ($a) => $a->where('dokter_id', auth()->id()),
+        ])
+            ->whereHas('pemesanan', fn ($q) => $milikSaya($q->where('hewan_id', $hewan->id)))
             ->latest()
             ->get();
 
