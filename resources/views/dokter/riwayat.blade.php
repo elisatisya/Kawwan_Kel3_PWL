@@ -28,7 +28,7 @@
 
             <p class="dokter-menu-label">Menu Dokter</p>
 
-              <nav class="dokter-menu" aria-label="Navigasi dokter">
+            <nav class="dokter-menu" aria-label="Navigasi dokter">
                 <a href="{{ route('dokter.dashboard') }}" class="{{ request()->routeIs('dokter.dashboard') ? 'active' : '' }}">
                     Dashboard
                 </a>
@@ -79,97 +79,108 @@
             </header>
 
             <main class="dokter-content">
-@isset($hewan)
-        <a href="{{ route('dokter.riwayat.index') }}" class="riwayat-back">
-            <i class="fa-solid fa-arrow-left"></i> Kembali ke riwayat
-        </a>
+                @isset($hewan)
+                    <a href="{{ route('dokter.riwayat.index') }}" class="riwayat-back">
+                        <i class="fa-solid fa-arrow-left"></i> Kembali ke riwayat
+                    </a>
 
-        <section class="dokter-card">
-            <h3>{{ ucfirst($hewan->jenis) }}{{ $hewan->ras ? ' (' . $hewan->ras . ')' : '' }}</h3>
-            <p class="dokter-card-sub">Identitas pasien hewan.</p>
+                    <section class="dokter-card">
+                        <h3>{{ ucfirst($hewan->jenis) }}{{ $hewan->ras ? ' (' . $hewan->ras . ')' : '' }}</h3>
+                        <p class="dokter-card-sub">Identitas pasien hewan.</p>
 
-            <div class="riwayat-info">
-                <div><span>Jenis Hewan</span><strong>{{ ucfirst($hewan->jenis) }}</strong></div>
-                <div><span>Ras</span><strong>{{ $hewan->ras ?: '-' }}</strong></div>
-                <div><span>Jenis Kelamin</span><strong>{{ ucfirst($hewan->jenis_kelamin) }}</strong></div>
-                <div><span>Umur</span><strong>{{ $hewan->umur ?? '-' }}</strong></div>
-                <div><span>Pemilik</span><strong>{{ $hewan->pemilik?->name ?? '-' }}</strong></div>
-                <div><span>Telepon</span><strong>{{ $hewan->pemilik?->nomor_telepon ?: '-' }}</strong></div>
-            </div>
-        </section>
+                        <div class="riwayat-info">
+                            <div><span>Jenis Hewan</span><strong>{{ ucfirst($hewan->jenis) }}</strong></div>
+                            <div><span>Ras</span><strong>{{ $hewan->ras ?: '-' }}</strong></div>
+                            <div><span>Jenis Kelamin</span><strong>{{ ucfirst($hewan->jenis_kelamin) }}</strong></div>
+                            <div><span>Umur</span><strong>{{ $hewan->umur ?? '-' }}</strong></div>
+                            <div><span>Pemilik</span><strong>{{ $hewan->pemilik?->name ?? '-' }}</strong></div>
+                            <div><span>Telepon</span><strong>{{ $hewan->pemilik?->nomor_telepon ?: '-' }}</strong></div>
+                        </div>
+                    </section>
 
-        <div class="riwayat-list">
-            @forelse ($riwayat as $r)
-                <section class="dokter-card">
-                    <div class="riwayat-item-head">
-                        <span class="riwayat-item-date">{{ $r->created_at->format('d M Y, H:i') }} WIB</span>
-                        <span class="dokter-badge is-{{ $r->pemesanan->status }}">{{ \Illuminate\Support\Str::headline($r->pemesanan->status) }}</span>
+                    <div class="riwayat-list">
+                        @forelse ($riwayat as $r)
+                            @php $a = $r->pemesanan->antrean->first(); @endphp
+                            <section class="dokter-card riwayat-card">
+                                <div class="riwayat-item-head">
+                                    <span class="riwayat-item-date">{{ $r->created_at->format('d M Y, H:i') }} WIB</span>
+                                    <div class="riwayat-item-aksi">
+                                        <span class="dokter-badge is-{{ $r->pemesanan->status }}">{{ \Illuminate\Support\Str::headline($r->pemesanan->status) }}</span>
+                                        @if ($a)
+                                            <a href="{{ route('dokter.pemeriksaan.cetak', $a) }}" target="_blank" class="btn btn-outline btn-sm">
+                                                <i class="fa-solid fa-print"></i> Cetak
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="riwayat-grid">
+                                    <div class="riwayat-box"><span>Keluhan</span><p>{{ $r->keluhan ?: '-' }}</p></div>
+                                    <div class="riwayat-box"><span>Hasil Pemeriksaan</span><p>{{ $r->hasil_pemeriksaan ?: '-' }}</p></div>
+                                    <div class="riwayat-box"><span>Tindakan</span><p>{{ $r->tindakan ?: '-' }}</p></div>
+                                    <div class="riwayat-box"><span>Catatan</span><p>{{ $r->catatan ?: '-' }}</p></div>
+                                </div>
+                            </section>
+                        @empty
+                            <section class="dokter-card">
+                                <p class="dokter-empty">Belum ada catatan pemeriksaan untuk hewan ini.</p>
+                            </section>
+                        @endforelse
                     </div>
+                @else
+                    <section class="dokter-card">
+                        <div class="dokter-card-head">
+                            <div>
+                                <h3>Daftar Pasien Hewan</h3>
+                                <p class="dokter-card-sub">Pilih hewan untuk melihat catatan pemeriksaannya.</p>
+                            </div>
+                        </div>
 
-                    <div class="riwayat-field"><span>Keluhan</span><p>{{ $r->keluhan ?: '-' }}</p></div>
-                    <div class="riwayat-field"><span>Hasil Pemeriksaan</span><p>{{ $r->hasil_pemeriksaan ?: '-' }}</p></div>
-                    <div class="riwayat-field"><span>Tindakan</span><p>{{ $r->tindakan ?: '-' }}</p></div>
-                    <div class="riwayat-field"><span>Catatan</span><p>{{ $r->catatan ?: '-' }}</p></div>
-                </section>
-            @empty
-                <section class="dokter-card">
-                    <p class="dokter-empty">Belum ada catatan pemeriksaan untuk hewan ini.</p>
-                </section>
-            @endforelse
-        </div>
-    @else
-            <section class="dokter-card">
-            <div class="dokter-card-head">
-                <div>
-                    <h3>Daftar Pasien Hewan</h3>
-                    <p class="dokter-card-sub">Pilih hewan untuk melihat catatan pemeriksaannya.</p>
-                </div>
-            </div>
+                        <section class="dokter-card">
+                            <form method="GET" action="{{ route('dokter.riwayat.index') }}" class="riwayat-search">
+                                <input type="text" name="q" value="{{ $q }}" placeholder="Cari jenis hewan atau pemilik...">
+                                <button type="submit" class="btn btn-primary">Cari</button>
+                            </form>
 
-        <section class="dokter-card">
-            <form method="GET" action="{{ route('dokter.riwayat.index') }}" class="riwayat-search">
-                <input type="text" name="q" value="{{ $q }}" placeholder="Cari jenis hewan atau pemilik...">
-                <button type="submit" class="btn btn-primary">Cari</button>
-            </form>
+                            @if ($pasien->isEmpty())
+                                <p class="dokter-empty">Belum ada riwayat pemeriksaan.</p>
+                            @else
+                                <div class="dokter-table-wrap">
+                                    <table class="riwayat-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Jenis Hewan</th>
+                                                <th>Ras</th>
+                                                <th>Pemilik</th>
+                                                <th>Total</th>
+                                                <th>Terakhir</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($pasien as $h)
+                                                @php
+                                                    $catatan = $h->pemesanan->pluck('pemeriksaan')->filter();
+                                                    $terakhir = $catatan->sortByDesc('created_at')->first()?->created_at;
+                                                @endphp
+                                                <tr>
+                                                    <td><strong>{{ ucfirst($h->jenis) }}</strong></td>
+                                                    <td>{{ $h->ras ?: '-' }}</td>
+                                                    <td>{{ $h->pemilik?->name ?? '-' }}</td>
+                                                    <td>{{ $catatan->count() }}</td>
+                                                    <td>{{ $terakhir ? $terakhir->format('d M Y') : '-' }}</td>
+                                                    <td><a href="{{ route('dokter.riwayat.show', $h) }}" class="riwayat-link">Lihat catatan</a></td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
 
-            @if ($pasien->isEmpty())
-                <p class="dokter-empty">Belum ada riwayat pemeriksaan.</p>
-            @else
-                <div class="dokter-table-wrap">
-                    <table class="riwayat-table">
-                        <thead>
-                            <tr>
-                                <th>Jenis Hewan</th>
-                                <th>Ras</th>
-                                <th>Pemilik</th>
-                                <th>Total</th>
-                                <th>Terakhir</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($pasien as $h)
-                                @php
-                                    $catatan = $h->pemesanan->pluck('pemeriksaan')->filter();
-                                    $terakhir = $catatan->sortByDesc('created_at')->first()?->created_at;
-                                @endphp
-                                <tr>
-                                    <td><strong>{{ ucfirst($h->jenis) }}</strong></td>
-                                    <td>{{ $h->ras ?: '-' }}</td>
-                                    <td>{{ $h->pemilik?->name ?? '-' }}</td>
-                                    <td>{{ $catatan->count() }}</td>
-                                    <td>{{ $terakhir ? $terakhir->format('d M Y') : '-' }}</td>
-                                    <td><a href="{{ route('dokter.riwayat.show', $h) }}" class="riwayat-link">Lihat catatan</a></td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{ $pasien->links() }}
-            @endif
-        </section>
-    @endisset
+                                {{ $pasien->links() }}
+                            @endif
+                        </section>
+                    </section>
+                @endisset
             </main>
         </div>
 

@@ -96,7 +96,108 @@
                         </a>
                     </div>
 
-                    @if ($jadwal->isEmpty())
+                    <div class="jadwal-tabs">
+                        <a href="{{ route('dokter.jadwal.index') }}" class="jadwal-tab {{ $lihat === 'saya' ? 'is-active' : '' }}">Jadwal Saya</a>
+                        <a href="{{ route('dokter.jadwal.index', ['lihat' => 'semua']) }}" class="jadwal-tab {{ $lihat === 'semua' ? 'is-active' : '' }}">Semua Dokter</a>
+                        <a href="{{ route('dokter.jadwal.index', ['lihat' => 'kalender']) }}" class="jadwal-tab {{ $lihat === 'kalender' ? 'is-active' : '' }}">Kalender</a>
+                    </div>
+
+                    {{-- ===== TAB KALENDER MINGGUAN ===== --}}
+                    @if ($lihat === 'kalender')
+                        <div class="kal-nav">
+                            <a href="{{ route('dokter.jadwal.index', ['lihat' => 'kalender', 'minggu' => $mingguLalu]) }}" class="btn btn-outline btn-sm">&laquo; Minggu lalu</a>
+                            <strong>{{ $awal->copy()->locale('id')->translatedFormat('d M') }} - {{ $akhir->copy()->locale('id')->translatedFormat('d M Y') }}</strong>
+                            <a href="{{ route('dokter.jadwal.index', ['lihat' => 'kalender', 'minggu' => $mingguDepan]) }}" class="btn btn-outline btn-sm">Minggu depan &raquo;</a>
+                        </div>
+
+                        <div class="kal-grid">
+                            @foreach ($hari as $h)
+                                @php $items = $perTanggal[$h->toDateString()] ?? collect(); @endphp
+                                <div class="kal-hari {{ $h->isToday() ? 'is-today' : '' }}">
+                                    <div class="kal-hari-judul">{{ $h->copy()->locale('id')->translatedFormat('D') }} <span>{{ $h->format('d') }}</span></div>
+
+                                    @forelse ($items as $j)
+                                        @php $saya = $j->dokter_id === auth()->id(); @endphp
+                                        <div class="kal-item {{ $saya ? 'is-mine' : '' }} {{ $j->status === 'ditutup' ? 'is-closed' : '' }}">
+                                            <strong>{{ substr($j->waktu_mulai, 0, 5) }} - {{ substr($j->waktu_selesai, 0, 5) }}</strong>
+                                            <span>{{ $saya ? 'Anda' : trim(($j->dokter?->gelar_depan ?? '').' '.($j->dokter?->name ?? '-')) }}</span>
+                                        </div>
+                                    @empty
+                                        <p class="kal-kosong">-</p>
+                                    @endforelse
+                                </div>
+                            @endforeach
+                        </div>
+
+                    {{-- ===== TAB SEMUA DOKTER ===== --}}
+                    @elseif ($lihat === 'semua')
+                        <form method="GET" action="{{ route('dokter.jadwal.index') }}" class="jadwal-filter">
+                            <input type="hidden" name="lihat" value="semua">
+
+                            <div class="form-group">
+                                <label for="dari">Dari tanggal</label>
+                                <input type="date" id="dari" name="dari" value="{{ $dari }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sampai">Sampai tanggal</label>
+                                <input type="date" id="sampai" name="sampai" value="{{ $sampai }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="dokter_id">Dokter</label>
+                                <select id="dokter_id" name="dokter_id">
+                                    <option value="">Semua dokter</option>
+                                    @foreach ($daftarDokter as $d)
+                                        <option value="{{ $d->id }}" @selected($dokterId == $d->id)>
+                                            {{ trim(($d->gelar_depan ?? '').' '.$d->name.' '.($d->gelar_belakang ?? '')) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Tampilkan</button>
+                        </form>
+
+                        @forelse ($semuaJadwal as $tgl => $items)
+                            <h4 class="jadwal-hari-judul">{{ \Carbon\Carbon::parse($tgl)->locale('id')->translatedFormat('l, d F Y') }}</h4>
+
+                            <div class="dokter-table-wrap">
+                                <table class="dokter-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Waktu</th>
+                                            <th>Dokter</th>
+                                            <th>Kuota</th>
+                                            <th>Terisi</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($items as $j)
+                                            @php $saya = $j->dokter_id === auth()->id(); @endphp
+                                            <tr class="{{ $saya ? 'is-mine' : '' }}">
+                                                <td>{{ substr($j->waktu_mulai, 0, 5) }} - {{ substr($j->waktu_selesai, 0, 5) }} WIB</td>
+                                                <td>
+                                                    {{ trim(($j->dokter?->gelar_depan ?? '').' '.($j->dokter?->name ?? '-').' '.($j->dokter?->gelar_belakang ?? '')) }}
+                                                    @if ($saya)
+                                                        <span class="dokter-badge is-anda">Anda</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $j->kuota ?? '-' }}</td>
+                                                <td>{{ $j->terpakai }}</td>
+                                                <td><span class="dokter-badge is-{{ $j->status }}">{{ ucfirst($j->status) }}</span></td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @empty
+                            <p class="dokter-empty">Tidak ada jadwal praktik pada rentang tanggal ini.</p>
+                        @endforelse
+
+                    {{-- ===== TAB JADWAL SAYA ===== --}}
+                    @elseif ($jadwal->isEmpty())
                         <p class="dokter-empty">Belum ada jadwal praktik. Klik "Tambah Jadwal" untuk membuat.</p>
                     @else
                         <div class="dokter-table-wrap">
@@ -114,7 +215,7 @@
                                 <tbody>
                                     @foreach ($jadwal as $j)
                                         <tr>
-                                            <td>{{ $j->tanggal->translatedFormat('d M Y') }}</td>
+                                            <td>{{ $j->tanggal->locale('id')->translatedFormat('d M Y') }}</td>
                                             <td>{{ substr($j->waktu_mulai, 0, 5) }} - {{ substr($j->waktu_selesai, 0, 5) }} WIB</td>
                                             <td>{{ $j->kuota ?? 'Tanpa batas' }}</td>
                                             <td>{{ $j->terpakai }}</td>
@@ -124,6 +225,7 @@
                                             <td>
                                                 <div class="dokter-actions">
                                                     <a href="{{ route('dokter.jadwal.edit', $j) }}" class="btn btn-outline btn-sm">Ubah</a>
+
                                                     <form action="{{ route('dokter.jadwal.destroy', $j) }}" method="POST"
                                                           onsubmit="return confirm('Hapus jadwal ini?')">
                                                         @csrf

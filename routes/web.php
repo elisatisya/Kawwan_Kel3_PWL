@@ -140,7 +140,7 @@ Route::middleware(['auth', 'role:dokter_hewan,dokter'])
         Route::put('/profil', [ProfilController::class, 'update'])
             ->name('profil.update');
 
-        // Jadwal pelayanan milik dokter
+        // Jadwal praktik milik dokter
         Route::get('/jadwal', [DokterJadwalController::class, 'index'])->name('jadwal.index');
         Route::get('/jadwal/create', [DokterJadwalController::class, 'create'])->name('jadwal.create');
         Route::post('/jadwal', [DokterJadwalController::class, 'store'])->name('jadwal.store');
@@ -151,6 +151,7 @@ Route::middleware(['auth', 'role:dokter_hewan,dokter'])
         // Pemeriksaan (antrean pasien)
         Route::get('/pemeriksaan', [PemeriksaanController::class, 'index'])->name('pemeriksaan.index');
         Route::get('/pemeriksaan/{antrean}', [PemeriksaanController::class, 'show'])->name('pemeriksaan.show');
+        Route::get('/pemeriksaan/{antrean}/cetak', [PemeriksaanController::class, 'cetak'])->name('pemeriksaan.cetak');
         Route::patch('/pemeriksaan/{antrean}/mulai', [PemeriksaanController::class, 'mulai'])->name('pemeriksaan.mulai');
         Route::post('/pemeriksaan/{antrean}', [PemeriksaanController::class, 'simpan'])->name('pemeriksaan.simpan');
 

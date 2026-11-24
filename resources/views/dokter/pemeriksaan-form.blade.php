@@ -179,6 +179,12 @@
                         <h3>Hasil Pemeriksaan</h3>
                         <p class="dokter-card-sub">Pemeriksaan ini sudah selesai.</p>
 
+                        <div class="dokter-actions" style="margin-bottom: 16px;">
+                            <a href="{{ route('dokter.pemeriksaan.cetak', $antrean) }}" target="_blank" class="btn btn-outline btn-sm">
+                                <i class="fa-solid fa-print"></i> Cetak Hasil
+                            </a>
+                        </div>
+
                         <div class="riwayat-info">
                             <div><span>Keluhan</span><strong>{{ $hasil?->keluhan ?: '-' }}</strong></div>
                             <div><span>Hasil Pemeriksaan</span><strong>{{ $hasil?->hasil_pemeriksaan ?: '-' }}</strong></div>
