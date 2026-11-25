@@ -5703,7 +5703,7 @@ img {
 
 body.cetak-body {
     font-family: "Times New Roman", Times, serif;
-    font-size: 11.5pt;
+    font-size: 10.5pt;
     color: #000;
     line-height: 1.45;
     margin: 0;
@@ -5716,7 +5716,7 @@ body.cetak-body {
 }
 
 .cetak-toolbar {
-    max-width: 794px;
+    max-width: 720px;
     margin: 0 auto 16px;
     display: flex;
     gap: 8px;
@@ -5741,7 +5741,7 @@ body.cetak-body {
 }
 
 .cetak-kertas {
-    max-width: 794px;
+    max-width: 720px;
     margin: 0 auto;
     background: #fff;
     padding: 36px 44px 32px;
@@ -5800,18 +5800,20 @@ body.cetak-body {
 }
 
 .cetak-sec {
-    margin: 14px 0 6px;
-    padding-bottom: 2px;
+    margin: 14px 0 0;
+    padding: 4px 10px;
     font-size: 10.5pt;
     font-weight: bold;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    border-bottom: 1px solid #000;
+    border: 1px solid #000;
 }
 
 .cetak-kv {
     width: 100%;
     border-collapse: collapse;
+    border: 1px solid #000;
+    border-top: 0;
 }
 
 .cetak-kv td {
@@ -5819,9 +5821,18 @@ body.cetak-body {
     vertical-align: top;
 }
 
+.cetak-kv tr:first-child td {
+    padding-top: 8px;
+}
+
+.cetak-kv tr:last-child td {
+    padding-bottom: 8px;
+}
+
 .cetak-kv td.cetak-k {
     width: 150px;
     white-space: nowrap;
+    padding-left: 10px;
     padding-right: 0;
 }
 
@@ -5836,7 +5847,11 @@ body.cetak-body {
 }
 
 .cetak-kv td.cetak-v {
-    font-weight: bold;
+    font-weight: normal;
+}
+
+.cetak-kv td.cetak-v {
+    padding-right: 10px;
 }
 
 .cetak-dua {

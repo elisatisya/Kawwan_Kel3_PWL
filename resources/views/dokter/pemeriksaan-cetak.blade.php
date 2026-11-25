@@ -37,25 +37,25 @@
             <p>Nomor Antrean: {{ $antrean->nomor_antrean }}</p>
         </div>
 
-        <p class="cetak-bagian">A. Data Pasien</p>
-        <table class="cetak-data">
-            <tr><td class="cetak-label">Tanggal Pemeriksaan</td><td>{{ $antrean->tanggal->locale('id')->translatedFormat('l, d F Y') }}</td></tr>
+        <p class="cetak-sec">A. Data Pasien</p>
+        <table class="cetak-kv">
+            <tr><td class="cetak-k">Tanggal Pemeriksaan</td><td class="cetak-t">:</td><td class="cetak-v">{{ $antrean->tanggal->locale('id')->translatedFormat('l, d F Y') }}</td></tr>
             @if ($jadwal)
-                <tr><td class="cetak-label">Jam Praktik</td><td>{{ substr($jadwal->waktu_mulai, 0, 5) }} - {{ substr($jadwal->waktu_selesai, 0, 5) }} WIB</td></tr>
+                <tr><td class="cetak-k">Jam Praktik</td><td class="cetak-t">:</td><td class="cetak-v">{{ substr($jadwal->waktu_mulai, 0, 5) }} - {{ substr($jadwal->waktu_selesai, 0, 5) }} WIB</td></tr>
             @endif
-            <tr><td class="cetak-label">Nama Pemilik</td><td>{{ $p->user?->name ?? '-' }}</td></tr>
-            <tr><td class="cetak-label">Jenis Hewan</td><td>{{ ucfirst($hewan?->jenis ?? '-') }}{{ $hewan?->ras ? ' ('.$hewan->ras.')' : '' }}</td></tr>
-            <tr><td class="cetak-label">Jenis Kelamin</td><td>{{ ucfirst($hewan?->jenis_kelamin ?? '-') }}</td></tr>
-            <tr><td class="cetak-label">Umur</td><td>{{ $hewan?->umur ?? '-' }}</td></tr>
-            <tr><td class="cetak-label">Layanan</td><td>{{ $p->pemesananLayanan->map(fn ($l) => $l->layanan?->nama)->filter()->join(', ') ?: '-' }}</td></tr>
+            <tr><td class="cetak-k">Nama Pemilik</td><td class="cetak-t">:</td><td class="cetak-v">{{ $p->user?->name ?? '-' }}</td></tr>
+            <tr><td class="cetak-k">Jenis Hewan</td><td class="cetak-t">:</td><td class="cetak-v">{{ ucfirst($hewan?->jenis ?? '-') }}{{ $hewan?->ras ? ' ('.$hewan->ras.')' : '' }}</td></tr>
+            <tr><td class="cetak-k">Jenis Kelamin</td><td class="cetak-t">:</td><td class="cetak-v">{{ ucfirst($hewan?->jenis_kelamin ?? '-') }}</td></tr>
+            <tr><td class="cetak-k">Umur</td><td class="cetak-t">:</td><td class="cetak-v">{{ $hewan?->umur ?? '-' }}</td></tr>
+            <tr><td class="cetak-k">Layanan</td><td class="cetak-t">:</td><td class="cetak-v">{{ $p->pemesananLayanan->map(fn ($l) => $l->layanan?->nama)->filter()->join(', ') ?: '-' }}</td></tr>
         </table>
 
-        <p class="cetak-bagian">B. Hasil Pemeriksaan</p>
-        <table class="cetak-data">
-            <tr><td class="cetak-label">Keluhan</td><td class="cetak-isi">{{ $hasil->keluhan ?: '-' }}</td></tr>
-            <tr><td class="cetak-label">Hasil Pemeriksaan</td><td class="cetak-isi">{{ $hasil->hasil_pemeriksaan ?: '-' }}</td></tr>
-            <tr><td class="cetak-label">Tindakan</td><td class="cetak-isi">{{ $hasil->tindakan ?: '-' }}</td></tr>
-            <tr><td class="cetak-label">Catatan</td><td class="cetak-isi">{{ $hasil->catatan ?: '-' }}</td></tr>
+        <p class="cetak-sec">B. Hasil Pemeriksaan</p>
+        <table class="cetak-kv">
+            <tr><td class="cetak-k">Keluhan</td><td class="cetak-t">:</td><td class="cetak-v cetak-isi">{{ $hasil->keluhan ?: '-' }}</td></tr>
+            <tr><td class="cetak-k">Hasil Pemeriksaan</td><td class="cetak-t">:</td><td class="cetak-v cetak-isi">{{ $hasil->hasil_pemeriksaan ?: '-' }}</td></tr>
+            <tr><td class="cetak-k">Tindakan</td><td class="cetak-t">:</td><td class="cetak-v cetak-isi">{{ $hasil->tindakan ?: '-' }}</td></tr>
+            <tr><td class="cetak-k">Catatan</td><td class="cetak-t">:</td><td class="cetak-v cetak-isi">{{ $hasil->catatan ?: '-' }}</td></tr>
         </table>
 
         <div class="cetak-ttd">

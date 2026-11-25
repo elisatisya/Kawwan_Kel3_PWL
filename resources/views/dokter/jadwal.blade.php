@@ -70,7 +70,7 @@
                         @endif
                     </div>
                     <div>
-                        <span class="dokter-user-name">{{ auth()->user()->name }}</span>
+                        <span class="dokter-user-name">{{ trim((auth()->user()->gelar_depan ? auth()->user()->gelar_depan.' ' : '').auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</span>
                         <span class="dokter-user-role">Dokter Hewan</span>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
                     <div class="dokter-card-head">
                         <div>
                             <h3>Daftar Jadwal Praktik</h3>
-                            <p class="dokter-card-sub">Jadwal praktik {{ trim((auth()->user()->gelar_depan ?? '').' '.auth()->user()->name.' '.(auth()->user()->gelar_belakang ?? '')) }}. Jadwal ini tampil untuk Kader dan Pemilik Hewan.</p>
+                            <p class="dokter-card-sub">Jadwal praktik {{ trim((auth()->user()->gelar_depan ?? '').' '.auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</p>
                         </div>
                         <a href="{{ route('dokter.jadwal.create') }}" class="btn btn-primary btn-sm">
                             <i class="fa-solid fa-plus"></i> Tambah Jadwal
