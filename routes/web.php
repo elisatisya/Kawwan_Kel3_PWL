@@ -18,6 +18,7 @@ use App\Http\Controllers\Pemilik\DashboardController;
 use App\Http\Controllers\Pemilik\HewanController as PemilikHewanController;
 use App\Http\Controllers\Pemilik\JadwalController as PemilikJadwalController;
 use App\Http\Controllers\Pemilik\PemesananController as PemilikPemesananController;
+use App\Http\Controllers\Pemilik\ProfilController as PemilikProfilController; // BARU
 
 // Dokter Controllers
 use App\Http\Controllers\Dokter\JadwalController as DokterJadwalController;
@@ -82,6 +83,10 @@ Route::middleware(['auth', 'role:pemilik_hewan,pemilik'])
         Route::post('/pemesanan', [PemilikPemesananController::class, 'store'])->name('pemesanan.store');
         Route::post('/pemesanan/{pemesanan}/pembayaran', [PemilikPemesananController::class, 'bayar'])->name('pemesanan.bayar');
         Route::patch('/pemesanan/{pemesanan}/batal', [PemilikPemesananController::class, 'batal'])->name('pemesanan.batal');
+
+        // Profil (BARU)
+        Route::get('/profil', [PemilikProfilController::class, 'edit'])->name('profil');
+        Route::put('/profil', [PemilikProfilController::class, 'update'])->name('profil.update');
 
     });
 
