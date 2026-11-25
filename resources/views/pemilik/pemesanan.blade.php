@@ -9,66 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
     @vite(['resources/css/styles.css', 'resources/js/script.js'])
 </head>
 <body class="pemilik-body">
 
     <div class="pemilik-shell">
-        <div class="pemilik-backdrop" id="pemilikBackdrop"></div>
-
-        <aside class="pemilik-sidebar" id="pemilikSidebar">
-            <a href="{{ route('pemilik.dashboard') }}" class="pemilik-brand">
-                <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
-            </a>
-
-            <p class="pemilik-menu-label">Menu Pemilik</p>
-
-            <nav class="pemilik-menu" aria-label="Navigasi Pemilik Hewan">
-                <a href="{{ route('pemilik.dashboard') }}" class="{{ request()->routeIs('pemilik.dashboard') || request()->routeIs('pemilik.beranda') ? 'active' : '' }}">
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ route('pemilik.hewan.index') }}" class="{{ request()->routeIs('pemilik.hewan.*') ? 'active' : '' }}">
-                    <span>Data Hewan</span>
-                </a>
-                <a href="{{ route('pemilik.jadwal.index') }}" class="{{ request()->routeIs('pemilik.jadwal.*') ? 'active' : '' }}">
-                    <span>Jadwal Pelayanan</span>
-                </a>
-                <a href="{{ route('pemilik.pemesanan.index') }}" class="{{ request()->routeIs('pemilik.pemesanan.*') ? 'active' : '' }}">
-                    <span>Pemesanan Antrean</span>
-                </a>
-                <a href="{{ route('landing') }}#artikel">
-                    <span>Artikel Edukasi</span>
-                </a>
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="pemilik-logout" id="formLogout">
-                @csrf
-                <button type="button" class="btn btn-outline" onclick="confirmLogout('pemilik hewan')">
-                    Keluar
-                </button>
-            </form>
-        </aside>
+        @include('pemilik.partials.navbar')
 
         <div class="pemilik-main-wrap">
-            <header class="pemilik-topbar">
-                <div class="pemilik-topbar-left">
-                    <button class="pemilik-menu-toggle" id="pemilikMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
-                        Menu
-                    </button>
-                    <h2>{{ 'Pemesanan Antrean' }}</h2>
-                </div>
-
-                <div class="pemilik-user-profile">
-                    <div class="pemilik-avatar">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
-                    <div>
-                        <span class="pemilik-user-name">{{ auth()->user()->name }}</span>
-                        <span class="pemilik-user-role">Pemilik Hewan</span>
-                    </div>
-                </div>
-            </header>
-
             <main class="pemilik-main">
 <div class="pemilik-container">
 
@@ -91,6 +41,31 @@
         </div>
     @endif
 
+    {{-- Panduan Alur Singkat --}}
+    <div class="pemilik-steps-bar">
+        <div class="pemilik-step-item">
+            <span class="pemilik-step-num">1</span>
+            <div>
+                <strong>Pilih Hewan &amp; Jadwal</strong>
+                <span>Tentukan anabul dan jam praktik dokter</span>
+            </div>
+        </div>
+        <div class="pemilik-step-item">
+            <span class="pemilik-step-num">2</span>
+            <div>
+                <strong>Pilih Layanan</strong>
+                <span>Lihat estimasi biaya secara transparan</span>
+            </div>
+        </div>
+        <div class="pemilik-step-item">
+            <span class="pemilik-step-num">3</span>
+            <div>
+                <strong>Dapatkan Nomor Antrean</strong>
+                <span>Pantau status &amp; konfirmasi pembayaran</span>
+            </div>
+        </div>
+    </div>
+
     {{-- Form Pendaftaran Pemesanan Antrean --}}
     <section class="pemilik-card">
         <div class="pemilik-card-header">
@@ -102,14 +77,17 @@
 
         @if ($daftarHewan->isEmpty())
             <div class="pemilik-empty">
+                <div class="pemilik-empty-icon"><i class="fa-solid fa-paw"></i></div>
                 <h3>Anda Belum Memiliki Data Hewan</h3>
                 <p>Tambahkan data hewan peliharaan Anda terlebih dahulu sebelum melakukan pemesanan antrean.</p>
                 <a href="{{ route('pemilik.hewan.index') }}" class="pemilik-btn pemilik-btn-primary">
-                    Tambah Data Hewan
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Data Hewan</span>
                 </a>
             </div>
         @elseif ($jadwalTersedia->isEmpty())
             <div class="pemilik-empty">
+                <div class="pemilik-empty-icon"><i class="fa-regular fa-calendar-xmark"></i></div>
                 <h3>Belum Ada Jadwal Tersedia</h3>
                 <p>Saat ini belum ada jadwal pelayanan puskeswan yang memiliki kuota tersedia.</p>
             </div>
@@ -285,7 +263,18 @@
                                             @endif
                                         @endif
                                         <div class="pemilik-text-muted">
-                                            Rp {{ number_format($bayar->jumlah, 0, ',', '.') }} ({{ strtoupper($bayar->metode) }})
+                                            Rp {{ number_format($bayar->jumlah, 0, ',', '.') }}
+                                            ({{ match($bayar->metode) {
+                                                'qris'             => 'QRIS',
+                                                'gopay'            => 'GoPay',
+                                                'ovo'              => 'OVO',
+                                                'dana'             => 'DANA',
+                                                'transfer_bca'     => 'Transfer BCA',
+                                                'transfer_bri'     => 'Transfer BRI',
+                                                'transfer_mandiri' => 'Transfer Mandiri',
+                                                'transfer_bni'     => 'Transfer BNI',
+                                                default            => strtoupper($bayar->metode),
+                                            } }})
                                         </div>
                                     @else
                                         <span class="pemilik-badge is-neutral">Belum Dibayar</span>
@@ -293,28 +282,83 @@
                                 </td>
                                 <td>
                                     @if (! in_array($p->status, ['dibatalkan', 'tidak_hadir', 'selesai']) && (! $bayar || $bayar->status === 'ditolak'))
+                                        {{-- FORM PEMBAYARAN ONLINE --}}
                                         <form method="POST"
                                               action="{{ route('pemilik.pemesanan.bayar', $p) }}"
                                               enctype="multipart/form-data"
-                                              class="pemilik-inline-pay-form">
+                                              class="pemilik-inline-pay-form"
+                                              id="pay-form-{{ $p->id }}">
                                             @csrf
-                                            <input type="number"
-                                                   name="jumlah"
-                                                   value="{{ $totalBiaya }}"
-                                                   min="0"
-                                                   placeholder="Nominal (Rp)"
-                                                   required>
-                                            <select name="metode" required>
-                                                <option value="transfer">Transfer</option>
-                                                <option value="qris">QRIS</option>
-                                                <option value="tunai">Tunai</option>
+
+                                            {{-- Jumlah otomatis dari biaya layanan --}}
+                                            <input type="hidden" name="jumlah" value="{{ $totalBiaya > 0 ? $totalBiaya : 0 }}">
+
+                                            {{-- Pilih Metode --}}
+                                            <select name="metode" required
+                                                    onchange="togglePayInfo(this, {{ $p->id }})">
+                                                <option value="">-- Pilih Metode --</option>
+                                                <optgroup label="QRIS">
+                                                    <option value="qris">QRIS (Scan QR)</option>
+                                                </optgroup>
+                                                <optgroup label="E-Wallet">
+                                                    <option value="gopay">GoPay</option>
+                                                    <option value="ovo">OVO</option>
+                                                    <option value="dana">DANA</option>
+                                                </optgroup>
+                                                <optgroup label="Transfer Bank">
+                                                    <option value="transfer_bca">Transfer BCA</option>
+                                                    <option value="transfer_bri">Transfer BRI</option>
+                                                    <option value="transfer_mandiri">Transfer Mandiri</option>
+                                                    <option value="transfer_bni">Transfer BNI</option>
+                                                </optgroup>
                                             </select>
-                                            <input type="file"
-                                                   name="bukti_pembayaran"
-                                                   accept=".jpg,.jpeg,.png,.webp"
-                                                   title="Unggah bukti pembayaran">
-                                            <button type="submit" class="pemilik-btn-sm">
-                                                Kirim Pembayaran
+
+                                            {{-- Panel Info Pembayaran (muncul setelah pilih metode) --}}
+                                            <div class="pay-info-panel" id="pay-info-{{ $p->id }}" style="display:none">
+
+                                                {{-- QR Code (hanya untuk QRIS) --}}
+                                                <div class="pay-qr-wrap" id="pay-qr-{{ $p->id }}" style="display:none">
+                                                    @if (file_exists(public_path('images/qris-kawwan.png')))
+                                                        <img src="{{ asset('images/qris-kawwan.png') }}"
+                                                             alt="QR Code QRIS KAWWAN"
+                                                             class="pay-qr-img">
+                                                    @else
+                                                        <div class="pay-qr-placeholder">
+                                                            <i class="fa-solid fa-qrcode"></i>
+                                                            <span>QR Code KAWWAN Puskesmas</span>
+                                                        </div>
+                                                    @endif
+                                                    <p class="pay-qr-note">Scan QR di atas lalu upload bukti pembayaran.</p>
+                                                </div>
+
+                                                {{-- Instruksi Transfer / E-Wallet --}}
+                                                <div class="pay-transfer-info" id="pay-transfer-{{ $p->id }}" style="display:none">
+                                                    <div class="pay-rekening-label" id="pay-rek-label-{{ $p->id }}"></div>
+                                                    <div class="pay-rekening-no" id="pay-rek-no-{{ $p->id }}"></div>
+                                                    <div class="pay-rekening-name" id="pay-rek-name-{{ $p->id }}"></div>
+                                                </div>
+
+                                                {{-- Nominal --}}
+                                                <div class="pay-amount-row">
+                                                    <span>Total Pembayaran:</span>
+                                                    <strong>Rp {{ number_format($totalBiaya, 0, ',', '.') }}</strong>
+                                                </div>
+
+                                                {{-- Upload Bukti --}}
+                                                <label class="pay-upload-label">
+                                                    <i class="fa-solid fa-paperclip"></i>
+                                                    Upload Bukti Pembayaran
+                                                    <input type="file"
+                                                           name="bukti_pembayaran"
+                                                           accept=".jpg,.jpeg,.png,.webp"
+                                                           class="pay-file-input"
+                                                           required>
+                                                </label>
+                                                <span class="pay-file-name" id="pay-fname-{{ $p->id }}">Belum ada file dipilih</span>
+                                            </div>
+
+                                            <button type="submit" class="pemilik-btn-sm" id="pay-btn-{{ $p->id }}" style="display:none">
+                                                <i class="fa-solid fa-paper-plane"></i> Kirim Pembayaran
                                             </button>
                                         </form>
                                     @endif

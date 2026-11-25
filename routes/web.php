@@ -18,6 +18,7 @@ use App\Http\Controllers\Pemilik\DashboardController;
 use App\Http\Controllers\Pemilik\HewanController as PemilikHewanController;
 use App\Http\Controllers\Pemilik\JadwalController as PemilikJadwalController;
 use App\Http\Controllers\Pemilik\PemesananController as PemilikPemesananController;
+use App\Http\Controllers\Pemilik\ProfilController as PemilikProfilController; // BARU
 
 // Dokter Controllers
 use App\Http\Controllers\Dokter\JadwalController as DokterJadwalController;
@@ -82,6 +83,10 @@ Route::middleware(['auth', 'role:pemilik_hewan,pemilik'])
         Route::post('/pemesanan', [PemilikPemesananController::class, 'store'])->name('pemesanan.store');
         Route::post('/pemesanan/{pemesanan}/pembayaran', [PemilikPemesananController::class, 'bayar'])->name('pemesanan.bayar');
         Route::patch('/pemesanan/{pemesanan}/batal', [PemilikPemesananController::class, 'batal'])->name('pemesanan.batal');
+
+        // Profil (BARU)
+        Route::get('/profil', [PemilikProfilController::class, 'edit'])->name('profil');
+        Route::put('/profil', [PemilikProfilController::class, 'update'])->name('profil.update');
 
     });
 
@@ -154,7 +159,7 @@ Route::middleware(['auth', 'role:dokter_hewan,dokter'])
         Route::put('/profil', [ProfilController::class, 'update'])
             ->name('profil.update');
 
-        // Jadwal pelayanan milik dokter
+        // Jadwal praktik milik dokter
         Route::get('/jadwal', [DokterJadwalController::class, 'index'])->name('jadwal.index');
         Route::get('/jadwal/create', [DokterJadwalController::class, 'create'])->name('jadwal.create');
         Route::post('/jadwal', [DokterJadwalController::class, 'store'])->name('jadwal.store');
@@ -165,6 +170,7 @@ Route::middleware(['auth', 'role:dokter_hewan,dokter'])
         // Pemeriksaan (antrean pasien)
         Route::get('/pemeriksaan', [PemeriksaanController::class, 'index'])->name('pemeriksaan.index');
         Route::get('/pemeriksaan/{antrean}', [PemeriksaanController::class, 'show'])->name('pemeriksaan.show');
+        Route::get('/pemeriksaan/{antrean}/cetak', [PemeriksaanController::class, 'cetak'])->name('pemeriksaan.cetak');
         Route::patch('/pemeriksaan/{antrean}/mulai', [PemeriksaanController::class, 'mulai'])->name('pemeriksaan.mulai');
         Route::post('/pemeriksaan/{antrean}', [PemeriksaanController::class, 'simpan'])->name('pemeriksaan.simpan');
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kader;
 
 use App\Http\Controllers\Controller;
+use App\Models\Antrean;
 use App\Models\JadwalPelayanan;
 use App\Models\Pembayaran;
 use App\Models\Pemesanan;
@@ -292,20 +293,75 @@ class PemesananController extends Controller
             'status.in' => 'Perubahan status tersebut tidak diizinkan.',
         ]);
 
-        $pemesanan->update([
-            'status' => $request->input('status'),
-        ]);
+        $statusBaru = $request->input('status');
 
-        $pesan = match ($request->input('status')) {
-            'dikonfirmasi' => 'Kehadiran pemilik berhasil dikonfirmasi.',
+        $pemesanan->update(['status' => $statusBaru]);
 
-            'tidak_hadir' => 'Pemesanan berhasil ditandai tidak hadir.',
+        // Auto-generate antrean saat kader mengkonfirmasi kehadiran pemilik
+        if ($statusBaru === 'dikonfirmasi') {
+            $this->buatAntreanOtomatis($pemesanan);
+        }
 
-            'dibatalkan' => 'Pemesanan berhasil dibatalkan.',
-
-            default => 'Status pemesanan berhasil diperbarui.',
+        $pesan = match ($statusBaru) {
+            'dikonfirmasi' => 'Kehadiran pemilik berhasil dikonfirmasi. Nomor antrean telah diterbitkan.',
+            'tidak_hadir'  => 'Pemesanan berhasil ditandai tidak hadir.',
+            'dibatalkan'   => 'Pemesanan berhasil dibatalkan.',
+            default        => 'Status pemesanan berhasil diperbarui.',
         };
 
         return back()->with('success', $pesan);
+    }
+
+    /**
+     * Membuat entri antrean otomatis saat pemesanan dikonfirmasi.
+     * Nomor antrean dihitung per dokter per tanggal (unik per dokter).
+     */
+    private function buatAntreanOtomatis(Pemesanan $pemesanan): void
+    {
+        // Muat relasi yang diperlukan
+        $pemesanan->loadMissing(['pemesananLayanan', 'jadwalPelayanan']);
+
+        $tanggal = $pemesanan->jadwalPelayanan?->tanggal;
+
+        if (! $tanggal) {
+            return; // Tidak ada tanggal, skip
+        }
+
+        // Kumpulkan dokter_id unik dari detail layanan (pemesanan_layanan.dokter_id)
+        $dokterIds = $pemesanan->pemesananLayanan
+            ->pluck('dokter_id')
+            ->filter()   // hapus null
+            ->unique()
+            ->values();
+
+        // Fallback: jika tidak ada dokter di detail layanan,
+        // gunakan dokter dari jadwal pelayanan
+        if ($dokterIds->isEmpty() && $pemesanan->jadwalPelayanan?->dokter_id) {
+            $dokterIds = collect([$pemesanan->jadwalPelayanan->dokter_id]);
+        }
+
+        foreach ($dokterIds as $dokterId) {
+            // Hindari duplikat: skip jika sudah ada antrean untuk kombinasi ini
+            $sudahAda = Antrean::where('pemesanan_id', $pemesanan->id)
+                ->where('dokter_id', $dokterId)
+                ->exists();
+
+            if ($sudahAda) {
+                continue;
+            }
+
+            // Nomor antrean: hitung berapa antrean dokter ini pada tanggal tsb + 1
+            $nomor = Antrean::where('dokter_id', $dokterId)
+                ->whereDate('tanggal', $tanggal->toDateString())
+                ->count() + 1;
+
+            Antrean::create([
+                'pemesanan_id'  => $pemesanan->id,
+                'dokter_id'     => $dokterId,
+                'tanggal'       => $tanggal->toDateString(),
+                'nomor_antrean' => $nomor,
+                'status'        => 'menunggu',
+            ]);
+        }
     }
 }

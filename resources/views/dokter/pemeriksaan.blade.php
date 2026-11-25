@@ -70,7 +70,7 @@
                         @endif
                     </div>
                     <div>
-                        <span class="dokter-user-name">{{ auth()->user()->name }}</span>
+                        <span class="dokter-user-name">{{ trim((auth()->user()->gelar_depan ? auth()->user()->gelar_depan.' ' : '').auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</span>
                         <span class="dokter-user-role">Dokter Hewan</span>
                     </div>
                 </div>

@@ -1,10 +1,13 @@
-@php $edit = $jadwal->exists; @endphp
+@php
+    $edit = $jadwal->exists;
+    $judul = $edit ? 'Ubah Jadwal' : 'Tambah Jadwal';
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $edit ? 'Ubah Jadwal' : 'Tambah Jadwal' }} — KAWWAN Dokter</title>
+    <title>{{ $judul }} — KAWWAN Dokter</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,7 +62,7 @@
                     <button class="dokter-menu-toggle" id="dokterMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <h2>{{ $edit ? 'Ubah Jadwal' : 'Tambah Jadwal' }}</h2>
+                    <h2>{{ $judul }}</h2>
                 </div>
 
                 <div class="dokter-user">
@@ -71,7 +74,7 @@
                         @endif
                     </div>
                     <div>
-                        <span class="dokter-user-name">{{ auth()->user()->name }}</span>
+                        <span class="dokter-user-name">{{ trim((auth()->user()->gelar_depan ? auth()->user()->gelar_depan.' ' : '').auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</span>
                         <span class="dokter-user-role">Dokter Hewan</span>
                     </div>
                 </div>
@@ -83,13 +86,20 @@
                     <i class="fa-solid fa-arrow-left"></i> Kembali ke jadwal
                 </a>
 
+                {{-- Kartu 1: form --}}
                 <section class="dokter-card">
-                    <h3>{{ $edit ? 'Ubah Jadwal Pelayanan' : 'Tambah Jadwal Pelayanan' }}</h3>
+                    <h3>{{ $edit ? 'Ubah Jadwal Praktik' : 'Tambah Jadwal Praktik' }}</h3>
                     <p class="dokter-card-sub">Tentukan tanggal, waktu, dan kuota pasien.</p>
+
+                    @if (session('peringatan'))
+                        <div class="dokter-alert is-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{ session('peringatan') }}</div>
+                    @endif
 
                     <form action="{{ $edit ? route('dokter.jadwal.update', $jadwal) : route('dokter.jadwal.store') }}" method="POST">
                         @csrf
                         @if ($edit) @method('PUT') @endif
+
+                        <input type="hidden" name="konfirmasi" value="{{ session('butuh_konfirmasi') }}">
 
                         <div class="form-group">
                             <label for="tanggal">Tanggal *</label>
@@ -115,13 +125,14 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="kuota">Kuota Pasien (maks. 100) *</label>
-                            <input type="number" id="kuota" name="kuota" min="1" max="100"
-                                   placeholder="Masukkan jumlah maksimal pasien"
-                                   value="{{ old('kuota', $jadwal->kuota) }}" required>
-                            @error('kuota') <div class="form-error">{{ $message }}</div> @enderror
-                        </div>
+                        <div class="dokter-form-row">
+                            <div class="form-group">
+                                <label for="kuota">Kuota Pasien (maks. 100) *</label>
+                                <input type="number" id="kuota" name="kuota" min="1" max="100"
+                                       placeholder="Masukkan jumlah maksimal pasien"
+                                       value="{{ old('kuota', $jadwal->kuota) }}" required>
+                                @error('kuota') <div class="form-error">{{ $message }}</div> @enderror
+                            </div>
 
                             <div class="form-group">
                                 <label for="status">Status *</label>
@@ -138,6 +149,39 @@
                             <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
                     </form>
+                </section>
+
+                {{-- Kartu 2: jadwal dokter lain --}}
+                <section class="dokter-card">
+                    <h3>Jadwal Dokter Lain</h3>
+                    <p class="dokter-card-sub">Jadwal praktik dokter lain 14 hari ke depan, sebagai acuan supaya jadwal Anda tidak bentrok.</p>
+
+                    @if ($jadwalLain->isEmpty())
+                        <p class="dokter-empty">Belum ada jadwal dokter lain pada 14 hari ke depan.</p>
+                    @else
+                        <div class="dokter-table-wrap">
+                            <table class="dokter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Waktu</th>
+                                        <th>Dokter</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($jadwalLain as $j)
+                                        <tr>
+                                            <td>{{ $j->tanggal->locale('id')->translatedFormat('D, d M Y') }}</td>
+                                            <td>{{ substr($j->waktu_mulai, 0, 5) }} - {{ substr($j->waktu_selesai, 0, 5) }} WIB</td>
+                                            <td>{{ trim(($j->dokter?->gelar_depan ?? '').' '.($j->dokter?->name ?? '-').' '.($j->dokter?->gelar_belakang ?? '')) }}</td>
+                                            <td><span class="dokter-badge is-{{ $j->status }}">{{ ucfirst($j->status) }}</span></td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </section>
 
             </main>

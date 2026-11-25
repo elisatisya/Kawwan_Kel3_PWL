@@ -16,8 +16,8 @@ class ArtikelController extends Controller
         $artikel = Artikel::where('user_id', auth()->id())
             ->latest()
             ->paginate(10);
-
-        return view('kader.artikel', compact('artikel'));
+        $mode = null;
+        return view('kader.artikel', compact('artikel', 'mode'));
     }
 
     // Menampilkan form tambah artikel

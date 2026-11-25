@@ -928,3 +928,145 @@ document.addEventListener('keydown', (e) => {
         window.closeLayananModal();
     }
 });
+
+/* ============================================================
+   PEMBAYARAN ONLINE — Toggle metode & info rekening/QR
+   ============================================================ */
+
+/** Data rekening / no. e-wallet (sesuaikan di sini) */
+const KAWWAN_PAYMENT_INFO = {
+    qris: {
+        type: 'qris',
+    },
+    gopay: {
+        type: 'transfer',
+        label: 'Nomor GoPay',
+        no: '0812-3456-7890',
+        name: 'KAWWAN Puskesmas',
+    },
+    ovo: {
+        type: 'transfer',
+        label: 'Nomor OVO',
+        no: '0812-3456-7890',
+        name: 'KAWWAN Puskesmas',
+    },
+    dana: {
+        type: 'transfer',
+        label: 'Nomor DANA',
+        no: '0812-3456-7890',
+        name: 'KAWWAN Puskesmas',
+    },
+    transfer_bca: {
+        type: 'transfer',
+        label: 'No. Rekening BCA',
+        no: '1234567890',
+        name: 'KAWWAN Puskesmas',
+    },
+    transfer_bri: {
+        type: 'transfer',
+        label: 'No. Rekening BRI',
+        no: '0987654321',
+        name: 'KAWWAN Puskesmas',
+    },
+    transfer_mandiri: {
+        type: 'transfer',
+        label: 'No. Rekening Mandiri',
+        no: '1122334455',
+        name: 'KAWWAN Puskesmas',
+    },
+    transfer_bni: {
+        type: 'transfer',
+        label: 'No. Rekening BNI',
+        no: '5544332211',
+        name: 'KAWWAN Puskesmas',
+    },
+};
+
+function togglePayInfo(selectEl, pemesananId) {
+    const val = selectEl.value;
+    const infoPanel  = document.getElementById('pay-info-'     + pemesananId);
+    const qrWrap     = document.getElementById('pay-qr-'       + pemesananId);
+    const transWrap  = document.getElementById('pay-transfer-' + pemesananId);
+    const rekLabel   = document.getElementById('pay-rek-label-'+ pemesananId);
+    const rekNo      = document.getElementById('pay-rek-no-'   + pemesananId);
+    const rekName    = document.getElementById('pay-rek-name-' + pemesananId);
+    const submitBtn  = document.getElementById('pay-btn-'      + pemesananId);
+
+    if (!infoPanel || !val) {
+        if (infoPanel) infoPanel.style.display = 'none';
+        if (submitBtn) submitBtn.style.display = 'none';
+        return;
+    }
+
+    const info = KAWWAN_PAYMENT_INFO[val];
+    if (!info) return;
+
+    // Tampilkan panel utama
+    infoPanel.style.display = 'block';
+    submitBtn.style.display  = 'inline-flex';
+
+    if (info.type === 'qris') {
+        qrWrap.style.display    = 'block';
+        transWrap.style.display = 'none';
+    } else {
+        qrWrap.style.display    = 'none';
+        transWrap.style.display = 'block';
+        rekLabel.textContent    = info.label;
+        rekNo.textContent       = info.no;
+        rekName.textContent     = 'a.n. ' + info.name;
+    }
+}
+
+// File input label feedback
+document.addEventListener('change', function (e) {
+    if (e.target && e.target.classList.contains('pay-file-input')) {
+        const form = e.target.closest('form');
+        if (!form) return;
+        const fnameEl = form.querySelector('.pay-file-name');
+        if (fnameEl) {
+            fnameEl.textContent = e.target.files[0]
+                ? e.target.files[0].name
+                : 'Belum ada file dipilih';
+        }
+    }
+});
+
+/* ===== LOGOUT OTOMATIS: keluar jika tidak ada aktivitas (semua role) ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Setelah dialihkan ke halaman login/landing, beri tahu bahwa sesi berakhir.
+    //    Bagian ini sengaja di atas pengecekan form logout, karena halaman login
+    //    tidak punya form logout.
+    if (sessionStorage.getItem('kawwanSesiHabis')) {
+        sessionStorage.removeItem('kawwanSesiHabis');
+        window.kawwanToast(
+            'Sesi Anda berakhir karena tidak ada aktivitas. Silakan masuk kembali.',
+            'warning',
+            'Sesi Berakhir'
+        );
+    }
+
+    // 2. Batas diam sebelum keluar otomatis, dalam DETIK (ubah angka ini saja)
+    const BATAS_DETIK = 900; // 900 = 15 menit. Untuk tes: 20
+
+    const formKeluar =
+        document.getElementById('formLogout') ||
+        document.querySelector('form[action$="/logout"]');
+
+    if (!formKeluar) return; // halaman login/landing tidak ikut menghitung
+
+    let timer;
+    const mulaiLagi = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            sessionStorage.setItem('kawwanSesiHabis', '1'); // penanda untuk pesan
+            formKeluar.dataset.confirmed = 'true';
+            formKeluar.submit();
+        }, BATAS_DETIK * 1000);
+    };
+
+    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'].forEach((ev) => {
+        window.addEventListener(ev, mulaiLagi, { passive: true });
+    });
+
+    mulaiLagi();
+});
