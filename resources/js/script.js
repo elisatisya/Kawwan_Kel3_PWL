@@ -1030,3 +1030,43 @@ document.addEventListener('change', function (e) {
         }
     }
 });
+
+/* ===== LOGOUT OTOMATIS: keluar jika tidak ada aktivitas (semua role) ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Setelah dialihkan ke halaman login/landing, beri tahu bahwa sesi berakhir.
+    //    Bagian ini sengaja di atas pengecekan form logout, karena halaman login
+    //    tidak punya form logout.
+    if (sessionStorage.getItem('kawwanSesiHabis')) {
+        sessionStorage.removeItem('kawwanSesiHabis');
+        window.kawwanToast(
+            'Sesi Anda berakhir karena tidak ada aktivitas. Silakan masuk kembali.',
+            'warning',
+            'Sesi Berakhir'
+        );
+    }
+
+    // 2. Batas diam sebelum keluar otomatis, dalam DETIK (ubah angka ini saja)
+    const BATAS_DETIK = 900; // 900 = 15 menit. Untuk tes: 20
+
+    const formKeluar =
+        document.getElementById('formLogout') ||
+        document.querySelector('form[action$="/logout"]');
+
+    if (!formKeluar) return; // halaman login/landing tidak ikut menghitung
+
+    let timer;
+    const mulaiLagi = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            sessionStorage.setItem('kawwanSesiHabis', '1'); // penanda untuk pesan
+            formKeluar.dataset.confirmed = 'true';
+            formKeluar.submit();
+        }, BATAS_DETIK * 1000);
+    };
+
+    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'].forEach((ev) => {
+        window.addEventListener(ev, mulaiLagi, { passive: true });
+    });
+
+    mulaiLagi();
+});
