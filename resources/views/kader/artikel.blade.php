@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $currentMode === 'create' ? 'Tambah Artikel' : ($currentMode === 'edit' ? 'Edit Artikel' : 'Artikel') }} — KAWWAN Kader</title>
+    <title>{{ $mode === 'create' ? 'Tambah Artikel' : ($mode === 'edit' ? 'Edit Artikel' : 'Artikel') }} — KAWWAN Kader</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,7 +64,7 @@
                     <button class="dokter-menu-toggle" id="dokterMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <h2>{{ $currentMode === 'create' ? 'Tambah Artikel' : ($currentMode === 'edit' ? 'Edit Artikel' : 'Artikel') }}</h2>
+                    <h2>{{ $mode === 'create' ? 'Tambah Artikel' : ($mode === 'edit' ? 'Edit Artikel' : 'Artikel') }}</h2>
                 </div>
 
                 <div class="dokter-user">
@@ -84,9 +84,9 @@
             </header>
 
             <main class="dokter-content">
-@if ($currentMode === 'create' || $currentMode === 'edit')
+@if ($mode === 'create' || $mode === 'edit')
     @php
-        $isEdit = $currentMode === 'edit';
+        $isEdit = $mode === 'edit';
     @endphp
 
     <div class="form-layanan">

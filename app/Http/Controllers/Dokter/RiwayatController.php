@@ -47,9 +47,12 @@ class RiwayatController extends Controller
 
         $riwayat = Pemeriksaan::with([
             'pemesanan.jadwalPelayanan',
-            'pemesanan.antrean' => fn ($a) => $a->where('dokter_id', auth()->id()),
+            'pemesanan.antrean',
         ])
-            ->whereHas('pemesanan', fn ($q) => $milikSaya($q->where('hewan_id', $hewan->id)))
+            ->whereHas('pemesanan', function ($q) use ($hewan) {
+                $q->where('hewan_id', $hewan->id)
+                  ->where('dokter_id', auth()->id());
+            })
             ->latest()
             ->get();
 

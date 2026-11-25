@@ -9,69 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
     @vite(['resources/css/styles.css', 'resources/js/script.js'])
 </head>
 <body class="pemilik-body">
 
     <div class="pemilik-shell">
-        <div class="pemilik-backdrop" id="pemilikBackdrop"></div>
-
-        <aside class="pemilik-sidebar" id="pemilikSidebar">
-            <a href="{{ route('pemilik.dashboard') }}" class="pemilik-brand">
-                <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
-            </a>
-
-            <p class="pemilik-menu-label">Menu Pemilik</p>
-
-            <nav class="pemilik-menu" aria-label="Navigasi Pemilik Hewan">
-                <a href="{{ route('pemilik.dashboard') }}" class="{{ request()->routeIs('pemilik.dashboard') || request()->routeIs('pemilik.beranda') ? 'active' : '' }}">
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ route('pemilik.hewan.index') }}" class="{{ request()->routeIs('pemilik.hewan.*') ? 'active' : '' }}">
-                    <span>Data Hewan</span>
-                </a>
-                <a href="{{ route('pemilik.jadwal.index') }}" class="{{ request()->routeIs('pemilik.jadwal.*') ? 'active' : '' }}">
-                    <span>Jadwal Pelayanan</span>
-                </a>
-                <a href="{{ route('pemilik.pemesanan.index') }}" class="{{ request()->routeIs('pemilik.pemesanan.*') ? 'active' : '' }}">
-                    <span>Pemesanan Antrean</span>
-                </a>
-                <a href="{{ route('pemilik.profil') }}" class="{{ request()->routeIs('pemilik.profil*') ? 'active' : '' }}">
-                    <span>Profil</span>
-                </a>
-                <a href="{{ route('landing') }}#artikel">
-                    <span>Artikel Edukasi</span>
-                </a>
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="pemilik-logout" id="formLogout">
-                @csrf
-                <button type="button" class="btn btn-outline" onclick="confirmLogout('pemilik hewan')">
-                    Keluar
-                </button>
-            </form>
-        </aside>
+        @include('pemilik.partials.navbar')
 
         <div class="pemilik-main-wrap">
-            <header class="pemilik-topbar">
-                <div class="pemilik-topbar-left">
-                    <button class="pemilik-menu-toggle" id="pemilikMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
-                        Menu
-                    </button>
-                    <h2>{{ 'Jadwal & Layanan Pelayanan' }}</h2>
-                </div>
-
-                <div class="pemilik-user-profile">
-                    <div class="pemilik-avatar">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
-                    <div>
-                        <span class="pemilik-user-name">{{ auth()->user()->name }}</span>
-                        <span class="pemilik-user-role">Pemilik Hewan</span>
-                    </div>
-                </div>
-            </header>
-
             <main class="pemilik-main">
 <div class="pemilik-container">
 
@@ -81,7 +28,8 @@
             <p>Informasi jadwal praktik dokter hewan yang tersedia beserta daftar jenis layanan dan tarif puskeswan.</p>
         </div>
         <a href="{{ route('pemilik.pemesanan.index') }}" class="pemilik-btn pemilik-btn-primary">
-            Buat Pemesanan Antrean
+            <i class="fa-solid fa-ticket"></i>
+            <span>Buat Pemesanan Antrean</span>
         </a>
     </div>
 
@@ -96,6 +44,7 @@
 
         @if ($jadwal->isEmpty())
             <div class="pemilik-empty">
+                <div class="pemilik-empty-icon"><i class="fa-regular fa-calendar-xmark"></i></div>
                 <h3>Belum Ada Jadwal Pelayanan</h3>
                 <p>Saat ini belum ada jadwal praktik dokter hewan yang dibuka untuk waktu mendatang.</p>
             </div>
@@ -176,47 +125,60 @@
 
         @if ($layanan->isEmpty())
             <div class="pemilik-empty">
+                <div class="pemilik-empty-icon"><i class="fa-solid fa-stethoscope"></i></div>
                 <h3>Belum Ada Data Layanan</h3>
                 <p>Daftar layanan dan tarif pelayanan belum ditambahkan oleh petugas.</p>
             </div>
         @else
-            <div class="pemilik-table-wrap">
-                <table class="pemilik-table">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Nama Layanan</th>
-                            <th>Deskripsi</th>
-                            <th>Estimasi Durasi</th>
-                            <th>Tarif</th>
-                            <th>Dokter Penanggung Jawab</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($layanan as $item)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td><strong>{{ $item->nama }}</strong></td>
-                                <td>{{ $item->deskripsi ?: '-' }}</td>
-                                <td>{{ $item->durasi_menit ? $item->durasi_menit . ' menit' : '-' }}</td>
-                                <td>
-                                    @if ($item->biaya == 0)
-                                        <span class="pemilik-badge is-tersedia">Gratis</span>
-                                    @else
-                                        <strong>Rp {{ number_format($item->biaya, 0, ',', '.') }}</strong>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($item->dokter->isNotEmpty())
-                                        {{ $item->dokter->pluck('name')->join(', ') }}
-                                    @else
-                                        Dokter Puskeswan
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="pemilik-layanan-grid">
+                @foreach ($layanan as $item)
+                    @php
+                        $namaLower = strtolower($item->nama);
+                        $svcIcon = 'fa-heart-pulse';
+                        if (str_contains($namaLower, 'vaksin')) {
+                            $svcIcon = 'fa-syringe';
+                        } elseif (str_contains($namaLower, 'steril')) {
+                            $svcIcon = 'fa-shield-cat';
+                        } elseif (str_contains($namaLower, 'obat') || str_contains($namaLower, 'pengobatan')) {
+                            $svcIcon = 'fa-pills';
+                        } elseif (str_contains($namaLower, 'vitamin')) {
+                            $svcIcon = 'fa-bottle-droplet';
+                        } elseif (str_contains($namaLower, 'konsultasi')) {
+                            $svcIcon = 'fa-user-doctor';
+                        } elseif (str_contains($namaLower, 'umum') || str_contains($namaLower, 'pemeriksaan')) {
+                            $svcIcon = 'fa-stethoscope';
+                        }
+                    @endphp
+                    <div class="pemilik-layanan-card">
+                        <div>
+                            <div class="pemilik-layanan-top">
+                                <div class="pemilik-layanan-icon">
+                                    <i class="fa-solid {{ $svcIcon }}"></i>
+                                </div>
+                                @if ($item->durasi_menit)
+                                    <span class="pemilik-layanan-duration">
+                                        <i class="fa-regular fa-clock"></i> {{ $item->durasi_menit }} menit
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="pemilik-layanan-body" style="margin-top: 12px;">
+                                <h3>{{ $item->nama }}</h3>
+                                <p>{{ $item->deskripsi ?: 'Pelayanan kesehatan hewan oleh dokter hewan Puskeswan.' }}</p>
+                            </div>
+                        </div>
+                        <div class="pemilik-layanan-footer">
+                            @if ($item->biaya == 0)
+                                <span class="pemilik-badge is-tersedia">Gratis</span>
+                            @else
+                                <span class="pemilik-layanan-price">Rp {{ number_format($item->biaya, 0, ',', '.') }}</span>
+                            @endif
+                            <span class="pemilik-layanan-doc">
+                                <i class="fa-solid fa-user-doctor"></i>
+                                {{ $item->dokter->isNotEmpty() ? $item->dokter->pluck('name')->join(', ') : 'Dokter Puskeswan' }}
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         @endif
     </section>

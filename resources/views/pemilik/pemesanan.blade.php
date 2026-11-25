@@ -9,69 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
     @vite(['resources/css/styles.css', 'resources/js/script.js'])
 </head>
 <body class="pemilik-body">
 
     <div class="pemilik-shell">
-        <div class="pemilik-backdrop" id="pemilikBackdrop"></div>
-
-        <aside class="pemilik-sidebar" id="pemilikSidebar">
-            <a href="{{ route('pemilik.dashboard') }}" class="pemilik-brand">
-                <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
-            </a>
-
-            <p class="pemilik-menu-label">Menu Pemilik</p>
-
-            <nav class="pemilik-menu" aria-label="Navigasi Pemilik Hewan">
-                <a href="{{ route('pemilik.dashboard') }}" class="{{ request()->routeIs('pemilik.dashboard') || request()->routeIs('pemilik.beranda') ? 'active' : '' }}">
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ route('pemilik.hewan.index') }}" class="{{ request()->routeIs('pemilik.hewan.*') ? 'active' : '' }}">
-                    <span>Data Hewan</span>
-                </a>
-                <a href="{{ route('pemilik.jadwal.index') }}" class="{{ request()->routeIs('pemilik.jadwal.*') ? 'active' : '' }}">
-                    <span>Jadwal Pelayanan</span>
-                </a>
-                <a href="{{ route('pemilik.pemesanan.index') }}" class="{{ request()->routeIs('pemilik.pemesanan.*') ? 'active' : '' }}">
-                    <span>Pemesanan Antrean</span>
-                </a>
-                <a href="{{ route('pemilik.profil') }}" class="{{ request()->routeIs('pemilik.profil*') ? 'active' : '' }}">
-                    <span>Profil</span>
-                </a>
-                <a href="{{ route('landing') }}#artikel">
-                    <span>Artikel Edukasi</span>
-                </a>
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="pemilik-logout" id="formLogout">
-                @csrf
-                <button type="button" class="btn btn-outline" onclick="confirmLogout('pemilik hewan')">
-                    Keluar
-                </button>
-            </form>
-        </aside>
+        @include('pemilik.partials.navbar')
 
         <div class="pemilik-main-wrap">
-            <header class="pemilik-topbar">
-                <div class="pemilik-topbar-left">
-                    <button class="pemilik-menu-toggle" id="pemilikMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
-                        Menu
-                    </button>
-                    <h2>{{ 'Pemesanan Antrean' }}</h2>
-                </div>
-
-                <div class="pemilik-user-profile">
-                    <div class="pemilik-avatar">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
-                    <div>
-                        <span class="pemilik-user-name">{{ auth()->user()->name }}</span>
-                        <span class="pemilik-user-role">Pemilik Hewan</span>
-                    </div>
-                </div>
-            </header>
-
             <main class="pemilik-main">
 <div class="pemilik-container">
 
@@ -94,6 +41,31 @@
         </div>
     @endif
 
+    {{-- Panduan Alur Singkat --}}
+    <div class="pemilik-steps-bar">
+        <div class="pemilik-step-item">
+            <span class="pemilik-step-num">1</span>
+            <div>
+                <strong>Pilih Hewan &amp; Jadwal</strong>
+                <span>Tentukan anabul dan jam praktik dokter</span>
+            </div>
+        </div>
+        <div class="pemilik-step-item">
+            <span class="pemilik-step-num">2</span>
+            <div>
+                <strong>Pilih Layanan</strong>
+                <span>Lihat estimasi biaya secara transparan</span>
+            </div>
+        </div>
+        <div class="pemilik-step-item">
+            <span class="pemilik-step-num">3</span>
+            <div>
+                <strong>Dapatkan Nomor Antrean</strong>
+                <span>Pantau status &amp; konfirmasi pembayaran</span>
+            </div>
+        </div>
+    </div>
+
     {{-- Form Pendaftaran Pemesanan Antrean --}}
     <section class="pemilik-card">
         <div class="pemilik-card-header">
@@ -105,14 +77,17 @@
 
         @if ($daftarHewan->isEmpty())
             <div class="pemilik-empty">
+                <div class="pemilik-empty-icon"><i class="fa-solid fa-paw"></i></div>
                 <h3>Anda Belum Memiliki Data Hewan</h3>
                 <p>Tambahkan data hewan peliharaan Anda terlebih dahulu sebelum melakukan pemesanan antrean.</p>
                 <a href="{{ route('pemilik.hewan.index') }}" class="pemilik-btn pemilik-btn-primary">
-                    Tambah Data Hewan
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Data Hewan</span>
                 </a>
             </div>
         @elseif ($jadwalTersedia->isEmpty())
             <div class="pemilik-empty">
+                <div class="pemilik-empty-icon"><i class="fa-regular fa-calendar-xmark"></i></div>
                 <h3>Belum Ada Jadwal Tersedia</h3>
                 <p>Saat ini belum ada jadwal pelayanan puskeswan yang memiliki kuota tersedia.</p>
             </div>

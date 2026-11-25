@@ -9,69 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
     @vite(['resources/css/styles.css', 'resources/js/script.js'])
 </head>
 <body class="pemilik-body">
 
     <div class="pemilik-shell">
-        <div class="pemilik-backdrop" id="pemilikBackdrop"></div>
-
-        <aside class="pemilik-sidebar" id="pemilikSidebar">
-            <a href="{{ route('pemilik.dashboard') }}" class="pemilik-brand">
-                <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
-            </a>
-
-            <p class="pemilik-menu-label">Menu Pemilik</p>
-
-            <nav class="pemilik-menu" aria-label="Navigasi Pemilik Hewan">
-                <a href="{{ route('pemilik.dashboard') }}" class="{{ request()->routeIs('pemilik.dashboard') || request()->routeIs('pemilik.beranda') ? 'active' : '' }}">
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ route('pemilik.hewan.index') }}" class="{{ request()->routeIs('pemilik.hewan.*') ? 'active' : '' }}">
-                    <span>Data Hewan</span>
-                </a>
-                <a href="{{ route('pemilik.jadwal.index') }}" class="{{ request()->routeIs('pemilik.jadwal.*') ? 'active' : '' }}">
-                    <span>Jadwal Pelayanan</span>
-                </a>
-                <a href="{{ route('pemilik.pemesanan.index') }}" class="{{ request()->routeIs('pemilik.pemesanan.*') ? 'active' : '' }}">
-                    <span>Pemesanan Antrean</span>
-                </a>
-                <a href="{{ route('pemilik.profil') }}" class="{{ request()->routeIs('pemilik.profil*') ? 'active' : '' }}">
-                    <span>Profil</span>
-                </a>
-                <a href="{{ route('landing') }}#artikel">
-                    <span>Artikel Edukasi</span>
-                </a>
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="pemilik-logout" id="formLogout">
-                @csrf
-                <button type="button" class="btn btn-outline" onclick="confirmLogout('pemilik hewan')">
-                    Keluar
-                </button>
-            </form>
-        </aside>
+        @include('pemilik.partials.navbar')
 
         <div class="pemilik-main-wrap">
-            <header class="pemilik-topbar">
-                <div class="pemilik-topbar-left">
-                    <button class="pemilik-menu-toggle" id="pemilikMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
-                        Menu
-                    </button>
-                    <h2>{{ 'Data Hewan' }}</h2>
-                </div>
-
-                <div class="pemilik-user-profile">
-                    <div class="pemilik-avatar">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
-                    <div>
-                        <span class="pemilik-user-name">{{ auth()->user()->name }}</span>
-                        <span class="pemilik-user-role">Pemilik Hewan</span>
-                    </div>
-                </div>
-            </header>
-
             <main class="pemilik-main">
 <div class="pemilik-container">
 
@@ -80,6 +27,10 @@
             <h1>Data <span>Hewan Peliharaan</span></h1>
             <p>Tambahkan dan kelola identitas hewan peliharaan Anda untuk keperluan pendaftaran pelayanan.</p>
         </div>
+        <button type="button" class="pemilik-btn pemilik-btn-primary" onclick="openHewanModal()">
+            <i class="fa-solid fa-plus"></i>
+            <span>Tambah Hewan</span>
+        </button>
     </div>
 
     @if (session('success'))
@@ -94,15 +45,82 @@
         </div>
     @endif
 
-    <div class="pemilik-split-layout">
+    {{-- Tabel Daftar Hewan (Full Width) --}}
+    <section class="pemilik-card">
+        <div class="pemilik-card-header">
+            <div>
+                <h2>Daftar Hewan Saya</h2>
+                <p>Total: {{ $daftarHewan->count() }} hewan terdaftar</p>
+            </div>
+        </div>
 
-        {{-- Form Tambah / Edit Hewan --}}
-        <section class="pemilik-card">
-            <div class="pemilik-card-header">
+        @if ($daftarHewan->isEmpty())
+            <div class="pemilik-empty">
+                <div class="pemilik-empty-icon"><i class="fa-solid fa-paw"></i></div>
+                <h3>Belum Ada Data Hewan</h3>
+                <p>Klik tombol <strong>Tambah Hewan</strong> di kanan atas untuk menambahkan hewan peliharaan pertama Anda.</p>
+                <button type="button" class="pemilik-btn pemilik-btn-primary" onclick="openHewanModal()">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Hewan</span>
+                </button>
+            </div>
+        @else
+            <div class="pemilik-table-wrap">
+                <table class="pemilik-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Jenis Hewan</th>
+                            <th>Ras</th>
+                            <th>Kelamin</th>
+                            <th>Umur</th>
+                            <th>Riwayat Booking</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($daftarHewan as $item)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td><strong>{{ ucfirst($item->jenis) }}</strong></td>
+                                <td>{{ $item->ras ?: '-' }}</td>
+                                <td>{{ ucfirst($item->jenis_kelamin) }}</td>
+                                <td>{{ $item->umur ?: '-' }}</td>
+                                <td>{{ $item->pemesanan_count }} kali</td>
+                                <td>
+                                    <div class="pemilik-table-actions">
+                                        <a href="{{ route('pemilik.hewan.edit', $item) }}" class="pemilik-action-link">
+                                            Edit
+                                        </a>
+                                        <form method="POST"
+                                              action="{{ route('pemilik.hewan.destroy', $item) }}"
+                                              data-confirm="Yakin ingin menghapus data hewan {{ $item->jenis }}?">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="pemilik-action-link is-danger">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </section>
+
+    {{-- Modal Popup Tambah / Edit Hewan --}}
+    <div id="modalHewan" class="pemilik-modal {{ ($hewanEdit || $errors->any()) ? 'is-open' : '' }}" role="dialog" aria-modal="true" aria-hidden="{{ ($hewanEdit || $errors->any()) ? 'false' : 'true' }}">
+        <div class="pemilik-modal-overlay" onclick="closeHewanModal()"></div>
+        <div class="pemilik-modal-dialog">
+            <div class="pemilik-modal-head">
                 <div>
                     <h2>{{ $hewanEdit ? 'Edit Data Hewan' : 'Tambah Hewan Baru' }}</h2>
                     <p>{{ $hewanEdit ? 'Perbarui informasi hewan peliharaan yang dipilih.' : 'Lengkapi data dasar hewan peliharaan Anda.' }}</p>
                 </div>
+                <button type="button" class="pemilik-modal-close" onclick="closeHewanModal()" aria-label="Tutup">&times;</button>
             </div>
 
             <form method="POST"
@@ -170,81 +188,51 @@
                     @enderror
                 </div>
 
-                <div class="pemilik-form-actions">
-                    <button type="submit" class="pemilik-btn pemilik-btn-primary">
-                        {{ $hewanEdit ? 'Simpan Perubahan' : 'Simpan Hewan' }}
-                    </button>
+                <div class="pemilik-form-actions" style="justify-content: flex-end; margin-top: 6px;">
                     @if ($hewanEdit)
                         <a href="{{ route('pemilik.hewan.index') }}" class="pemilik-btn pemilik-btn-outline">
                             Batal
                         </a>
+                    @else
+                        <button type="button" class="pemilik-btn pemilik-btn-outline" onclick="closeHewanModal()">
+                            Batal
+                        </button>
                     @endif
+                    <button type="submit" class="pemilik-btn pemilik-btn-primary">
+                        {{ $hewanEdit ? 'Simpan Perubahan' : 'Simpan Hewan' }}
+                    </button>
                 </div>
             </form>
-        </section>
-
-        {{-- Tabel Daftar Hewan --}}
-        <section class="pemilik-card">
-            <div class="pemilik-card-header">
-                <div>
-                    <h2>Daftar Hewan Saya</h2>
-                    <p>Total: {{ $daftarHewan->count() }} hewan terdaftar</p>
-                </div>
-            </div>
-
-            @if ($daftarHewan->isEmpty())
-                <div class="pemilik-empty">
-                    <h3>Belum Ada Data Hewan</h3>
-                    <p>Gunakan formulir di samping untuk menambahkan hewan peliharaan pertama Anda.</p>
-                </div>
-            @else
-                <div class="pemilik-table-wrap">
-                    <table class="pemilik-table">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Jenis Hewan</th>
-                                <th>Ras</th>
-                                <th>Kelamin</th>
-                                <th>Umur</th>
-                                <th>Riwayat Booking</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($daftarHewan as $item)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td><strong>{{ ucfirst($item->jenis) }}</strong></td>
-                                    <td>{{ $item->ras ?: '-' }}</td>
-                                    <td>{{ ucfirst($item->jenis_kelamin) }}</td>
-                                    <td>{{ $item->umur ?: '-' }}</td>
-                                    <td>{{ $item->pemesanan_count }} kali</td>
-                                    <td>
-                                        <div class="pemilik-table-actions">
-                                            <a href="{{ route('pemilik.hewan.edit', $item) }}" class="pemilik-action-link">
-                                                Edit
-                                            </a>
-                                            <form method="POST"
-                                                  action="{{ route('pemilik.hewan.destroy', $item) }}"
-                                                  data-confirm="Yakin ingin menghapus data hewan {{ $item->jenis }}?">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="pemilik-action-link is-danger">
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </section>
-
+        </div>
     </div>
+
+    <script>
+        function openHewanModal() {
+            const modal = document.getElementById('modalHewan');
+            if (!modal) return;
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeHewanModal() {
+            const modal = document.getElementById('modalHewan');
+            if (!modal) return;
+            @if ($hewanEdit)
+                window.location.href = "{{ route('pemilik.hewan.index') }}";
+                return;
+            @endif
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeHewanModal();
+            }
+        });
+    </script>
 
 </div>
             </main>

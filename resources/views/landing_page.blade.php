@@ -39,8 +39,9 @@
         </button>
 
         <nav class="nav-links" id="navLinks" aria-label="Navigasi utama">
-            <a href="{{ url('/') }}">Beranda</a>
+            <a href="{{ url('/') }}" class="{{ request()->is('/') ? 'active' : '' }}">Beranda</a>
             <a href="#layanan">Layanan</a>
+            <a href="#fitur">Fitur</a>
             <a href="#artikel">Artikel</a>
             <a href="#tentang">Tentang</a>
 
@@ -147,73 +148,237 @@
             </div>
         </section>
 
-        <section class="services" id="layanan">
-            <div class="section-heading">
-                <p class="eyebrow">LAYANAN KAWWAN</p>
-                <h2>Perawatan hewan jadi lebih mudah.</h2>
-                <p>
-                    Kelola kebutuhan kesehatan hewan peliharaanmu
-                    melalui satu platform.
-                </p>
-            </div>
-
-            <div class="service-grid">
-                <!-- Card 1: Data Hewan -->
-                <article class="service-card">
-                    <div class="service-icon">
-                        <i class="fa-solid fa-paw"></i>
-                    </div>
-                    <h3>Data Hewan</h3>
+        <!-- ================= 1. DAFTAR LAYANAN (HORIZONTAL SCROLL) ================= -->
+        <section class="services-carousel-section" id="layanan">
+            <div class="landing-section-container">
+                <div class="section-heading">
+                    <p class="eyebrow">DAFTAR LAYANAN PUSKESWAN</p>
+                    <h2>Pilihan Layanan Medis untuk Sahabat Hewan</h2>
                     <p>
-                        Simpan dan kelola informasi hewan peliharaan
-                        agar mudah diakses saat dibutuhkan.
+                        Geser ke samping untuk menjelajahi seluruh layanan klinis yang tersedia. Klik kartu untuk melihat informasi detail dan melakukan pendaftaran antrean.
                     </p>
-                    <div class="service-card-footer">
-                        <button type="button" class="btn-lihat-detail" data-layanan="hewan">
-                            <span>Lihat Detail</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </article>
+                </div>
 
-                <!-- Card 2: Pemesanan Antrean -->
-                <article class="service-card">
-                    <div class="service-icon">
-                        <i class="fa-solid fa-calendar-check"></i>
-                    </div>
-                    <h3>Pemesanan Antrean</h3>
-                    <p>
-                        Lihat jadwal pelayanan yang tersedia dan
-                        lakukan pemesanan dengan lebih praktis.
-                    </p>
-                    <div class="service-card-footer">
-                        <button type="button" class="btn-lihat-detail" data-layanan="antrean">
-                            <span>Lihat Detail</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </article>
+                <div class="carousel-control-wrapper">
+                    <button type="button" class="carousel-nav-btn prev" id="carouselPrev" aria-label="Geser ke kiri">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
 
-                <!-- Card 3: Riwayat Pemeriksaan -->
-                <article class="service-card">
-                    <div class="service-icon">
-                        <i class="fa-solid fa-file-medical"></i>
+                    <div class="services-scroll-container" id="servicesScrollContainer">
+                        @foreach($layananList as $item)
+                            @php
+                                $namaLower = strtolower($item->nama);
+                                $icon = 'fa-heart-pulse';
+                                $badge = 'Pelayanan Medis';
+                                if (str_contains($namaLower, 'vaksin')) {
+                                    $icon = 'fa-syringe';
+                                    $badge = 'Vaksinasi';
+                                } elseif (str_contains($namaLower, 'steril')) {
+                                    $icon = 'fa-shield-cat';
+                                    $badge = 'Tindakan';
+                                } elseif (str_contains($namaLower, 'obat') || str_contains($namaLower, 'pengobatan')) {
+                                    $icon = 'fa-pills';
+                                    $badge = 'Pengobatan';
+                                } elseif (str_contains($namaLower, 'vitamin')) {
+                                    $icon = 'fa-bottle-droplet';
+                                    $badge = 'Nutrisi & Suplemen';
+                                } elseif (str_contains($namaLower, 'konsultasi')) {
+                                    $icon = 'fa-user-doctor';
+                                    $badge = 'Konsultasi';
+                                } elseif (str_contains($namaLower, 'umum') || str_contains($namaLower, 'pemeriksaan')) {
+                                    $icon = 'fa-stethoscope';
+                                    $badge = 'Pemeriksaan Umum';
+                                }
+
+                                $biayaTeks = (isset($item->biaya) && $item->biaya > 0)
+                                    ? 'Rp ' . number_format($item->biaya, 0, ',', '.')
+                                    : 'Gratis / Subsidi Puskeswan';
+                                $durasiTeks = ($item->durasi_menit ?? 30) . ' Menit';
+                            @endphp
+
+                            <article class="service-scroll-card"
+                                     tabindex="0"
+                                     role="button"
+                                     data-layanan-item
+                                     data-id="{{ $item->id }}"
+                                     data-nama="{{ $item->nama }}"
+                                     data-deskripsi="{{ $item->deskripsi ?? 'Pelayanan kesehatan hewan terpadu oleh dokter hewan Puskeswan.' }}"
+                                     data-durasi="{{ $durasiTeks }}"
+                                     data-biaya="{{ $biayaTeks }}"
+                                     data-badge="{{ $badge }}"
+                                     data-icon="{{ $icon }}">
+                                <div class="service-card-header-badge">
+                                    <span class="service-tag">{{ $badge }}</span>
+                                    <span class="service-duration"><i class="fa-regular fa-clock"></i> {{ $durasiTeks }}</span>
+                                </div>
+                                <div class="service-card-main-icon">
+                                    <i class="fa-solid {{ $icon }}"></i>
+                                </div>
+                                <h3 class="service-card-title">{{ $item->nama }}</h3>
+                                <p class="service-card-description">
+                                    {{ Str::limit($item->deskripsi ?? 'Pelayanan kesehatan hewan terpadu oleh dokter hewan Puskeswan.', 95) }}
+                                </p>
+                                <div class="service-card-bottom">
+                                    <span class="service-price-label">{{ $biayaTeks }}</span>
+                                    <span class="service-click-indicator">
+                                        Lihat Detail <i class="fa-solid fa-arrow-right"></i>
+                                    </span>
+                                </div>
+                            </article>
+                        @endforeach
                     </div>
-                    <h3>Riwayat Pemeriksaan</h3>
-                    <p>
-                        Akses catatan pemeriksaan untuk membantu
-                        memantau riwayat kesehatan hewan.
-                    </p>
-                    <div class="service-card-footer">
-                        <button type="button" class="btn-lihat-detail" data-layanan="riwayat">
-                            <span>Lihat Detail</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </article>
+
+                    <button type="button" class="carousel-nav-btn next" id="carouselNext" aria-label="Geser ke kanan">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="scroll-instruction-note">
+                    <i class="fa-solid fa-arrow-left-long"></i>
+                    <span>Geser ke samping untuk melihat seluruh layanan</span>
+                    <i class="fa-solid fa-arrow-right-long"></i>
+                </div>
             </div>
         </section>
 
+        <!-- ================= 2. FITUR UTAMA (3 KOTAK INFO SINGKAT TANPA TOMBOL DETAIL) ================= -->
+        <section class="features-section" id="fitur">
+            <div class="landing-section-container">
+                <div class="section-heading">
+                    <p class="eyebrow">FITUR UTAMA KAWWAN</p>
+                    <h2>Perawatan Hewan Jadi Lebih Mudah</h2>
+                    <p>
+                        Kelola seluruh kebutuhan kesehatan hewan peliharaan Anda secara praktis melalui satu platform terpadu sebelum berkunjung ke klinik.
+                    </p>
+                </div>
+
+                <div class="features-grid">
+                    <!-- Fitur 1: Data Hewan -->
+                    <article class="feature-info-card">
+                        <div class="feature-info-icon">
+                            <i class="fa-solid fa-paw"></i>
+                        </div>
+                        <h3>Data Hewan</h3>
+                        <p>
+                            Simpan dan kelola informasi identitas, jenis, ras, dan catatan penting hewan peliharaan agar mudah diakses saat dibutuhkan.
+                        </p>
+                    </article>
+
+                    <!-- Fitur 2: Pemesanan Antrean -->
+                    <article class="feature-info-card">
+                        <div class="feature-info-icon">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <h3>Pemesanan Antrean</h3>
+                        <p>
+                            Lihat jadwal pelayanan yang tersedia dan lakukan pemesanan secara online dengan estimasi antrean yang jelas tanpa menunggu lama.
+                        </p>
+                    </article>
+
+                    <!-- Fitur 3: Riwayat Pemeriksaan -->
+                    <article class="feature-info-card">
+                        <div class="feature-info-icon">
+                            <i class="fa-solid fa-file-medical"></i>
+                        </div>
+                        <h3>Riwayat Pemeriksaan</h3>
+                        <p>
+                            Akses rekam medis digital, riwayat diagnosa, tindakan dokter, serta resep pengobatan untuk memantau kesehatan anabul secara berkala.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 3. DAFTAR ARTIKEL ================= -->
+        <section class="article-section" id="artikel">
+            <div class="landing-section-container">
+                <div class="section-heading">
+                    <p class="eyebrow">INFORMASI TERPERCAYA</p>
+                    <h2>Artikel & Tips Kesehatan Hewan</h2>
+                    <p>
+                        Temukan informasi, panduan, dan tips perawatan terbaik untuk mendukung kesehatan sahabat berbulu Anda.
+                    </p>
+                </div>
+
+                <div class="article-grid">
+                    @forelse($artikelTerbaru as $art)
+                        <article class="article-card">
+                            <div class="article-card-media">
+                                @if(!empty($art->gambar))
+                                    <img src="{{ asset('storage/' . $art->gambar) }}" alt="{{ $art->judul }}" class="article-card-img">
+                                @else
+                                    <div class="article-card-placeholder">
+                                        <i class="fa-solid fa-newspaper"></i>
+                                    </div>
+                                @endif
+                                <span class="article-tag">{{ $art->kategori ?: 'Kesehatan' }}</span>
+                            </div>
+                            <div class="article-card-body">
+                                <span class="article-date">
+                                    <i class="fa-regular fa-calendar"></i>
+                                    {{ $art->published_at ? $art->published_at->format('d M Y') : date('d M Y') }}
+                                </span>
+                                <h3 class="article-card-title">{{ $art->judul }}</h3>
+                                <p class="article-card-excerpt">
+                                    {{ Str::limit($art->ringkasan ?: strip_tags($art->isi), 90) }}
+                                </p>
+                            </div>
+                        </article>
+                    @empty
+                        <article class="article-card">
+                            <div class="article-card-media">
+                                <div class="article-card-placeholder">
+                                    <i class="fa-solid fa-shield-virus"></i>
+                                </div>
+                                <span class="article-tag">Vaksinasi</span>
+                            </div>
+                            <div class="article-card-body">
+                                <span class="article-date"><i class="fa-regular fa-calendar"></i> Tips Puskeswan</span>
+                                <h3 class="article-card-title">Pentingnya Vaksinasi Tahunan untuk Hewan Peliharaan</h3>
+                                <p class="article-card-excerpt">Kenali jenis-jenis vaksin wajib seperti rabies dan tricat guna melindungi anabul dari penyakit berbahaya.</p>
+                            </div>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-card-media">
+                                <div class="article-card-placeholder">
+                                    <i class="fa-solid fa-bowl-food"></i>
+                                </div>
+                                <span class="article-tag">Nutrisi</span>
+                            </div>
+                            <div class="article-card-body">
+                                <span class="article-date"><i class="fa-regular fa-calendar"></i> Tips Puskeswan</span>
+                                <h3 class="article-card-title">Panduan Pola Makan Sehat Sesuai Usia Anabul</h3>
+                                <p class="article-card-excerpt">Menjaga asupan gizi seimbang untuk anjing dan kucing sejak usia puppy/kitten hingga memasuki usia senior.</p>
+                            </div>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-card-media">
+                                <div class="article-card-placeholder">
+                                    <i class="fa-solid fa-kit-medical"></i>
+                                </div>
+                                <span class="article-tag">Perawatan</span>
+                            </div>
+                            <div class="article-card-body">
+                                <span class="article-date"><i class="fa-regular fa-calendar"></i> Tips Puskeswan</span>
+                                <h3 class="article-card-title">Tanda-tanda Awal Hewan Peliharaan Mengalami Stres</h3>
+                                <p class="article-card-excerpt">Cara mudah mengenali perubahan perilaku hewan saat merasa tidak nyaman dan langkah pencegahannya.</p>
+                            </div>
+                        </article>
+                    @endforelse
+                </div>
+
+                <div class="article-action-wrap">
+                    <a href="{{ url('/artikel') }}" class="btn btn-outline">
+                        Jelajahi Semua Artikel
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 4. TENTANG KAWWAN ================= -->
         <section class="about" id="tentang">
             <div class="about-content">
                 <p class="eyebrow">TENTANG KAWWAN</p>
@@ -224,27 +389,8 @@
             </div>
 
             <p class="about-description">
-                KAWWAN merupakan platform layanan kesehatan hewan
-                yang membantu pemilik mengakses informasi, jadwal
-                pelayanan, pemesanan antrean, dan riwayat pemeriksaan
-                secara lebih praktis.
+                KAWWAN merupakan platform layanan kesehatan hewan yang membantu pemilik mengakses informasi, jadwal pelayanan, pemesanan antrean, dan riwayat pemeriksaan secara lebih praktis.
             </p>
-        </section>
-
-        <section class="article-section" id="artikel">
-            <div class="article-content">
-                <p class="eyebrow">INFORMASI TERPERCAYA</p>
-                <h2>Lebih mengenal kebutuhan kesehatan hewanmu.</h2>
-                <p>
-                    Temukan informasi dan tips perawatan hewan
-                    untuk mendukung kesehatan sahabatmu.
-                </p>
-            </div>
-
-            <a href="{{ url('/artikel') }}" class="btn btn-outline">
-                Jelajahi Artikel
-                <i class="fa-solid fa-arrow-right"></i>
-            </a>
         </section>
     </main>
 
@@ -261,108 +407,466 @@
         </span>
     </footer>
 
-    <!-- ================= MODAL DETAIL LAYANAN KAWWAN ================= -->
-    <div id="modalLayanan" class="kawwan-modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="kawwan-modal-overlay" onclick="closeLayananModal()"></div>
+    <!-- ================= MODAL DETAIL LAYANAN & DAFTAR BOOKING ================= -->
+    <div id="modalDetailLayanan" class="kawwan-modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="kawwan-modal-overlay" onclick="closeDetailLayananModal()"></div>
         <div class="kawwan-modal-content">
             <div class="modal-header">
                 <div class="modal-title-box">
-                    <span id="modalLayananTag" class="badge-sub">Layanan KAWWAN</span>
-                    <h3 id="modalLayananTitle">Detail Layanan</h3>
+                    <span id="popupLayananBadge" class="badge-sub">Layanan Puskeswan</span>
+                    <h3 id="popupLayananTitle">Nama Layanan</h3>
                 </div>
-                <button type="button" class="btn-close-modal" onclick="closeLayananModal()" aria-label="Tutup">&times;</button>
+                <button type="button" class="btn-close-modal" onclick="closeDetailLayananModal()" aria-label="Tutup">&times;</button>
             </div>
 
             <div class="modal-body">
-                <p id="modalLayananDesc" class="modal-desc"></p>
+                <p id="popupLayananDesc" class="modal-desc"></p>
 
                 <div class="detail-info-grid">
                     <div class="info-box">
-                        <div class="info-label"><i class="fa-solid fa-clock"></i> Jam Operasional</div>
-                        <div id="modalLayananJam" class="info-value">08.00 - 15.30 WIB</div>
+                        <div class="info-label"><i class="fa-solid fa-clock"></i> Estimasi Durasi</div>
+                        <div id="popupLayananDurasi" class="info-value">30 Menit</div>
                     </div>
                     <div class="info-box">
-                        <div class="info-label"><i class="fa-solid fa-calendar-day"></i> Jadwal Layanan</div>
-                        <div id="modalLayananHari" class="info-value">Senin s/d Sabtu</div>
+                        <div class="info-label"><i class="fa-solid fa-tag"></i> Estimasi Biaya</div>
+                        <div id="popupLayananBiaya" class="info-value">Subsidi Puskeswan</div>
                     </div>
                     <div class="info-box">
-                        <div class="info-label"><i class="fa-solid fa-user-doctor"></i> Tim Dokter Hewan</div>
-                        <div id="modalLayananDokter" class="info-value">Dokter Hewan Puskeswan</div>
+                        <div class="info-label"><i class="fa-solid fa-user-doctor"></i> Tim Pemeriksa</div>
+                        <div class="info-value">Dokter Hewan Puskeswan</div>
                     </div>
                     <div class="info-box">
-                        <div class="info-label"><i class="fa-solid fa-shield-cat"></i> Kuota & Akses</div>
-                        <div id="modalLayananAkses" class="info-value">Tersedia Online</div>
+                        <div class="info-label"><i class="fa-solid fa-ticket"></i> Sistem Pelayanan</div>
+                        <div class="info-value">Antrean Online Terjadwal</div>
                     </div>
                 </div>
 
                 <div class="prep-note">
-                    <h4><i class="fa-solid fa-circle-check"></i> Kemudahan & Manfaat untuk Anda:</h4>
-                    <ul id="modalLayananPoints">
-                        <!-- Diisi secara dinamis via JS -->
+                    <h4><i class="fa-solid fa-circle-check"></i> Petunjuk Sebelum Berkunjung:</h4>
+                    <ul id="popupLayananPoints">
+                        <li>Pastikan anabul dalam kondisi tenang, gunakan pet cargo atau tali penuntun (leash).</li>
+                        <li>Bawa buku vaksin atau catatan medis sebelumnya jika pernah melakukan pemeriksaan.</li>
+                        <li>Lakukan pemesanan jadwal antrean terlebih dahulu untuk mendapatkan nomor antrean pasti.</li>
+                        <li>Harap hadir 15 menit sebelum waktu pelayanan yang telah Anda pilih.</li>
                     </ul>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn-secondary-action" onclick="closeLayananModal()">Tutup</button>
+                <button type="button" class="btn-secondary-action" onclick="closeDetailLayananModal()">Tutup</button>
                 @auth
-                    <a id="modalActionBtn" href="{{ url('/pemilik/hewan') }}" class="btn-primary-action">
-                        <span id="modalActionText">Buka Halaman</span> <i class="fa-solid fa-arrow-right"></i>
-                    </a>
+                    @if(Auth::user()->role === 'pemilik_hewan' || Auth::user()->role === 'pemilik')
+                        <a href="{{ route('pemilik.jadwal.index') }}" class="btn-primary-action">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <span>Pilih Jadwal & Pesan Antrean</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    @else
+                        <a href="{{ url('/' . Auth::user()->role . '/dashboard') }}" class="btn-primary-action">
+                            <i class="fa-solid fa-gauge-high"></i>
+                            <span>Buka Dashboard</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    @endif
                 @else
-                    <a href="{{ url('/login') }}" class="btn-primary-action">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i> <span id="modalLoginText">Login untuk Akses</span>
-                    </a>
+                    <div class="modal-auth-actions">
+                        <a href="{{ route('login') }}" class="btn-primary-action">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                            <span>Masuk untuk Booking</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <a href="{{ route('register') }}" class="btn-secondary-link">
+                            Belum punya akun? <strong>Daftar di sini</strong>
+                        </a>
+                    </div>
                 @endauth
             </div>
         </div>
     </div>
 
-    <!-- STYLING KHUSUS BUTTON & MODAL DETAIL -->
+    <!-- STYLING KHUSUS SECTION LAYANAN SCROLL, FITUR, & MODAL -->
     <style>
-        .service-card-footer {
-            margin-top: auto;
-            padding-top: 16px;
-            border-top: 1px solid #F5ECE3;
-        }
-
-        .btn-lihat-detail {
-            display: inline-flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 9px 18px;
-            border-radius: 999px;
-            background-color: #FFF5EE;
-            border: 1.5px solid #FFD4BA;
-            color: #FF6B00;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            text-decoration: none;
+        .landing-section-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 20px;
             box-sizing: border-box;
         }
 
-        .btn-lihat-detail i {
-            transition: transform 0.22s ease;
-            font-size: 12px;
+        /* 1. SECTION DAFTAR LAYANAN (CAROUSEL) */
+        .services-carousel-section {
+            padding: 70px 0 55px;
+            background: #FCF9F6;
+            border-top: 1px solid #F0E6DE;
+            border-bottom: 1px solid #F0E6DE;
+            scroll-margin-top: 80px;
         }
 
-        .btn-lihat-detail:hover {
-            background-color: #FF6B00;
+        .carousel-control-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+
+        .services-scroll-container {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 14px 10px 24px;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            width: 100%;
+        }
+
+        /* Custom Scrollbar for Services Carousel */
+        .services-scroll-container::-webkit-scrollbar {
+            height: 7px;
+        }
+
+        .services-scroll-container::-webkit-scrollbar-track {
+            background: #EFE7E0;
+            border-radius: 999px;
+        }
+
+        .services-scroll-container::-webkit-scrollbar-thumb {
+            background: #FF9B4D;
+            border-radius: 999px;
+        }
+
+        .services-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #FF6B00;
+        }
+
+        .service-scroll-card {
+            flex: 0 0 300px;
+            min-width: 280px;
+            max-width: 310px;
+            scroll-snap-align: start;
+            background: #FFFFFF;
+            border: 1.5px solid #F0E4DA;
+            border-radius: 18px;
+            padding: 24px 22px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 6px 20px rgba(24, 19, 16, 0.04);
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        .service-scroll-card:hover,
+        .service-scroll-card:focus-visible {
+            transform: translateY(-5px);
+            border-color: #FF6B00;
+            box-shadow: 0 16px 32px rgba(255, 107, 0, 0.12);
+            outline: none;
+        }
+
+        .service-card-header-badge {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .service-tag {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #FF6B00;
+            background: #FFF2E8;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid #FFD9BE;
+        }
+
+        .service-duration {
+            font-size: 12px;
+            color: #81766E;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .service-card-main-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #FFF2E8;
+            color: #FF6B00;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 14px;
+            transition: transform 0.25s ease;
+        }
+
+        .service-scroll-card:hover .service-card-main-icon {
+            transform: scale(1.08);
+            background: #FF6B00;
+            color: #FFFFFF;
+        }
+
+        .service-card-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #181310;
+            margin: 0 0 8px;
+            line-height: 1.35;
+        }
+
+        .service-card-description {
+            font-size: 13px;
+            color: #81766E;
+            line-height: 1.6;
+            margin: 0 0 16px;
+            flex-grow: 1;
+        }
+
+        .service-card-bottom {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px dashed #F0E6DE;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .service-price-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #181310;
+        }
+
+        .service-click-indicator {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #FF6B00;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: gap 0.2s ease;
+        }
+
+        .service-scroll-card:hover .service-click-indicator {
+            gap: 10px;
+        }
+
+        .carousel-nav-btn {
+            background: #FFFFFF;
+            border: 1.5px solid #F0E4DA;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #181310;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            z-index: 5;
+            flex-shrink: 0;
+        }
+
+        .carousel-nav-btn:hover {
+            background: #FF6B00;
             border-color: #FF6B00;
             color: #FFFFFF;
-            box-shadow: 0 4px 14px rgba(255, 107, 0, 0.28);
-            transform: translateY(-2px);
+            transform: scale(1.06);
+            box-shadow: 0 8px 20px rgba(255, 107, 0, 0.25);
         }
 
-        .btn-lihat-detail:hover i {
-            transform: translateX(4px);
+        .carousel-nav-btn.prev {
+            margin-right: 10px;
         }
 
-        /* Modal Layanan */
+        .carousel-nav-btn.next {
+            margin-left: 10px;
+        }
+
+        .scroll-instruction-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #A3968D;
+            margin-top: 6px;
+        }
+
+        /* 2. SECTION FITUR UTAMA (3 KOTAK INFO SINGKAT) */
+        .features-section {
+            padding: 70px 0 60px;
+            background: #FFFFFF;
+            scroll-margin-top: 80px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1040px;
+            margin: 0 auto;
+        }
+
+        .feature-info-card {
+            background: #FFFFFF;
+            border: 1.5px solid #F0E4DA;
+            border-radius: 18px;
+            padding: 30px 26px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(24, 19, 16, 0.04);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            box-sizing: border-box;
+        }
+
+        .feature-info-card:hover {
+            transform: translateY(-4px);
+            border-color: #FFD4BA;
+            box-shadow: 0 14px 28px rgba(24, 19, 16, 0.08);
+        }
+
+        .feature-info-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #FFF2E8;
+            color: #FF6B00;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 18px;
+        }
+
+        .feature-info-card h3 {
+            font-size: 19px;
+            font-weight: 800;
+            color: #181310;
+            margin: 0 0 10px;
+        }
+
+        .feature-info-card p {
+            font-size: 13.5px;
+            color: #81766E;
+            line-height: 1.65;
+            margin: 0;
+        }
+
+        /* 3. SECTION DAFTAR ARTIKEL */
+        .article-section {
+            padding: 70px 0 65px;
+            background: #FCF9F6;
+            border-top: 1px solid #F0E6DE;
+            scroll-margin-top: 80px;
+        }
+
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1040px;
+            margin: 0 auto 35px;
+        }
+
+        .article-card {
+            background: #FFFFFF;
+            border: 1.5px solid #F0E4DA;
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(24, 19, 16, 0.04);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .article-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .article-card-media {
+            position: relative;
+            height: 160px;
+            background: #FFF0E5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .article-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .article-card-placeholder {
+            font-size: 38px;
+            color: #FF9B4D;
+        }
+
+        .article-tag {
+            position: absolute;
+            bottom: 12px;
+            left: 14px;
+            background: rgba(24, 19, 16, 0.85);
+            color: #FFFFFF;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .article-card-body {
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .article-date {
+            font-size: 11.5px;
+            color: #81766E;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .article-card-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #181310;
+            margin: 0 0 8px;
+            line-height: 1.4;
+        }
+
+        .article-card-excerpt {
+            font-size: 13px;
+            color: #81766E;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .article-action-wrap {
+            text-align: center;
+        }
+
+        /* MODAL DETAIL LAYANAN */
         .kawwan-modal {
             display: none;
             position: fixed;
@@ -544,6 +1048,13 @@
             background: #FAFAFA;
         }
 
+        .modal-auth-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
         .btn-secondary-action {
             background-color: #F2EBE6;
             color: #181310;
@@ -559,6 +1070,21 @@
 
         .btn-secondary-action:hover {
             background-color: #E5DCD5;
+        }
+
+        .btn-secondary-link {
+            font-size: 13px;
+            color: #81766E;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .btn-secondary-link strong {
+            color: #FF6B00;
+        }
+
+        .btn-secondary-link:hover {
+            color: #FF6B00;
         }
 
         .btn-primary-action {
@@ -584,130 +1110,146 @@
             transform: translateY(-1px);
             box-shadow: 0 6px 18px rgba(255, 107, 0, 0.38);
         }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .features-grid,
+            .article-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .features-grid,
+            .article-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .carousel-nav-btn {
+                display: none;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .modal-auth-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-primary-action,
+            .btn-secondary-action {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 
-    <!-- SCRIPT POP-UP MODAL LAYANAN -->
+    <!-- JAVASCRIPT CAROUSEL & MODAL DETAIL LAYANAN -->
     <script>
-        const KAWWAN_SERVICES = {
-            hewan: {
-                tag: "Data Hewan Peliharaan",
-                title: "Manajemen Data Hewan",
-                desc: "Simpan profil lengkap hewan kesayangan Anda secara digital dan terpusat. Data nama, jenis, ras, jenis kelamin, usia, hingga riwayat khusus anabul akan langsung terhubung ke rekam medis dan antrean klinik.",
-                jam: "Akses 24 Jam Mandiri",
-                hari: "Tersedia Setiap Hari",
-                dokter: "Terkoneksi ke Dokter & Kader",
-                akses: "Data Terproteksi & Akurat",
-                url: "{{ url('/pemilik/hewan') }}",
-                actionText: "Buka Kelola Data Hewan",
-                loginText: "Login untuk Kelola Data",
-                points: [
-                    "Pencatatan identitas resmi anabul untuk kepastian riwayat medis.",
-                    "Dapat mendaftarkan banyak hewan sekaligus dalam satu akun pemilik.",
-                    "Mempercepat verifikasi oleh kader saat tiba di klinik puskeswan.",
-                    "Profil hewan dapat diperbarui kapan saja secara mandiri."
-                ]
-            },
-            antrean: {
-                tag: "Pemesanan Jadwal & Antrean",
-                title: "Pemesanan Antrean Online",
-                desc: "Pilih tanggal, jam operasional, dan dokter spesialis yang bertugas secara real-time. Dapatkan estimasi antrean yang jelas sehingga Anda tidak perlu menunggu lama di ruang tunggu puskeswan.",
-                jam: "08.00 - 15.30 WIB",
-                hari: "Senin s/d Sabtu",
-                dokter: "drh. Amanda / drh. Reza",
-                akses: "Sistem Kuota Terintegrasi",
-                url: "{{ url('/pemilik/jadwal') }}",
-                actionText: "Lihat Jadwal & Pesan Antrean",
-                loginText: "Login untuk Pesan Antrean",
-                points: [
-                    "Melihat kuota pasien yang masih tersedia pada setiap sesi layanan.",
-                    "Pilihan layanan lengkap: Vaksinasi, Pemeriksaan Umum, atau Konsultasi.",
-                    "Konfirmasi status pemesanan secara transparan dan terdata aman.",
-                    "Pemberitahuan nomor antrean langsung di perangkat Anda."
-                ]
-            },
-            riwayat: {
-                tag: "Catatan Medis & Pemeriksaan",
-                title: "Rekam Medis Digital Hewan",
-                desc: "Pantau riwayat kesehatan, diagnosa penyakit, tindakan medis, resep obat, serta catatan khusus dari dokter hewan pemeriksa yang tersimpan secara terstruktur dan aman.",
-                jam: "Akses Riwayat 24 Jam",
-                hari: "Tersedia Kapan Saja",
-                dokter: "Diverifikasi Tim Dokter Resmi",
-                akses: "Privasi Terjaga Antar Pemilik",
-                url: "{{ url('/pemilik/pemesanan') }}",
-                actionText: "Lihat Riwayat Pemeriksaan",
-                loginText: "Login untuk Lihat Riwayat",
-                points: [
-                    "Riwayat catatan medis tersimpan permanen dan tidak hilang.",
-                    "Melihat rincian tindakan dan instruksi perawatan dari dokter.",
-                    "Mempermudah penanganan saat pemeriksaan berkala atau rujukan.",
-                    "Hanya bisa diakses oleh pemilik hewan yang bersangkutan."
-                ]
-            }
-        };
-
-        function openLayananModal(key) {
-            const data = KAWWAN_SERVICES[key];
-            if (!data) return;
-
-            const modal = document.getElementById('modalLayanan');
+        function openDetailLayananModal(data) {
+            const modal = document.getElementById('modalDetailLayanan');
             if (!modal) return;
 
-            document.getElementById('modalLayananTag').textContent = data.tag;
-            document.getElementById('modalLayananTitle').textContent = data.title;
-            document.getElementById('modalLayananDesc').textContent = data.desc;
-            document.getElementById('modalLayananJam').textContent = data.jam;
-            document.getElementById('modalLayananHari').textContent = data.hari;
-            document.getElementById('modalLayananDokter').textContent = data.dokter;
-            document.getElementById('modalLayananAkses').textContent = data.akses;
-
-            const actionBtn = document.getElementById('modalActionBtn');
-            const actionText = document.getElementById('modalActionText');
-            if (actionBtn && actionText) {
-                actionBtn.href = data.url;
-                actionText.textContent = data.actionText;
-            }
-
-            const loginText = document.getElementById('modalLoginText');
-            if (loginText) {
-                loginText.textContent = data.loginText;
-            }
-
-            const pointsList = document.getElementById('modalLayananPoints');
-            if (pointsList) {
-                pointsList.innerHTML = '';
-                data.points.forEach(point => {
-                    const li = document.createElement('li');
-                    li.textContent = point;
-                    pointsList.appendChild(li);
-                });
-            }
+            document.getElementById('popupLayananTitle').textContent = data.nama || 'Detail Layanan';
+            document.getElementById('popupLayananBadge').textContent = data.badge || 'Layanan Puskeswan';
+            document.getElementById('popupLayananDesc').textContent = data.desc || 'Pelayanan kesehatan hewan terpadu oleh tim dokter hewan Puskeswan.';
+            document.getElementById('popupLayananDurasi').textContent = data.durasi || '30 Menit';
+            document.getElementById('popupLayananBiaya').textContent = data.biaya || 'Subsidi Puskeswan';
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
-        function closeLayananModal() {
-            const modal = document.getElementById('modalLayanan');
+        function closeDetailLayananModal() {
+            const modal = document.getElementById('modalDetailLayanan');
             if (modal) {
                 modal.classList.remove('active');
             }
             document.body.style.overflow = '';
         }
 
-        // Event listener saat halaman selesai dimuat
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('[data-layanan]').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    const key = this.getAttribute('data-layanan');
-                    openLayananModal(key);
+            const track = document.getElementById('servicesScrollContainer');
+            const prevBtn = document.getElementById('carouselPrev');
+            const nextBtn = document.getElementById('carouselNext');
+
+            if (prevBtn && track) {
+                prevBtn.addEventListener('click', function () {
+                    track.scrollBy({ left: -320, behavior: 'smooth' });
+                });
+            }
+
+            if (nextBtn && track) {
+                nextBtn.addEventListener('click', function () {
+                    track.scrollBy({ left: 320, behavior: 'smooth' });
+                });
+            }
+
+            // Click listener pada setiap kartu layanan
+            document.querySelectorAll('[data-layanan-item]').forEach(function (card) {
+                card.addEventListener('click', function () {
+                    const data = {
+                        nama: this.getAttribute('data-nama'),
+                        desc: this.getAttribute('data-deskripsi'),
+                        durasi: this.getAttribute('data-durasi'),
+                        biaya: this.getAttribute('data-biaya'),
+                        badge: this.getAttribute('data-badge')
+                    };
+                    openDetailLayananModal(data);
+                });
+
+                card.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
                 });
             });
 
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
-                    closeLayananModal();
+                    closeDetailLayananModal();
                 }
             });
+
+            // Active highlight pada navbar sesuai klik & scroll section
+            const navItems = Array.from(document.querySelectorAll('#navLinks > a'));
+            const sectionMap = [
+                { link: navItems.find(a => !a.getAttribute('href').startsWith('#')), el: document.querySelector('.hero') },
+                { link: navItems.find(a => a.getAttribute('href') === '#layanan'), el: document.getElementById('layanan') },
+                { link: navItems.find(a => a.getAttribute('href') === '#fitur'), el: document.getElementById('fitur') },
+                { link: navItems.find(a => a.getAttribute('href') === '#artikel'), el: document.getElementById('artikel') },
+                { link: navItems.find(a => a.getAttribute('href') === '#tentang'), el: document.getElementById('tentang') },
+            ].filter(item => item.link && item.el);
+
+            function setActiveNav(targetLink) {
+                navItems.forEach(a => a.classList.remove('active'));
+                if (targetLink) targetLink.classList.add('active');
+            }
+
+            navItems.forEach(link => {
+                link.addEventListener('click', function () {
+                    setActiveNav(this);
+                });
+            });
+
+            function updateActiveNavOnScroll() {
+                const scrollPos = window.scrollY + 140;
+                let current = sectionMap[0]?.link;
+
+                for (const item of sectionMap) {
+                    const top = item.el.offsetTop;
+                    if (scrollPos >= top) {
+                        current = item.link;
+                    }
+                }
+                setActiveNav(current);
+            }
+
+            window.addEventListener('scroll', updateActiveNavOnScroll, { passive: true });
         });
     </script>
 </body>

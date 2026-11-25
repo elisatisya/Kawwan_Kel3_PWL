@@ -16,70 +16,18 @@
 <body class="pemilik-body">
 
     <div class="pemilik-shell">
-        <div class="pemilik-backdrop" id="pemilikBackdrop"></div>
-
-        <aside class="pemilik-sidebar" id="pemilikSidebar">
-            <a href="{{ route('pemilik.dashboard') }}" class="pemilik-brand">
-                <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
-            </a>
-
-            <p class="pemilik-menu-label">Menu Pemilik</p>
-
-            <nav class="pemilik-menu" aria-label="Navigasi Pemilik Hewan">
-                <a href="{{ route('pemilik.dashboard') }}" class="{{ request()->routeIs('pemilik.dashboard') || request()->routeIs('pemilik.beranda') ? 'active' : '' }}">
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ route('pemilik.hewan.index') }}" class="{{ request()->routeIs('pemilik.hewan.*') ? 'active' : '' }}">
-                    <span>Data Hewan</span>
-                </a>
-                <a href="{{ route('pemilik.jadwal.index') }}" class="{{ request()->routeIs('pemilik.jadwal.*') ? 'active' : '' }}">
-                    <span>Jadwal Pelayanan</span>
-                </a>
-                <a href="{{ route('pemilik.pemesanan.index') }}" class="{{ request()->routeIs('pemilik.pemesanan.*') ? 'active' : '' }}">
-                    <span>Pemesanan Antrean</span>
-                </a>
-                <a href="{{ route('pemilik.profil') }}" class="{{ request()->routeIs('pemilik.profil*') ? 'active' : '' }}">
-                    <span>Profil</span>
-                </a>
-                <a href="{{ route('landing') }}#artikel">
-                    <span>Artikel Edukasi</span>
-                </a>
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST" class="pemilik-logout" id="formLogout">
-                @csrf
-                <button type="button" class="btn btn-outline" onclick="confirmLogout('pemilik hewan')">
-                    Keluar
-                </button>
-            </form>
-        </aside>
+        @include('pemilik.partials.navbar')
 
         <div class="pemilik-main-wrap">
-            <header class="pemilik-topbar">
-                <div class="pemilik-topbar-left">
-                    <button class="pemilik-menu-toggle" id="pemilikMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
-                        Menu
-                    </button>
-                    <h2>{{ 'Profil Saya' }}</h2>
-                </div>
-
-                <div class="pemilik-user-profile">
-                    <div class="pemilik-avatar">
-                        @if (auth()->user()->foto)
-                            <img src="{{ asset('storage/'.auth()->user()->foto) }}" alt="Foto {{ auth()->user()->name }}">
-                        @else
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                        @endif
-                    </div>
-                    <div>
-                        <span class="pemilik-user-name">{{ auth()->user()->name }}</span>
-                        <span class="pemilik-user-role">Pemilik Hewan</span>
-                    </div>
-                </div>
-            </header>
-
             <main class="pemilik-main">
 <div class="pemilik-container">
+
+    <div class="pemilik-page-head">
+        <div>
+            <h1>Profil <span>Saya</span></h1>
+            <p>Kelola informasi pribadi dan keamanan akun Pemilik Hewan Anda.</p>
+        </div>
+    </div>
 
     @php $editing = $errors->any(); @endphp
 
