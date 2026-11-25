@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 
@@ -36,69 +37,13 @@
 
     <div class="admin-shell">
 
-        <div class="admin-backdrop" id="adminBackdrop"></div>
-
-        <aside class="admin-sidebar" id="adminSidebar">
-            <a href="{{ route('admin.dashboard') }}" class="admin-brand">
-                <img src="{{ asset('images/logo-kawwan.png') }}" alt="Logo KAWWAN">
-            </a>
-
-            <div class="admin-badge-role">
-                Panel Administrator
-            </div>
-
-            <p class="admin-menu-label">Menu Utama</p>
-
-            @php
-                $pendingCount = \App\Models\User::where('status', \App\Models\User::STATUS_MENUNGGU)->count();
-            @endphp
-
-            <nav class="admin-menu" aria-label="Navigasi admin">
-                <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <span>Dashboard</span>
-                </a>
-
-                <a href="{{ route('admin.verifikasi.index') }}" class="{{ request()->routeIs('admin.verifikasi.*') ? 'active' : '' }}">
-                    <span>Verifikasi Pengguna</span>
-                    @if($pendingCount > 0)
-                        <span class="admin-menu-counter">{{ $pendingCount }}</span>
-                    @endif
-                </a>
-
-                <a href="{{ route('admin.pengguna.index') }}" class="{{ request()->routeIs('admin.pengguna.*') ? 'active' : '' }}">
-                    <span>Pengelolaan Pengguna</span>
-                </a>
-
-                <p class="admin-menu-label" style="margin-top: 14px;">Operasional Sistem</p>
-
-                <a href="{{ route('admin.dashboard') }}#operasional" class="is-stub">
-                    <span>Jadwal Pelayanan</span>
-                </a>
-
-                <a href="{{ route('admin.dashboard') }}#antrean" class="is-stub">
-                    <span>Pemesanan Antrean</span>
-                </a>
-
-                <a href="{{ url('/') }}" target="_blank">
-                    <span>Lihat Halaman Publik</span>
-                </a>
-            </nav>
-
-            <div class="admin-sidebar-footer">
-                <form action="{{ route('logout') }}" method="POST" class="admin-logout" id="formLogout">
-                @csrf
-                <button type="button" class="btn btn-outline admin-btn-logout" onclick="confirmLogout('administrator')">
-                    Keluar
-                </button>
-            </form>
-            </div>
-        </aside>
+        @include('admin.partials.sidebar')
 
         <div class="admin-main">
             <header class="admin-topbar">
                 <div class="admin-topbar-left">
                     <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
-                        Menu
+                        <i class="fa-solid fa-bars"></i>
                     </button>
                     <h2>{{ 'Dashboard Administrator' }}</h2>
                 </div>
@@ -121,10 +66,10 @@
         </div>
         <div class="admin-head-actions">
             <a href="{{ route('admin.verifikasi.index') }}" class="btn btn-primary">
-                Kelola Verifikasi
+                <i class="fa-solid fa-user-check"></i> Kelola Verifikasi
             </a>
             <a href="{{ route('admin.pengguna.index') }}" class="btn btn-outline">
-                Tambah Petugas
+                <i class="fa-solid fa-user-plus"></i> Tambah Petugas
             </a>
         </div>
     </div>
@@ -142,10 +87,11 @@
         </div>
     @endif
 
-    {{-- Grid Kartu Statistik Utama (Clean, No Icon) --}}
+    {{-- Grid Kartu Statistik Utama --}}
     <div class="admin-stats">
         {{-- Stat 1: Total Pengguna --}}
         <div class="admin-stat-card">
+            <div class="admin-stat-icon"><i class="fa-solid fa-users"></i></div>
             <div class="admin-stat-body">
                 <span class="admin-stat-label">Total Pengguna</span>
                 <span class="admin-stat-value" data-count="{{ $stat['total_pengguna'] }}">{{ $stat['total_pengguna'] }}</span>
@@ -155,6 +101,7 @@
 
         {{-- Stat 2: Menunggu Verifikasi (Highlight) --}}
         <div class="admin-stat-card is-highlight">
+            <div class="admin-stat-icon"><i class="fa-solid fa-user-clock"></i></div>
             <div class="admin-stat-body">
                 <div class="admin-stat-header-row">
                     <span class="admin-stat-label">Menunggu Verifikasi</span>
@@ -167,6 +114,7 @@
 
         {{-- Stat 3: Total Hewan --}}
         <div class="admin-stat-card">
+            <div class="admin-stat-icon"><i class="fa-solid fa-paw"></i></div>
             <div class="admin-stat-body">
                 <span class="admin-stat-label">Pasien Hewan</span>
                 <span class="admin-stat-value" data-count="{{ $stat['total_hewan'] }}">{{ $stat['total_hewan'] }}</span>
@@ -176,6 +124,7 @@
 
         {{-- Stat 4: Antrean Hari Ini --}}
         <div class="admin-stat-card">
+            <div class="admin-stat-icon"><i class="fa-solid fa-ticket"></i></div>
             <div class="admin-stat-body">
                 <span class="admin-stat-label">Antrean Hari Ini</span>
                 <span class="admin-stat-value" data-count="{{ $stat['antrean_hari_ini'] }}">{{ $stat['antrean_hari_ini'] }}</span>
@@ -217,6 +166,7 @@
 
         @if ($prioritasVerifikasi->isEmpty())
             <div class="admin-empty-state">
+                <div class="admin-empty-icon"><i class="fa-solid fa-circle-check"></i></div>
                 <h4>Semua Pengguna Terverifikasi</h4>
                 <p>Saat ini tidak ada antrean verifikasi pengguna baru yang tertunda. Sistem berjalan lancar.</p>
             </div>
@@ -337,6 +287,7 @@
 
         @if ($antreanHariIni->isEmpty())
             <div class="admin-empty-state">
+                <div class="admin-empty-icon"><i class="fa-regular fa-calendar-check"></i></div>
                 <h4>Belum Ada Antrean Hari Ini</h4>
                 <p>Tidak ada pemesanan pemeriksaan pada jadwal pelayanan hari ini.</p>
             </div>

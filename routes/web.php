@@ -117,6 +117,20 @@ Route::middleware(['auth', 'role:admin'])
 
         });
 
+        // Jadwal Pelayanan (Operasional Admin)
+        Route::prefix('jadwal')->name('jadwal.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('index');
+            Route::post('/', [App\Http\Controllers\Admin\JadwalController::class, 'store'])->name('store');
+            Route::patch('/{jadwal}/status', [App\Http\Controllers\Admin\JadwalController::class, 'updateStatus'])->name('status');
+            Route::delete('/{jadwal}', [App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('destroy');
+        });
+
+        // Pemesanan Antrean (Operasional Admin)
+        Route::prefix('pemesanan')->name('pemesanan.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\PemesananController::class, 'index'])->name('index');
+            Route::patch('/{pemesanan}/status', [App\Http\Controllers\Admin\PemesananController::class, 'updateStatus'])->name('status');
+        });
+
     });
 
 // DOKTER
