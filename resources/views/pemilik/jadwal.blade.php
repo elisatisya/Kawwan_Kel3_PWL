@@ -36,6 +36,9 @@
                 <a href="{{ route('pemilik.pemesanan.index') }}" class="{{ request()->routeIs('pemilik.pemesanan.*') ? 'active' : '' }}">
                     <span>Pemesanan Antrean</span>
                 </a>
+                <a href="{{ route('pemilik.profil') }}" class="{{ request()->routeIs('pemilik.profil*') ? 'active' : '' }}">
+                    <span>Profil</span>
+                </a>
                 <a href="{{ route('landing') }}#artikel">
                     <span>Artikel Edukasi</span>
                 </a>
