@@ -75,7 +75,7 @@
                         @endif
                     </div>
                     <div>
-                        <span class="dokter-user-name">{{ auth()->user()->name }}</span>
+                        <span class="dokter-user-name">{{ trim((auth()->user()->gelar_depan ? auth()->user()->gelar_depan.' ' : '').auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</span>
                         <span class="dokter-user-role">Dokter Hewan</span>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                 @elseif ($antrean->status === 'sedang_dilayani')
                     <section class="dokter-card">
                         <h3>Hasil Pemeriksaan</h3>
-                        <p class="dokter-card-sub">Isi data pemeriksaan, lalu simpan untuk menyelesaikan antrean.</p>
+                        <p class="dokter-card-sub">Isi data pemeriksaan, lalu klik Simpan.</p>
 
                         <form action="{{ route('dokter.pemeriksaan.simpan', $antrean) }}" method="POST">
                             @csrf
@@ -168,7 +168,7 @@
 
                             <div class="dokter-actions">
                                 <a href="{{ route('dokter.pemeriksaan.index') }}" class="btn btn-outline">Batal</a>
-                                <button type="submit" class="btn btn-primary">Simpan &amp; Selesai</button>
+                                <button type="submit" class="btn btn-primary">Simpan</button>
                             </div>
                         </form>
                     </section>

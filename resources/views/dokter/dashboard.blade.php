@@ -72,7 +72,7 @@
                         @endif
                     </div>
                     <div>
-                        <span class="dokter-user-name">{{ auth()->user()->name }}</span>
+                        <span class="dokter-user-name">{{ trim((auth()->user()->gelar_depan ? auth()->user()->gelar_depan.' ' : '').auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</span>
                         <span class="dokter-user-role">Dokter Hewan</span>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
 
             <main class="dokter-content">
 <div class="dokter-head">
-        <h1>Halo, <span>{{ auth()->user()->name }}</span></h1>
+        <h1>Halo, <span>{{ trim((auth()->user()->gelar_depan ? auth()->user()->gelar_depan.' ' : '').auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</span></h1>
         <p>Ringkasan pelayanan pemeriksaan hewan hari ini.</p>
     </div>
 
@@ -139,7 +139,7 @@
 
     <section class="dokter-card">
         <h3>Antrean Hari Ini</h3>
-        <p class="dokter-card-sub">Daftar pemesanan pada jadwal pelayanan hari ini.</p>
+        <p class="dokter-card-sub">Pasien yang terdaftar pada jadwal praktik hari ini.</p>
 
         @if ($antrean->isEmpty())
             <p class="dokter-empty">Belum ada antrean untuk hari ini.</p>
