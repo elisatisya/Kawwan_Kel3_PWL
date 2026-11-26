@@ -65,7 +65,8 @@ class DashboardController extends Controller
             'booking_hari_ini'    => $pemesananHariIni->count(),       // tetap untuk info
             'total_aktif'         => $totalAktif,
             'menunggu_kedatangan' => $totalMenunggu,
-            'belum_dibayar'       => max(0, $totalBelumBayar),            'artikel_diajukan'    => Artikel::where('status', 'diajukan')->count(),
+            'belum_dibayar'       => max(0, $totalBelumBayar),
+            'artikel_diajukan'    => Artikel::whereIn('status', ['published', 'diajukan'])->count(),
         ];
 
         $labelStatus = self::LABEL_STATUS;

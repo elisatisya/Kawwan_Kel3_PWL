@@ -19,6 +19,29 @@
         @include('pemilik.partials.navbar')
 
         <div class="pemilik-main-wrap">
+            <header class="pemilik-topbar">
+                <div class="pemilik-topbar-left">
+                    <button class="pemilik-menu-toggle" id="pemilikMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2>Profil Saya</h2>
+                </div>
+
+                <a href="{{ route('pemilik.profil') }}" class="pemilik-user-profile" title="Lihat Profil">
+                    <div class="pemilik-avatar">
+                        @if (auth()->user()->foto)
+                            <img src="{{ asset('storage/'.auth()->user()->foto) }}" alt="Foto {{ auth()->user()->name }}">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
+                    <div>
+                        <span class="pemilik-user-name">{{ auth()->user()->name }}</span>
+                        <span class="pemilik-user-role">Pemilik Hewan</span>
+                    </div>
+                </a>
+            </header>
+
             <main class="pemilik-main">
 <div class="pemilik-container">
 

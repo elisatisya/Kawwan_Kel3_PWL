@@ -34,5 +34,10 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    
+    'newsdata' => [
+        'key' => env('NEWSDATA_API_KEY'),
+        'url' => 'https://newsdata.io/api/1/latest',
+    ],
 
 ];

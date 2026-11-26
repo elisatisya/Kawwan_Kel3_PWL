@@ -224,13 +224,23 @@
                                             </td>
                                             <td>
                                                 <div class="dokter-actions">
-                                                    <a href="{{ route('dokter.jadwal.edit', $j) }}" class="btn btn-outline btn-sm">Ubah</a>
+                                                    <a href="{{ route('dokter.jadwal.edit', $j) }}"
+                                                       class="btn-icon-action is-edit"
+                                                       title="Edit Jadwal"
+                                                       aria-label="Edit Jadwal">
+                                                        <i class="fa-solid fa-pen-to-square"></i>
+                                                    </a>
 
                                                     <form action="{{ route('dokter.jadwal.destroy', $j) }}" method="POST"
                                                           onsubmit="return confirm('Hapus jadwal ini?')">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                                        <button type="submit"
+                                                                class="btn-icon-action is-delete"
+                                                                title="Hapus Jadwal"
+                                                                aria-label="Hapus Jadwal">
+                                                            <i class="fa-solid fa-trash-can"></i>
+                                                        </button>
                                                     </form>
                                                 </div>
                                             </td>

@@ -19,6 +19,29 @@
         @include('pemilik.partials.navbar')
 
         <div class="pemilik-main-wrap">
+            <header class="pemilik-topbar">
+                <div class="pemilik-topbar-left">
+                    <button class="pemilik-menu-toggle" id="pemilikMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2>Data Hewan</h2>
+                </div>
+
+                <a href="{{ route('pemilik.profil') }}" class="pemilik-user-profile" title="Lihat Profil">
+                    <div class="pemilik-avatar">
+                        @if (auth()->user()->foto)
+                            <img src="{{ asset('storage/'.auth()->user()->foto) }}" alt="Foto {{ auth()->user()->name }}">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
+                    <div>
+                        <span class="pemilik-user-name">{{ auth()->user()->name }}</span>
+                        <span class="pemilik-user-role">Pemilik Hewan</span>
+                    </div>
+                </a>
+            </header>
+
             <main class="pemilik-main">
 <div class="pemilik-container">
 
@@ -89,16 +112,22 @@
                                 <td>{{ $item->pemesanan_count }} kali</td>
                                 <td>
                                     <div class="pemilik-table-actions">
-                                        <a href="{{ route('pemilik.hewan.edit', $item) }}" class="pemilik-action-link">
-                                            Edit
+                                        <a href="{{ route('pemilik.hewan.edit', $item) }}"
+                                           class="btn-icon-action is-edit"
+                                           title="Edit Data Hewan"
+                                           aria-label="Edit Data Hewan">
+                                            <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
                                         <form method="POST"
                                               action="{{ route('pemilik.hewan.destroy', $item) }}"
                                               data-confirm="Yakin ingin menghapus data hewan {{ $item->jenis }}?">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="pemilik-action-link is-danger">
-                                                Hapus
+                                            <button type="submit"
+                                                    class="btn-icon-action is-delete"
+                                                    title="Hapus Data Hewan"
+                                                    aria-label="Hapus Data Hewan">
+                                                <i class="fa-solid fa-trash-can"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -112,7 +141,12 @@
     </section>
 
     {{-- Modal Popup Tambah / Edit Hewan --}}
-    <div id="modalHewan" class="pemilik-modal {{ ($hewanEdit || $errors->any()) ? 'is-open' : '' }}" role="dialog" aria-modal="true" aria-hidden="{{ ($hewanEdit || $errors->any()) ? 'false' : 'true' }}">
+    <div id="modalHewan"
+         class="pemilik-modal {{ ($hewanEdit || $errors->any()) ? 'is-open' : '' }}"
+         role="dialog"
+         aria-modal="true"
+         aria-hidden="{{ ($hewanEdit || $errors->any()) ? 'false' : 'true' }}"
+         data-edit-redirect="{{ $hewanEdit ? route('pemilik.hewan.index') : '' }}">
         <div class="pemilik-modal-overlay" onclick="closeHewanModal()"></div>
         <div class="pemilik-modal-dialog">
             <div class="pemilik-modal-head">
@@ -131,20 +165,38 @@
                     @method('PUT')
                 @endif
 
+                @php
+                    $jenisStandar = ['kucing', 'anjing', 'kelinci', 'burung'];
+                    $jenisVal = old('jenis', $hewanEdit?->jenis ?? '');
+                    $isLainnya = $jenisVal !== '' && ! in_array(strtolower($jenisVal), $jenisStandar, true);
+                    $jenisLainnyaVal = old('jenis_lainnya', ($isLainnya && strtolower($jenisVal) !== 'lainnya') ? $jenisVal : '');
+                @endphp
+
                 <div class="pemilik-form-group">
                     <label for="jenis">Jenis Hewan *</label>
                     <select id="jenis" name="jenis" required>
-                        @php
-                            $jenisVal = old('jenis', $hewanEdit?->jenis ?? '');
-                        @endphp
                         <option value="">Pilih jenis hewan</option>
                         <option value="Kucing" @selected(strtolower($jenisVal) === 'kucing')>Kucing</option>
                         <option value="Anjing" @selected(strtolower($jenisVal) === 'anjing')>Anjing</option>
                         <option value="Kelinci" @selected(strtolower($jenisVal) === 'kelinci')>Kelinci</option>
                         <option value="Burung" @selected(strtolower($jenisVal) === 'burung')>Burung</option>
-                        <option value="Lainnya" @selected(strtolower($jenisVal) === 'lainnya')>Lainnya</option>
+                        <option value="Lainnya" @selected($isLainnya)>Lainnya</option>
                     </select>
                     @error('jenis')
+                        <span class="pemilik-form-error">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="pemilik-form-group" id="jenisLainnyaGroup" @if (! $isLainnya) hidden @endif>
+                    <label for="jenis_lainnya">Sebutkan Jenis Hewan *</label>
+                    <input type="text"
+                           id="jenis_lainnya"
+                           name="jenis_lainnya"
+                           value="{{ $jenisLainnyaVal }}"
+                           maxlength="50"
+                           placeholder="Contoh: Hamster, Kura-kura, Sugar Glider, Iguana"
+                           @required($isLainnya)>
+                    @error('jenis_lainnya')
                         <span class="pemilik-form-error">{{ $message }}</span>
                     @enderror
                 </div>
@@ -205,34 +257,6 @@
             </form>
         </div>
     </div>
-
-    <script>
-        function openHewanModal() {
-            const modal = document.getElementById('modalHewan');
-            if (!modal) return;
-            modal.classList.add('is-open');
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeHewanModal() {
-            const modal = document.getElementById('modalHewan');
-            if (!modal) return;
-            @if ($hewanEdit)
-                window.location.href = "{{ route('pemilik.hewan.index') }}";
-                return;
-            @endif
-            modal.classList.remove('is-open');
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-        }
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                closeHewanModal();
-            }
-        });
-    </script>
 
 </div>
             </main>

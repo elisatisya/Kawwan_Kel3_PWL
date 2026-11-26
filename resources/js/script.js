@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initStatCounters();
     initDokterCharts();
     initAdminCharts();
+    initFallbackImages();
+    initKaderArtikelApi();
+    initHewanJenisLainnya();
 });
 
 function initLandingMenu() {
@@ -1017,6 +1020,8 @@ function togglePayInfo(selectEl, pemesananId) {
     }
 }
 
+window.togglePayInfo = togglePayInfo;
+
 // File input label feedback
 document.addEventListener('change', function (e) {
     if (e.target && e.target.classList.contains('pay-file-input')) {
@@ -1069,4 +1074,409 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     mulaiLagi();
+});
+
+
+/* ============================================================
+   GAMBAR FALLBACK AMAN (TANPA INLINE ONERROR)
+   ============================================================ */
+function initFallbackImages() {
+    document.querySelectorAll('img[data-fallback-src]').forEach((img) => {
+        const applyFallback = () => {
+            const fallback = img.getAttribute('data-fallback-src');
+            if (fallback && img.getAttribute('src') !== fallback) {
+                img.setAttribute('src', fallback);
+            }
+        };
+
+        img.addEventListener('error', applyFallback, { once: true });
+
+        if (img.complete && img.naturalWidth === 0) {
+            applyFallback();
+        }
+    });
+}
+
+/* ============================================================
+   FITUR ARTIKEL BERBASIS NEWSDATA.IO API (ROLE KADER)
+   ============================================================ */
+function initKaderArtikelApi() {
+    const panel = document.getElementById('kaderArtikelApi');
+    if (!panel) {
+        return;
+    }
+
+    const searchUrl = panel.dataset.searchUrl;
+    const importUrl = panel.dataset.importUrl;
+    const csrfToken = panel.dataset.csrf;
+    const defaultImg = panel.dataset.defaultImg || '/images/default-artikel.png';
+
+    const keywordInput = document.getElementById('api-keyword');
+    const searchBtn = document.getElementById('btn-search-api');
+    const statusEl = document.getElementById('api-status');
+    const resultsEl = document.getElementById('api-results');
+    const tagButtons = Array.from(panel.querySelectorAll('.kawwan-tag-btn'));
+
+    if (!keywordInput || !searchBtn || !statusEl || !resultsEl) {
+        return;
+    }
+
+    const escapeHtml = (str) => String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const setStatus = (message, type = 'info') => {
+        statusEl.textContent = message;
+        statusEl.className = 'kawwan-api-status is-visible is-' + type;
+    };
+
+    async function cariArtikel(keyword) {
+        const q = String(keyword || '').trim() || 'kesehatan hewan';
+        keywordInput.value = q;
+
+        searchBtn.disabled = true;
+        setStatus('Mengambil data artikel dari NewsData.io...', 'loading');
+        resultsEl.innerHTML = '';
+
+        try {
+            const res = await fetch(`${searchUrl}?q=${encodeURIComponent(q)}`, {
+                headers: { Accept: 'application/json' },
+            });
+            const json = await res.json();
+
+            if (!res.ok) {
+                throw new Error(json.message || 'Gagal mengambil artikel dari API.');
+            }
+
+            const items = Array.isArray(json.data) ? json.data : [];
+            if (!items.length) {
+                setStatus('Artikel tidak ditemukan untuk kata kunci tersebut. Coba topik lain.', 'empty');
+                return;
+            }
+
+            setStatus(`Ditemukan ${items.length} artikel untuk topik "${q}":`, 'success');
+
+            items.forEach((item, idx) => {
+                const card = document.createElement('article');
+                card.className = 'kawwan-article-card';
+
+                const imgSrc = item.gambar || defaultImg;
+                const sumberText = item.sumber || 'Sumber Eksternal';
+                const ringkasanText = (item.ringkasan || 'Baca selengkapnya pada situs sumber.').slice(0, 120);
+
+                card.innerHTML = `
+                    <div class="kawwan-article-media">
+                        <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(item.judul)}" data-fallback-src="${escapeHtml(defaultImg)}">
+                    </div>
+                    <div class="kawwan-article-body">
+                        <small class="kawwan-article-source">
+                            <i class="fa-solid fa-globe"></i> ${escapeHtml(sumberText)}
+                        </small>
+                        <h4 class="kawwan-article-title">
+                            <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">
+                                ${escapeHtml(item.judul)}
+                            </a>
+                        </h4>
+                        <p class="kawwan-article-excerpt">${escapeHtml(ringkasanText)}${ringkasanText.length >= 120 ? '...' : ''}</p>
+                    </div>
+                    <div class="kawwan-article-footer">
+                        <select id="kat-${idx}" class="kawwan-select" aria-label="Pilih kategori artikel">
+                            <option value="Kesehatan">Kesehatan</option>
+                            <option value="Vaksinasi">Vaksinasi</option>
+                            <option value="Perawatan">Perawatan</option>
+                            <option value="Nutrisi">Nutrisi</option>
+                        </select>
+                        <button type="button"
+                                id="btn-imp-${idx}"
+                                class="kawwan-btn-primary kawwan-btn-import ${item.sudah_diimpor ? 'is-imported' : ''}"
+                                ${item.sudah_diimpor ? 'disabled' : ''}>
+                            <i class="fa-solid ${item.sudah_diimpor ? 'fa-check' : 'fa-download'}"></i>
+                            <span>${item.sudah_diimpor ? 'Sudah Diimpor' : 'Impor & Publish'}</span>
+                        </button>
+                    </div>
+                `;
+
+                resultsEl.appendChild(card);
+
+                const imgEl = card.querySelector('img[data-fallback-src]');
+                if (imgEl) {
+                    imgEl.addEventListener('error', () => {
+                        if (imgEl.getAttribute('src') !== defaultImg) {
+                            imgEl.setAttribute('src', defaultImg);
+                        }
+                    }, { once: true });
+                }
+
+                if (!item.sudah_diimpor) {
+                    const btn = card.querySelector(`#btn-imp-${idx}`);
+                    const select = card.querySelector(`#kat-${idx}`);
+
+                    btn.addEventListener('click', async () => {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan...</span>';
+
+                        try {
+                            const impRes = await fetch(importUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Accept: 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                },
+                                body: JSON.stringify({
+                                    judul: item.judul,
+                                    link: item.link,
+                                    sumber: item.sumber || null,
+                                    ringkasan: item.ringkasan || null,
+                                    gambar: item.gambar || null,
+                                    kategori: select ? select.value : 'Kesehatan',
+                                    status: 'published',
+                                }),
+                            });
+
+                            const impJson = await impRes.json();
+
+                            if (!impRes.ok) {
+                                const errMsg = impJson.message || 'Gagal mengimpor artikel.';
+                                throw new Error(errMsg);
+                            }
+
+                            btn.classList.add('is-imported');
+                            btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Sudah Diimpor</span>';
+                            setStatus(`Artikel "${item.judul}" berhasil diimpor & dipublikasikan. Memuat ulang daftar...`, 'success');
+                            setTimeout(() => window.location.reload(), 900);
+                        } catch (err) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fa-solid fa-download"></i> <span>Impor & Publish</span>';
+                            setStatus(err.message || 'Terjadi kesalahan saat mengimpor artikel.', 'error');
+                        }
+                    });
+                }
+            });
+        } catch (err) {
+            setStatus(err.message || 'Gagal terhubung ke server.', 'error');
+        } finally {
+            searchBtn.disabled = false;
+        }
+    }
+
+    searchBtn.addEventListener('click', () => cariArtikel(keywordInput.value));
+
+    keywordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            cariArtikel(keywordInput.value);
+        }
+    });
+
+    tagButtons.forEach((tagBtn) => {
+        tagBtn.addEventListener('click', () => {
+            tagButtons.forEach((b) => b.classList.remove('is-active'));
+            tagBtn.classList.add('is-active');
+            cariArtikel(tagBtn.dataset.q || 'kesehatan hewan');
+        });
+    });
+}
+
+
+/* ============================================================
+   MODAL TAMBAH / EDIT HEWAN (PEMILIK HEWAN)
+   ============================================================ */
+function openHewanModal() {
+    const modal = document.getElementById('modalHewan');
+    if (!modal) return;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeHewanModal() {
+    const modal = document.getElementById('modalHewan');
+    if (!modal) return;
+    const redirectUrl = modal.getAttribute('data-edit-redirect');
+    if (redirectUrl) {
+        window.location.href = redirectUrl;
+        return;
+    }
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+window.openHewanModal = openHewanModal;
+window.closeHewanModal = closeHewanModal;
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('modalHewan')?.classList.contains('is-open')) {
+        closeHewanModal();
+    }
+});
+
+
+/* ============================================================
+   TOGGLE INPUT "JENIS HEWAN LAINNYA" (PEMILIK HEWAN)
+   ============================================================ */
+function initHewanJenisLainnya() {
+    const jenisSelect = document.getElementById('jenis');
+    const lainnyaGroup = document.getElementById('jenisLainnyaGroup');
+    const lainnyaInput = document.getElementById('jenis_lainnya');
+
+    if (!jenisSelect || !lainnyaGroup || !lainnyaInput) {
+        return;
+    }
+
+    const syncVisibility = (shouldFocus = false) => {
+        const isLainnya = jenisSelect.value.toLowerCase() === 'lainnya';
+        lainnyaGroup.hidden = !isLainnya;
+        lainnyaInput.required = isLainnya;
+
+        if (isLainnya && shouldFocus) {
+            lainnyaInput.focus();
+        } else if (!isLainnya) {
+            lainnyaInput.value = '';
+        }
+    };
+
+    syncVisibility(false);
+    jenisSelect.addEventListener('change', () => syncVisibility(true));
+}
+
+
+/* ============================================================
+   MODAL PEMBAYARAN ONLINE (PEMILIK HEWAN)
+   ============================================================ */
+function openBayarModal(triggerBtn) {
+    const modal = document.getElementById('modalBayar');
+    const form = document.getElementById('modalBayarForm');
+    if (!modal || !form || !triggerBtn) return;
+
+    const jumlah = parseInt(triggerBtn.dataset.jumlah || '0', 10);
+    const formattedRp = 'Rp ' + jumlah.toLocaleString('id-ID');
+
+    form.action = triggerBtn.dataset.action || '';
+    document.getElementById('payModalJumlahInput').value = String(jumlah);
+    document.getElementById('payModalHewan').textContent = triggerBtn.dataset.hewan || '-';
+    document.getElementById('payModalJadwal').textContent = triggerBtn.dataset.jadwal || '-';
+    document.getElementById('payModalLayanan').textContent = triggerBtn.dataset.layanan || '-';
+    document.getElementById('payModalTotal').textContent = formattedRp;
+
+    // Reset state form setiap kali modal dibuka
+    const metodeSelect = document.getElementById('payModalMetode');
+    if (metodeSelect) metodeSelect.value = '';
+    updateModalPayInfo('');
+
+    const fileInput = document.getElementById('payModalBukti');
+    const fileName = document.getElementById('payModalFileName');
+    const preview = document.getElementById('payModalPreview');
+    if (fileInput) fileInput.value = '';
+    if (fileName) fileName.textContent = 'Klik untuk memilih gambar bukti (JPG, PNG, WEBP)';
+    if (preview) {
+        preview.hidden = true;
+        preview.removeAttribute('src');
+    }
+
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeBayarModal() {
+    const modal = document.getElementById('modalBayar');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+function updateModalPayInfo(val) {
+    const infoPanel = document.getElementById('payModalInfoPanel');
+    const qrWrap = document.getElementById('payModalQrWrap');
+    const transferWrap = document.getElementById('payModalTransferWrap');
+    const rekLabel = document.getElementById('payModalRekLabel');
+    const rekNo = document.getElementById('payModalRekNo');
+    const rekName = document.getElementById('payModalRekName');
+    const copyBtn = document.getElementById('payCopyBtn');
+
+    if (!infoPanel) return;
+
+    const info = KAWWAN_PAYMENT_INFO[val];
+    if (!val || !info) {
+        infoPanel.hidden = true;
+        if (qrWrap) qrWrap.hidden = true;
+        if (transferWrap) transferWrap.hidden = true;
+        return;
+    }
+
+    infoPanel.hidden = false;
+    if (copyBtn) {
+        copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> <span>Salin</span>';
+        copyBtn.classList.remove('is-copied');
+    }
+
+    if (info.type === 'qris') {
+        if (qrWrap) qrWrap.hidden = false;
+        if (transferWrap) transferWrap.hidden = true;
+    } else {
+        if (qrWrap) qrWrap.hidden = true;
+        if (transferWrap) transferWrap.hidden = false;
+        if (rekLabel) rekLabel.textContent = info.label;
+        if (rekNo) rekNo.textContent = info.no;
+        if (rekName) rekName.textContent = 'a.n. ' + info.name;
+    }
+}
+
+function copyRekeningNo() {
+    const rekNo = document.getElementById('payModalRekNo')?.textContent?.trim();
+    const copyBtn = document.getElementById('payCopyBtn');
+    if (!rekNo || !copyBtn) return;
+
+    const cleanNo = rekNo.replace(/[^0-9]/g, '') || rekNo;
+    navigator.clipboard?.writeText(cleanNo).then(() => {
+        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Tersalin</span>';
+        copyBtn.classList.add('is-copied');
+        setTimeout(() => {
+            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> <span>Salin</span>';
+            copyBtn.classList.remove('is-copied');
+        }, 1800);
+    });
+}
+
+window.openBayarModal = openBayarModal;
+window.closeBayarModal = closeBayarModal;
+window.updateModalPayInfo = updateModalPayInfo;
+window.copyRekeningNo = copyRekeningNo;
+
+document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'payModalBukti') {
+        const file = e.target.files?.[0];
+        const fileName = document.getElementById('payModalFileName');
+        const preview = document.getElementById('payModalPreview');
+
+        if (file) {
+            if (fileName) fileName.textContent = file.name;
+            if (preview && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    preview.src = ev.target.result;
+                    preview.hidden = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        } else {
+            if (fileName) fileName.textContent = 'Klik untuk memilih gambar bukti (JPG, PNG, WEBP)';
+            if (preview) {
+                preview.hidden = true;
+                preview.removeAttribute('src');
+            }
+        }
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('modalBayar')?.classList.contains('is-open')) {
+        closeBayarModal();
+    }
 });

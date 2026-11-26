@@ -220,7 +220,7 @@
                                 <td>
                                     <div class="admin-actions-cell" style="justify-content: flex-end;">
                                         {{-- Edit Data Pengguna (CRUD Update) --}}
-                                        <button type="button" class="btn-action is-edit" onclick="openEditUserModal({{ json_encode([
+                                        <button type="button" class="btn-icon-action is-edit" onclick="openEditUserModal({{ json_encode([
                                             'id' => $user->id,
                                             'name' => $user->name,
                                             'email' => $user->email,
@@ -230,8 +230,8 @@
                                             'role' => $user->role,
                                             'status' => $user->status,
                                             'is_self' => $user->id === auth()->id()
-                                        ]) }})" title="Edit Data Pengguna">
-                                            Edit
+                                        ]) }})" title="Edit Data Pengguna" aria-label="Edit Data Pengguna">
+                                            <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
 
                                         {{-- Toggle Status --}}
@@ -254,8 +254,8 @@
                                             <form id="formDeletePengguna_{{ $user->id }}" action="{{ route('admin.pengguna.destroy', $user) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn-action is-delete" onclick="confirmDeletePengguna('{{ $user->id }}', '{{ addslashes($user->name) }}')" title="Hapus Akun">
-                                                    Hapus
+                                                <button type="button" class="btn-icon-action is-delete" onclick="confirmDeletePengguna('{{ $user->id }}', '{{ addslashes($user->name) }}')" title="Hapus Akun" aria-label="Hapus Akun">
+                                                    <i class="fa-solid fa-trash-can"></i>
                                                 </button>
                                             </form>
                                         @endif

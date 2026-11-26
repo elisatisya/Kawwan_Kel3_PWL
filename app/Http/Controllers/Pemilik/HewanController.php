@@ -43,19 +43,7 @@ class HewanController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'jenis' => ['required', 'string', 'max:50'],
-            'ras' => ['nullable', 'string', 'max:100'],
-            'jenis_kelamin' => ['required', Rule::in(['jantan', 'betina'])],
-            'tanggal_lahir' => ['nullable', 'date', 'before_or_equal:today'],
-        ], [
-            'jenis.required' => 'Jenis hewan wajib dipilih.',
-            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
-            'jenis_kelamin.in' => 'Jenis kelamin tidak valid.',
-            'tanggal_lahir.before_or_equal' => 'Tanggal lahir tidak boleh melebihi hari ini.',
-        ]);
-
-        $data['nama'] = $data['jenis'];
+        $data = $this->validasiDataHewan($request);
 
         $request->user()->hewan()->create($data);
 
@@ -68,25 +56,40 @@ class HewanController extends Controller
     {
         $this->pastikanMilikPemilik($request, $hewan);
 
-        $data = $request->validate([
-            'jenis' => ['required', 'string', 'max:50'],
-            'ras' => ['nullable', 'string', 'max:100'],
-            'jenis_kelamin' => ['required', Rule::in(['jantan', 'betina'])],
-            'tanggal_lahir' => ['nullable', 'date', 'before_or_equal:today'],
-        ], [
-            'jenis.required' => 'Jenis hewan wajib dipilih.',
-            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
-            'jenis_kelamin.in' => 'Jenis kelamin tidak valid.',
-            'tanggal_lahir.before_or_equal' => 'Tanggal lahir tidak boleh melebihi hari ini.',
-        ]);
-
-        $data['nama'] = $data['jenis'];
+        $data = $this->validasiDataHewan($request);
 
         $hewan->update($data);
 
         return redirect()
             ->route('pemilik.hewan.index')
             ->with('success', 'Data hewan berhasil diperbarui.');
+    }
+
+    private function validasiDataHewan(Request $request): array
+    {
+        $data = $request->validate([
+            'jenis' => ['required', 'string', 'max:50'],
+            'jenis_lainnya' => ['nullable', 'required_if:jenis,Lainnya', 'string', 'max:50'],
+            'ras' => ['nullable', 'string', 'max:100'],
+            'jenis_kelamin' => ['required', Rule::in(['jantan', 'betina'])],
+            'tanggal_lahir' => ['nullable', 'date', 'before_or_equal:today'],
+        ], [
+            'jenis.required' => 'Jenis hewan wajib dipilih.',
+            'jenis_lainnya.required_if' => 'Sebutkan jenis hewan peliharaan Anda.',
+            'jenis_lainnya.max' => 'Jenis hewan maksimal 50 karakter.',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
+            'jenis_kelamin.in' => 'Jenis kelamin tidak valid.',
+            'tanggal_lahir.before_or_equal' => 'Tanggal lahir tidak boleh melebihi hari ini.',
+        ]);
+
+        if (strtolower($data['jenis']) === 'lainnya') {
+            $data['jenis'] = trim((string) $data['jenis_lainnya']);
+        }
+
+        unset($data['jenis_lainnya']);
+        $data['nama'] = $data['jenis'];
+
+        return $data;
     }
 
     public function destroy(Request $request, Hewan $hewan): RedirectResponse

@@ -454,6 +454,10 @@ img {
     gap: 5px;
 }
 
+.pemilik-form-group[hidden] {
+    display: none;
+}
+
 .form-label,
 .form-group label,
 .pemilik-form-group label,
@@ -1588,12 +1592,11 @@ img {
     line-height: 1;
 }
 
-/* Dashboard Shell & Navigation */
+/* Dashboard Shell & Navigation — Selaras dengan Admin, Kader, dan Dokter */
 .pemilik-shell {
     display: flex;
-    flex-direction: column;
     min-height: 100vh;
-    background: var(--pure-white);
+    background: #F8FAFC;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--near-black);
 }
@@ -1759,17 +1762,17 @@ img {
 .pemilik-main-wrap {
     flex: 1;
     min-width: 0;
-    margin-left: 0;
-    background: #FDFBFA;
+    margin-left: 220px;
+    background: #F8FAFC;
     display: flex;
     flex-direction: column;
 }
 
 .pemilik-container {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 24px 20px 48px;
     width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .pemilik-hero-banner {
@@ -2024,8 +2027,8 @@ img {
 .pemilik-main-wrap {
     flex: 1;
     min-width: 0;
-    margin-left: 0;
-    background: #FDFBFA;
+    margin-left: 220px;
+    background: #F8FAFC;
     display: flex;
     flex-direction: column;
 }
@@ -2091,17 +2094,12 @@ img {
 }
 
 .dokter-topbar h2,
+.pemilik-topbar h2,
 .admin-topbar h2 {
     margin: 0;
     font-size: 17.5px;
     font-weight: 800;
     letter-spacing: -0.3px;
-}
-
-.pemilik-topbar h2 {
-    margin: 0;
-    font-size: 17px;
-    font-weight: 700;
 }
 
 .dokter-user,
@@ -2129,7 +2127,8 @@ img {
     flex-shrink: 0;
 }
 
-.dokter-avatar img {
+.dokter-avatar img,
+.pemilik-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -2167,13 +2166,10 @@ img {
 }
 
 .dokter-content,
+.pemilik-main,
 .admin-content {
-    padding: 20px 24px 36px;
-}
-
-.pemilik-main {
     flex: 1;
-    padding: 18px 22px 32px;
+    padding: 20px 24px 36px;
 }
 
 /* ==========================================================================
@@ -4369,7 +4365,8 @@ img {
     margin-bottom: 16px;
 }
 
-.pemilik-page-head:has(> a) {
+.pemilik-page-head:has(> a),
+.pemilik-page-head:has(> button) {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -6638,4 +6635,821 @@ body.cetak-body {
 
 .pemilik-container .profil-form {
     margin-top: 8px;
+}
+
+
+/* ==========================================================================
+   FITUR ARTIKEL NEWSDATA.IO API — KADER & LANDING PAGE (TEMA KAWWAN ORANGE)
+   ========================================================================== */
+:root {
+    --kawwan-primary: var(--orange, #FF6B00);
+    --kawwan-primary-dark: #E05A00;
+    --kawwan-primary-soft: #FFF2E8;
+    --kawwan-surface: #FFFFFF;
+    --kawwan-border: #F0E4DA;
+    --kawwan-text: var(--near-black, #181310);
+    --kawwan-muted: var(--warm-grey, #81766E);
+}
+
+.kawwan-api-panel,
+.kawwan-saved-panel {
+    margin-bottom: 20px;
+}
+
+.kawwan-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.kawwan-panel-head h2 {
+    margin: 0 0 4px;
+    font-size: 16.5px;
+    font-weight: 800;
+    color: var(--kawwan-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.kawwan-panel-head h2 i {
+    color: var(--kawwan-primary);
+}
+
+/* Search Bar & Preset Tags */
+.kawwan-search-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.kawwan-input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 14px;
+    border: 1.5px solid var(--kawwan-border);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--kawwan-text);
+    background: var(--kawwan-surface);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kawwan-input:focus {
+    outline: none;
+    border-color: var(--kawwan-primary);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.14);
+}
+
+.kawwan-tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.kawwan-tag-btn {
+    padding: 6px 13px;
+    border-radius: 999px;
+    border: 1px solid #F0DFD1;
+    background: #FCF7F3;
+    color: var(--kawwan-muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.kawwan-tag-btn:hover,
+.kawwan-tag-btn.is-active {
+    background: var(--kawwan-primary-soft);
+    border-color: var(--kawwan-primary);
+    color: var(--kawwan-primary);
+}
+
+/* Status Banner */
+.kawwan-api-status {
+    display: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.kawwan-api-status.is-visible {
+    display: block;
+}
+
+.kawwan-api-status.is-loading,
+.kawwan-api-status.is-info {
+    background: #FFF7F0;
+    border: 1px solid #FFD9BE;
+    color: #9A3412;
+}
+
+.kawwan-api-status.is-success {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    color: #166534;
+}
+
+.kawwan-api-status.is-empty {
+    background: #FEFCE8;
+    border: 1px solid #FEF08A;
+    color: #854D0E;
+}
+
+.kawwan-api-status.is-error {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #991B1B;
+}
+
+/* Grid Hasil Pencarian API */
+.kawwan-article-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.kawwan-article-card {
+    background: var(--kawwan-surface);
+    border: 1.5px solid var(--kawwan-border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 14px rgba(24, 19, 16, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.kawwan-article-card:hover {
+    transform: translateY(-3px);
+    border-color: #FFD2B3;
+    box-shadow: 0 10px 24px rgba(255, 107, 0, 0.1);
+}
+
+.kawwan-article-media {
+    width: 100%;
+    height: 165px;
+    background: var(--kawwan-primary-soft);
+    overflow: hidden;
+}
+
+.kawwan-article-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.kawwan-article-body {
+    padding: 14px 16px;
+    flex-grow: 1;
+}
+
+.kawwan-article-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--kawwan-primary);
+    margin-bottom: 6px;
+}
+
+.kawwan-article-title {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--kawwan-text);
+}
+
+.kawwan-article-title a:hover {
+    color: var(--kawwan-primary);
+}
+
+.kawwan-article-excerpt {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--kawwan-muted);
+}
+
+.kawwan-article-footer {
+    padding: 11px 14px;
+    border-top: 1px solid #F3EAE3;
+    background: #FCF9F6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.kawwan-select {
+    padding: 7px 10px;
+    border: 1.5px solid var(--kawwan-border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--kawwan-text);
+    background: #FFFFFF;
+    cursor: pointer;
+}
+
+.kawwan-select:focus {
+    outline: none;
+    border-color: var(--kawwan-primary);
+}
+
+/* Tombol & Badge KAWWAN Artikel */
+.kawwan-btn-primary,
+.kawwan-btn-secondary,
+.kawwan-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 8px 14px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.kawwan-btn-primary {
+    background: var(--kawwan-primary);
+    color: #FFFFFF;
+}
+
+.kawwan-btn-primary:hover:not(:disabled) {
+    background: var(--kawwan-primary-dark);
+}
+
+.kawwan-btn-primary:disabled,
+.kawwan-btn-primary.is-imported {
+    background: #E2E8F0;
+    color: #475569;
+    cursor: not-allowed;
+}
+
+.kawwan-btn-primary.is-imported {
+    background: #DCFCE7;
+    color: #166534;
+    border-color: #86EFAC;
+}
+
+.kawwan-btn-secondary {
+    background: #FFF7F0;
+    color: #C2410C;
+    border-color: #FFD9BE;
+    padding: 6px 11px;
+    font-size: 12px;
+}
+
+.kawwan-btn-secondary:hover {
+    background: var(--kawwan-primary);
+    color: #FFFFFF;
+    border-color: var(--kawwan-primary);
+}
+
+.kawwan-btn-danger {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border-color: #FECACA;
+    padding: 6px 11px;
+    font-size: 12px;
+}
+
+.kawwan-btn-danger:hover {
+    background: #DC2626;
+    color: #FFFFFF;
+    border-color: #DC2626;
+}
+
+.kawwan-badge {
+    display: inline-block;
+    background: var(--kawwan-primary-soft);
+    color: var(--kawwan-primary);
+    border: 1px solid #FFD9BE;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+
+.kawwan-status-badge {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.kawwan-status-badge.is-published {
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.kawwan-status-badge.is-draft {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+/* Tabel Artikel Tersimpan Kader */
+.kawwan-saved-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 240px;
+}
+
+.kawwan-saved-thumb {
+    width: 56px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--kawwan-border);
+    background: var(--kawwan-primary-soft);
+}
+
+.kawwan-saved-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.kawwan-saved-title {
+    font-weight: 700;
+    color: var(--kawwan-text);
+    line-height: 1.35;
+}
+
+.kawwan-saved-title:hover {
+    color: var(--kawwan-primary);
+}
+
+.kawwan-saved-title i {
+    font-size: 10px;
+    margin-left: 4px;
+    color: var(--kawwan-muted);
+}
+
+.kawwan-saved-source {
+    font-size: 11.5px;
+    color: var(--kawwan-muted);
+}
+
+.kawwan-empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--kawwan-muted);
+}
+
+.kawwan-empty-state i {
+    font-size: 28px;
+    color: #FF9B4D;
+    margin-bottom: 8px;
+}
+
+/* Footer Kartu Artikel pada Landing Page */
+.article-card-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.article-card-title a:hover {
+    color: var(--kawwan-primary);
+}
+
+.article-card-footer {
+    padding: 13px 20px;
+    border-top: 1px solid #F0E6DE;
+    background: #FCF9F6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.article-source {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--kawwan-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.article-source i {
+    color: var(--kawwan-primary);
+    flex-shrink: 0;
+}
+
+.article-read-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--kawwan-primary);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.article-read-btn:hover {
+    background: var(--kawwan-primary-dark);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+    .kawwan-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .kawwan-article-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+
+/* ==========================================================================
+   TOMBOL AKSI ICON-ONLY (EDIT & HAPUS) — SEMUA ROLE
+   ========================================================================== */
+.btn-icon-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    font-size: 13.5px;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.btn-icon-action:hover {
+    transform: translateY(-1px);
+}
+
+.btn-icon-action.is-edit {
+    background: #FFF7F0;
+    border-color: #FFD9BE;
+    color: #EA580C;
+}
+
+.btn-icon-action.is-edit:hover {
+    background: #FF6B00;
+    border-color: #FF6B00;
+    color: #FFFFFF;
+}
+
+.btn-icon-action.is-delete {
+    background: #FEF2F2;
+    border-color: #FECACA;
+    color: #DC2626;
+}
+
+.btn-icon-action.is-delete:hover {
+    background: #DC2626;
+    border-color: #DC2626;
+    color: #FFFFFF;
+}
+
+
+/* ==========================================================================
+   MODAL PEMBAYARAN ONLINE & TOMBOL BAYAR (PEMILIK HEWAN)
+   ========================================================================== */
+.pemilik-pay-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: none;
+    background: var(--orange, #FF6B00);
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(255, 107, 0, 0.24);
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.pemilik-pay-trigger:hover {
+    background: #E05A00;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(255, 107, 0, 0.34);
+}
+
+.pay-modal-dialog {
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.pay-modal-dialog .pemilik-modal-head h2 span {
+    color: var(--orange, #FF6B00);
+}
+
+.pay-summary-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 13px 16px;
+    margin-bottom: 16px;
+    background: #FFF7F0;
+    border: 1.5px solid #FFD9BE;
+    border-radius: 12px;
+}
+
+.pay-summary-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pay-summary-meta strong {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--near-black, #181310);
+}
+
+.pay-summary-meta span {
+    font-size: 12px;
+    color: var(--warm-grey, #81766E);
+}
+
+.pay-summary-meta small {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #C2410C;
+}
+
+.pay-summary-total {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.pay-summary-total span {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--warm-grey, #81766E);
+}
+
+.pay-summary-total strong {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--orange, #FF6B00);
+}
+
+.pay-info-panel[hidden],
+.pay-qr-wrap[hidden],
+.pay-transfer-info[hidden],
+.pay-proof-preview[hidden] {
+    display: none;
+}
+
+.pay-qris-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: #FFFFFF;
+    border: 1.5px solid #F0E4DA;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(24, 19, 16, 0.05);
+}
+
+.pay-qris-badge {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: #FFFFFF;
+    background: #181310;
+    padding: 3px 12px;
+    border-radius: 999px;
+}
+
+.pay-qris-svg {
+    width: 150px;
+    height: 150px;
+    display: block;
+}
+
+.pay-qris-merchant {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--near-black, #181310);
+}
+
+.pay-transfer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.pay-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #FFD9BE;
+    background: #FFF7F0;
+    color: #C2410C;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.pay-copy-btn:hover,
+.pay-copy-btn.is-copied {
+    background: var(--orange, #FF6B00);
+    border-color: var(--orange, #FF6B00);
+    color: #FFFFFF;
+}
+
+.pay-upload-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 14px;
+    border: 1.5px dashed #E5CBB8;
+    border-radius: 12px;
+    background: #FCF9F6;
+    color: var(--warm-grey, #81766E);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.pay-upload-dropzone i {
+    font-size: 22px;
+    color: var(--orange, #FF6B00);
+}
+
+.pay-upload-dropzone:hover {
+    border-color: var(--orange, #FF6B00);
+    background: #FFF7F0;
+    color: #C2410C;
+}
+
+.pay-proof-preview {
+    margin-top: 8px;
+    width: 100%;
+    max-height: 160px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1.5px solid #F0E4DA;
+    background: #FFFFFF;
+    padding: 4px;
+}
+
+.pay-modal-actions {
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+
+/* ==========================================================================
+   STATISTIK DASHBOARD KADER — 5 KARTU SEBARIS RAPI
+   ========================================================================== */
+.kader-dashboard-stats {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.kader-stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border: 1.5px solid #F0E4DA;
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(24, 19, 16, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.kader-stat-card:hover {
+    transform: translateY(-2px);
+    border-color: #FFD2B3;
+    box-shadow: 0 8px 20px rgba(255, 107, 0, 0.1);
+}
+
+.kader-stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.kader-stat-top h3 {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--near-black, #181310);
+    line-height: 1.3;
+}
+
+.kader-stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: #FFF2E8;
+    color: var(--orange, #FF6B00);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.kader-stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--near-black, #181310);
+    margin: 0 0 6px;
+    letter-spacing: -0.5px;
+}
+
+.kader-stat-card p {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--warm-grey, #81766E);
+    line-height: 1.4;
+}
+
+.kader-sub-badge {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--warm-grey, #81766E);
+}
+
+@media (max-width: 1120px) {
+    .kader-dashboard-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .kader-dashboard-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .kader-dashboard-stats {
+        grid-template-columns: 1fr;
+    }
 }

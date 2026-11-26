@@ -2,20 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Artikel extends Model
 {
-    use HasFactory;
-
     protected $table = 'artikel';
 
     protected $fillable = [
         'user_id',
         'judul',
-        'slug',
+        'link',
+        'sumber',
         'ringkasan',
         'isi',
         'gambar',
@@ -24,20 +21,17 @@ class Artikel extends Model
         'published_at',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'published_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'published_at' => 'datetime',
+    ];
 
-    public function author(): BelongsTo
+    public function penulis()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
     public function scopePublished($query)
     {
-        return $query->where('status', 'publikasi');
+        return $query->where('status', 'published');
     }
 }

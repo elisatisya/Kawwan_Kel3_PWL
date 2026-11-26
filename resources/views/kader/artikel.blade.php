@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $mode === 'create' ? 'Tambah Artikel' : ($mode === 'edit' ? 'Edit Artikel' : 'Artikel') }} — KAWWAN Kader</title>
+    <title>Kelola Artikel — KAWWAN Kader</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,10 +34,10 @@
                     Jadwal Pelayanan
                 </a>
                 <a href="{{ route('kader.pemesanan.index') }}" class="{{ request()->routeIs('kader.pemesanan.*') || request()->routeIs('kader.pembayaran.*') ? 'active' : '' }}">
-                    Booking & Pembayaran
+                    Booking &amp; Pembayaran
                 </a>
                 <a href="{{ route('kader.layanan.index') }}" class="{{ request()->routeIs('kader.layanan.*') ? 'active' : '' }}">
-                    Layanan & Harga
+                    Layanan &amp; Harga
                 </a>
                 <a href="{{ route('kader.antrean.index') }}" class="{{ request()->routeIs('kader.antrean.*') ? 'active' : '' }}">
                     Antrean
@@ -64,7 +64,7 @@
                     <button class="dokter-menu-toggle" id="dokterMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <h2>{{ $mode === 'create' ? 'Tambah Artikel' : ($mode === 'edit' ? 'Edit Artikel' : 'Artikel') }}</h2>
+                    <h2>Artikel Kesehatan Hewan</h2>
                 </div>
 
                 <div class="dokter-user">
@@ -84,177 +84,180 @@
             </header>
 
             <main class="dokter-content">
-@if ($mode === 'create' || $mode === 'edit')
-    @php
-        $isEdit = $mode === 'edit';
-    @endphp
 
-    <div class="form-layanan">
-        <h1>{{ $isEdit ? 'Edit' : 'Tambah' }} <span>Artikel</span></h1>
-        <p>{{ $isEdit ? 'Perbarui konten artikel kesehatan hewan.' : 'Tulis artikel edukasi kesehatan hewan baru.' }}</p>
+                <div class="dokter-head">
+                    <div>
+                        <h1>Kelola <span>Artikel Kesehatan Hewan</span></h1>
+                        <p>Cari dan kurasi artikel dari NewsData.io API, lalu publikasikan ke halaman utama untuk pemilik hewan.</p>
+                    </div>
+                </div>
 
-        <form action="{{ $isEdit ? route('kader.artikel.update', $artikel->id) : route('kader.artikel.store') }}"
-              method="POST"
-              enctype="multipart/form-data">
-            @csrf
-            @if ($isEdit)
-                @method('PUT')
-            @endif
+                @if (session('success'))
+                    <div class="dokter-alert is-success">
+                        <p>{{ session('success') }}</p>
+                    </div>
+                @endif
 
-            <div class="form-group">
-                <label for="judul">Judul Artikel *</label>
-                <input type="text" id="judul" name="judul"
-                       value="{{ old('judul', $isEdit ? $artikel->judul : '') }}"
-                       placeholder="Masukkan judul artikel" required>
-                @error('judul') <div class="form-error">{{ $message }}</div> @enderror
-            </div>
+                @if (session('error'))
+                    <div class="dokter-alert is-error">
+                        <p>{{ session('error') }}</p>
+                    </div>
+                @endif
 
-            <div class="form-group">
-                <label for="kategori">Kategori *</label>
-                <input type="text" id="kategori" name="kategori"
-                       value="{{ old('kategori', $isEdit ? $artikel->kategori : '') }}"
-                       placeholder="Contoh: Perawatan Hewan" required>
-                @error('kategori') <div class="form-error">{{ $message }}</div> @enderror
-            </div>
+                @if ($errors->any())
+                    <div class="dokter-alert is-error">
+                        <p>{{ $errors->first() }}</p>
+                    </div>
+                @endif
 
-            <div class="form-group">
-                <label for="ringkasan">Ringkasan</label>
-                <textarea id="ringkasan" name="ringkasan" rows="3"
-                          placeholder="Ringkasan singkat artikel">{{ old('ringkasan', $isEdit ? $artikel->ringkasan : '') }}</textarea>
-                @error('ringkasan') <div class="form-error">{{ $message }}</div> @enderror
-            </div>
+                {{-- PANEL 1: PENCARIAN ARTIKEL DARI NEWSDATA.IO API --}}
+                <section class="dokter-card kawwan-api-panel"
+                         id="kaderArtikelApi"
+                         data-search-url="{{ route('kader.artikel.search-api') }}"
+                         data-import-url="{{ route('kader.artikel.import') }}"
+                         data-csrf="{{ csrf_token() }}"
+                         data-default-img="{{ asset('images/default-artikel.png') }}">
 
-            <div class="form-group">
-                <label for="isi">Isi Artikel *</label>
-                <textarea id="isi" name="isi" rows="6"
-                          placeholder="Tuliskan isi artikel lengkap..." required>{{ old('isi', $isEdit ? $artikel->isi : '') }}</textarea>
-                @error('isi') <div class="form-error">{{ $message }}</div> @enderror
-            </div>
+                    <div class="kawwan-panel-head">
+                        <div>
+                            <h2><i class="fa-solid fa-magnifying-glass"></i> Cari Artikel Kesehatan Hewan (API)</h2>
+                            <p class="dokter-card-sub">Masukkan topik atau pilih kata kunci cepat untuk mengambil berita berbahasa Indonesia dari NewsData.io.</p>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label for="gambar">Gambar Sampul</label>
-                <input type="file" id="gambar" name="gambar" accept=".jpg,.jpeg,.png,.webp">
-                @error('gambar') <div class="form-error">{{ $message }}</div> @enderror
-            </div>
+                    <div class="kawwan-search-row">
+                        <input type="text"
+                               id="api-keyword"
+                               class="kawwan-input"
+                               value="kesehatan hewan"
+                               placeholder="Masukkan topik, misal: rabies, vaksin kucing, perawatan anjing...">
+                        <button type="button" id="btn-search-api" class="kawwan-btn-primary">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>Cari Artikel</span>
+                        </button>
+                    </div>
 
-            <div class="form-actions">
-                <button type="submit" class="form-btn form-primary">
-                    <i class="fa-solid fa-save"></i> {{ $isEdit ? 'Simpan Perubahan' : 'Simpan Draft' }}
-                </button>
+                    <div class="kawwan-tag-group" role="group" aria-label="Preset topik pencarian">
+                        <button type="button" class="kawwan-tag-btn is-active" data-q="kesehatan hewan">Kesehatan Hewan</button>
+                        <button type="button" class="kawwan-tag-btn" data-q="rabies">Rabies</button>
+                        <button type="button" class="kawwan-tag-btn" data-q="vaksin kucing">Vaksin Kucing</button>
+                        <button type="button" class="kawwan-tag-btn" data-q="hewan peliharaan">Hewan Peliharaan</button>
+                        <button type="button" class="kawwan-tag-btn" data-q="anjing kucing">Anjing &amp; Kucing</button>
+                    </div>
 
-                <a href="{{ route('kader.artikel.index') }}" class="form-btn form-secondary">
-                    Kembali
-                </a>
-            </div>
-        </form>
-    </div>
-@else
-    <div class="dokter-head">
-        <div>
-            <h1>Artikel <span>Kesehatan Hewan</span></h1>
-            <p>Kelola artikel kesehatan hewan yang kamu buat.</p>
-        </div>
+                    <div id="api-status" class="kawwan-api-status" aria-live="polite"></div>
+                    <div id="api-results" class="kawwan-article-grid"></div>
+                </section>
 
-        <a href="{{ route('kader.artikel.create') }}" class="btn btn-primary">
-            <i class="fa-solid fa-plus"></i> Tambah Artikel
-        </a>
-    </div>
+                {{-- PANEL 2: DAFTAR ARTIKEL TERSIMPAN DI DATABASE --}}
+                <section class="dokter-card kawwan-saved-panel">
+                    <div class="kawwan-panel-head">
+                        <div>
+                            <h2><i class="fa-solid fa-newspaper"></i> Daftar Artikel Tersimpan</h2>
+                            <p class="dokter-card-sub">Artikel berstatus <strong>Published</strong> otomatis tampil di halaman utama (landing page) untuk Pemilik Hewan.</p>
+                        </div>
+                        <span class="antrean-count">Total: {{ $artikels->total() }} Artikel</span>
+                    </div>
 
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+                    @if ($artikels->isEmpty())
+                        <div class="dokter-empty kawwan-empty-state">
+                            <i class="fa-solid fa-newspaper"></i>
+                            <p>Belum ada artikel yang diimpor. Gunakan panel pencarian API di atas untuk menambahkan artikel.</p>
+                        </div>
+                    @else
+                        <div class="dokter-table-wrap">
+                            <table class="dokter-table kawwan-table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Judul &amp; Sumber</th>
+                                        <th>Kategori</th>
+                                        <th>Status</th>
+                                        <th>Tanggal</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($artikels as $artikel)
+                                        @php
+                                            $thumb = $artikel->gambar
+                                                ? (str_starts_with($artikel->gambar, 'http') ? $artikel->gambar : asset('storage/' . $artikel->gambar))
+                                                : asset('images/default-artikel.png');
+                                            $sumberLabel = $artikel->sumber ?: (parse_url($artikel->link, PHP_URL_HOST) ?: 'Sumber Eksternal');
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $loop->iteration + ($artikels->currentPage() - 1) * $artikels->perPage() }}</td>
+                                            <td>
+                                                <div class="kawwan-saved-item">
+                                                    <img src="{{ $thumb }}"
+                                                         alt="{{ $artikel->judul }}"
+                                                         class="kawwan-saved-thumb"
+                                                         data-fallback-src="{{ asset('images/default-artikel.png') }}">
+                                                    <div class="kawwan-saved-meta">
+                                                        <a href="{{ $artikel->link }}"
+                                                           target="_blank"
+                                                           rel="noopener noreferrer"
+                                                           class="kawwan-saved-title">
+                                                            {{ $artikel->judul }}
+                                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                                        </a>
+                                                        <small class="kawwan-saved-source">{{ $sumberLabel }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="kawwan-badge">{{ $artikel->kategori }}</span>
+                                            </td>
+                                            <td>
+                                                @if ($artikel->status === 'published')
+                                                    <span class="kawwan-status-badge is-published">Published</span>
+                                                @else
+                                                    <span class="kawwan-status-badge is-draft">Draft</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{ ($artikel->published_at ?? $artikel->created_at)?->format('d M Y') ?? '-' }}
+                                            </td>
+                                            <td>
+                                                <div class="kader-aksi">
+                                                    <form action="{{ route('kader.artikel.update-status', $artikel) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="{{ $artikel->status === 'published' ? 'draft' : 'published' }}">
+                                                        <button type="submit" class="kawwan-btn-secondary">
+                                                            <i class="fa-solid {{ $artikel->status === 'published' ? 'fa-eye-slash' : 'fa-globe' }}"></i>
+                                                            {{ $artikel->status === 'published' ? 'Jadikan Draft' : 'Publish' }}
+                                                        </button>
+                                                    </form>
 
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
+                                                    <form action="{{ route('kader.artikel.destroy', $artikel) }}"
+                                                          method="POST"
+                                                          data-confirm="Yakin ingin menghapus artikel ini dari daftar tersimpan?">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                                class="btn-icon-action is-delete"
+                                                                title="Hapus Artikel"
+                                                                aria-label="Hapus Artikel">
+                                                            <i class="fa-solid fa-trash-can"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
 
-    <div class="dokter-card">
-        <h2>Daftar Artikel Saya</h2>
+                        @if ($artikels->hasPages())
+                            <div class="kader-pagination-wrap">
+                                {{ $artikels->links() }}
+                            </div>
+                        @endif
+                    @endif
+                </section>
 
-        @if ($artikel->isEmpty())
-            <div class="dokter-empty">
-                <i class="fa-solid fa-newspaper"></i>
-                <p>Belum ada artikel yang dibuat.</p>
-                <a href="{{ route('kader.artikel.create') }}">
-                    Mulai buat artikel
-                </a>
-            </div>
-        @else
-            <div class="dokter-table-wrap">
-                <table class="dokter-table">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Judul Artikel</th>
-                            <th>Kategori</th>
-                            <th>Status</th>
-                            <th>Tanggal Dibuat</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach ($artikel as $item)
-                        <tr>
-                            <td>{{ $loop->iteration + ($artikel->currentPage() - 1) * $artikel->perPage() }}</td>
-
-                            <td>{{ $item->judul }}</td>
-
-                            <td>{{ $item->kategori }}</td>
-
-                            <td>
-                                <span class="dokter-badge is-{{ $item->status }}">
-                                    {{ ucfirst($item->status) }}
-                                </span>
-                            </td>
-
-                            <td>{{ $item->created_at->format('d/m/Y') }}</td>
-
-                            <td>
-                                <div class="kader-aksi">
-                                    <a href="{{ route('kader.artikel.edit', $item->id) }}"
-                                       class="btn btn-outline">
-                                        Edit
-                                    </a>
-
-                                    @if ($item->status === 'draft')
-                                        <form action="{{ route('kader.artikel.ajukan', $item->id) }}"
-                                              method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="btn btn-primary">
-                                                Ajukan
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    <form action="{{ route('kader.artikel.destroy', $item->id) }}"
-                                          method="POST"
-                                          data-confirm="Yakin ingin menghapus artikel ini?">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline">
-                                            Hapus
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-3">
-                {{ $artikel->links() }}
-            </div>
-        @endif
-    </div>
-@endif
             </main>
         </div>
 

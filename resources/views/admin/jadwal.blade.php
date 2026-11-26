@@ -163,7 +163,9 @@
                                                     <form action="{{ route('admin.jadwal.destroy', $j) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus jadwal ini?')">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn-action is-delete">Hapus</button>
+                                                        <button type="submit" class="btn-icon-action is-delete" title="Hapus Jadwal" aria-label="Hapus Jadwal">
+                                                            <i class="fa-solid fa-trash-can"></i>
+                                                        </button>
                                                     </form>
                                                 </div>
                                             </td>

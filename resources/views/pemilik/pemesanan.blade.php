@@ -19,6 +19,29 @@
         @include('pemilik.partials.navbar')
 
         <div class="pemilik-main-wrap">
+            <header class="pemilik-topbar">
+                <div class="pemilik-topbar-left">
+                    <button class="pemilik-menu-toggle" id="pemilikMenuToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2>Pemesanan Antrean</h2>
+                </div>
+
+                <a href="{{ route('pemilik.profil') }}" class="pemilik-user-profile" title="Lihat Profil">
+                    <div class="pemilik-avatar">
+                        @if (auth()->user()->foto)
+                            <img src="{{ asset('storage/'.auth()->user()->foto) }}" alt="Foto {{ auth()->user()->name }}">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
+                    <div>
+                        <span class="pemilik-user-name">{{ auth()->user()->name }}</span>
+                        <span class="pemilik-user-role">Pemilik Hewan</span>
+                    </div>
+                </a>
+            </header>
+
             <main class="pemilik-main">
 <div class="pemilik-container">
 
@@ -281,98 +304,51 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if (! in_array($p->status, ['dibatalkan', 'tidak_hadir', 'selesai']) && (! $bayar || $bayar->status === 'ditolak'))
-                                        {{-- FORM PEMBAYARAN ONLINE --}}
-                                        <form method="POST"
-                                              action="{{ route('pemilik.pemesanan.bayar', $p) }}"
-                                              enctype="multipart/form-data"
-                                              class="pemilik-inline-pay-form"
-                                              id="pay-form-{{ $p->id }}">
-                                            @csrf
+                                    @php
+                                        $bisaBayar = ! in_array($p->status, ['dibatalkan', 'tidak_hadir', 'selesai']) && (! $bayar || $bayar->status === 'ditolak');
+                                        $bisaBatal = $p->status === 'menunggu';
+                                        $hewanLabel = ucfirst($p->hewan?->jenis ?? '-') . ($p->hewan?->ras ? ' (' . $p->hewan->ras . ')' : '');
+                                        $jadwalLabel = $p->jadwalPelayanan
+                                            ? $p->jadwalPelayanan->tanggal->format('d M Y') . ', ' . substr($p->jadwalPelayanan->waktu_mulai, 0, 5) . ' - ' . substr($p->jadwalPelayanan->waktu_selesai, 0, 5) . ' WIB'
+                                            : '-';
+                                        $layananLabel = $p->pemesananLayanan->isNotEmpty()
+                                            ? $p->pemesananLayanan->map(fn ($pl) => $pl->layanan?->nama)->filter()->join(', ')
+                                            : 'Pelayanan Umum';
+                                    @endphp
 
-                                            {{-- Jumlah otomatis dari biaya layanan --}}
-                                            <input type="hidden" name="jumlah" value="{{ $totalBiaya > 0 ? $totalBiaya : 0 }}">
+                                    @if ($bisaBayar || $bisaBatal)
+                                        <div class="pemilik-table-actions">
+                                            @if ($bisaBayar)
+                                                <button type="button"
+                                                        class="pemilik-pay-trigger"
+                                                        onclick="openBayarModal(this)"
+                                                        data-action="{{ route('pemilik.pemesanan.bayar', $p) }}"
+                                                        data-jumlah="{{ $totalBiaya > 0 ? $totalBiaya : 0 }}"
+                                                        data-hewan="{{ $hewanLabel }}"
+                                                        data-jadwal="{{ $jadwalLabel }}"
+                                                        data-layanan="{{ $layananLabel }}">
+                                                    <i class="fa-solid fa-wallet"></i>
+                                                    <span>{{ $bayar && $bayar->status === 'ditolak' ? 'Bayar Ulang' : 'Bayar' }}</span>
+                                                </button>
+                                            @endif
 
-                                            {{-- Pilih Metode --}}
-                                            <select name="metode" required
-                                                    onchange="togglePayInfo(this, {{ $p->id }})">
-                                                <option value="">-- Pilih Metode --</option>
-                                                <optgroup label="QRIS">
-                                                    <option value="qris">QRIS (Scan QR)</option>
-                                                </optgroup>
-                                                <optgroup label="E-Wallet">
-                                                    <option value="gopay">GoPay</option>
-                                                    <option value="ovo">OVO</option>
-                                                    <option value="dana">DANA</option>
-                                                </optgroup>
-                                                <optgroup label="Transfer Bank">
-                                                    <option value="transfer_bca">Transfer BCA</option>
-                                                    <option value="transfer_bri">Transfer BRI</option>
-                                                    <option value="transfer_mandiri">Transfer Mandiri</option>
-                                                    <option value="transfer_bni">Transfer BNI</option>
-                                                </optgroup>
-                                            </select>
-
-                                            {{-- Panel Info Pembayaran (muncul setelah pilih metode) --}}
-                                            <div class="pay-info-panel" id="pay-info-{{ $p->id }}" style="display:none">
-
-                                                {{-- QR Code (hanya untuk QRIS) --}}
-                                                <div class="pay-qr-wrap" id="pay-qr-{{ $p->id }}" style="display:none">
-                                                    @if (file_exists(public_path('images/qris-kawwan.png')))
-                                                        <img src="{{ asset('images/qris-kawwan.png') }}"
-                                                             alt="QR Code QRIS KAWWAN"
-                                                             class="pay-qr-img">
-                                                    @else
-                                                        <div class="pay-qr-placeholder">
-                                                            <i class="fa-solid fa-qrcode"></i>
-                                                            <span>QR Code KAWWAN Puskesmas</span>
-                                                        </div>
-                                                    @endif
-                                                    <p class="pay-qr-note">Scan QR di atas lalu upload bukti pembayaran.</p>
-                                                </div>
-
-                                                {{-- Instruksi Transfer / E-Wallet --}}
-                                                <div class="pay-transfer-info" id="pay-transfer-{{ $p->id }}" style="display:none">
-                                                    <div class="pay-rekening-label" id="pay-rek-label-{{ $p->id }}"></div>
-                                                    <div class="pay-rekening-no" id="pay-rek-no-{{ $p->id }}"></div>
-                                                    <div class="pay-rekening-name" id="pay-rek-name-{{ $p->id }}"></div>
-                                                </div>
-
-                                                {{-- Nominal --}}
-                                                <div class="pay-amount-row">
-                                                    <span>Total Pembayaran:</span>
-                                                    <strong>Rp {{ number_format($totalBiaya, 0, ',', '.') }}</strong>
-                                                </div>
-
-                                                {{-- Upload Bukti --}}
-                                                <label class="pay-upload-label">
-                                                    <i class="fa-solid fa-paperclip"></i>
-                                                    Upload Bukti Pembayaran
-                                                    <input type="file"
-                                                           name="bukti_pembayaran"
-                                                           accept=".jpg,.jpeg,.png,.webp"
-                                                           class="pay-file-input"
-                                                           required>
-                                                </label>
-                                                <span class="pay-file-name" id="pay-fname-{{ $p->id }}">Belum ada file dipilih</span>
-                                            </div>
-
-                                            <button type="submit" class="pemilik-btn-sm" id="pay-btn-{{ $p->id }}" style="display:none">
-                                                <i class="fa-solid fa-paper-plane"></i> Kirim Pembayaran
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    @if ($p->status === 'menunggu')
-                                        <form method="POST"
-                                              action="{{ route('pemilik.pemesanan.batal', $p) }}"
-                                              data-confirm="Yakin ingin membatalkan pemesanan antrean ini?">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="pemilik-action-link is-danger">
-                                                Batalkan Booking
-                                            </button>
-                                        </form>
+                                            @if ($bisaBatal)
+                                                <form method="POST"
+                                                      action="{{ route('pemilik.pemesanan.batal', $p) }}"
+                                                      data-confirm="Yakin ingin membatalkan pemesanan antrean ini?">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                            class="btn-icon-action is-delete"
+                                                            title="Batalkan Booking"
+                                                            aria-label="Batalkan Booking">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="pemilik-text-muted">-</span>
                                     @endif
                                 </td>
                             </tr>
@@ -386,6 +362,143 @@
             </div>
         @endif
     </section>
+
+    {{-- Modal Popup Pembayaran Online --}}
+    <div id="modalBayar" class="pemilik-modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="pemilik-modal-overlay" onclick="closeBayarModal()"></div>
+        <div class="pemilik-modal-dialog pay-modal-dialog">
+            <div class="pemilik-modal-head">
+                <div>
+                    <h2>Pembayaran <span>Online</span></h2>
+                    <p>Pilih metode pembayaran lalu unggah bukti transfer atau scan QRIS.</p>
+                </div>
+                <button type="button" class="pemilik-modal-close" onclick="closeBayarModal()" aria-label="Tutup">&times;</button>
+            </div>
+
+            <div class="pay-summary-card">
+                <div class="pay-summary-meta">
+                    <strong id="payModalHewan">-</strong>
+                    <span id="payModalJadwal">-</span>
+                    <small id="payModalLayanan">-</small>
+                </div>
+                <div class="pay-summary-total">
+                    <span>Total Bayar</span>
+                    <strong id="payModalTotal">Rp 0</strong>
+                </div>
+            </div>
+
+            <form method="POST"
+                  action=""
+                  enctype="multipart/form-data"
+                  id="modalBayarForm"
+                  class="pemilik-simple-form">
+                @csrf
+                <input type="hidden" name="jumlah" id="payModalJumlahInput" value="0">
+
+                <div class="pemilik-form-group">
+                    <label for="payModalMetode">Metode Pembayaran *</label>
+                    <select id="payModalMetode" name="metode" required onchange="updateModalPayInfo(this.value)">
+                        <option value="">-- Pilih Metode Pembayaran --</option>
+                        <optgroup label="QRIS">
+                            <option value="qris">QRIS (Scan QR)</option>
+                        </optgroup>
+                        <optgroup label="E-Wallet">
+                            <option value="gopay">GoPay</option>
+                            <option value="ovo">OVO</option>
+                            <option value="dana">DANA</option>
+                        </optgroup>
+                        <optgroup label="Transfer Bank">
+                            <option value="transfer_bca">Transfer BCA</option>
+                            <option value="transfer_bri">Transfer BRI</option>
+                            <option value="transfer_mandiri">Transfer Mandiri</option>
+                            <option value="transfer_bni">Transfer BNI</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                {{-- Panel Info Metode Pembayaran --}}
+                <div id="payModalInfoPanel" class="pay-info-panel" hidden>
+                    {{-- QRIS --}}
+                    <div id="payModalQrWrap" class="pay-qr-wrap" hidden>
+                        @if (file_exists(public_path('images/qris-kawwan.png')))
+                            <img src="{{ asset('images/qris-kawwan.png') }}" alt="QRIS KAWWAN" class="pay-qr-img">
+                        @else
+                            <div class="pay-qris-card">
+                                <span class="pay-qris-badge">QRIS</span>
+                                <svg class="pay-qris-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-label="QR Code KAWWAN Puskesmas">
+                                    <rect width="120" height="120" rx="8" fill="#FFFFFF"/>
+                                    <rect x="10" y="10" width="30" height="30" rx="3" fill="none" stroke="#181310" stroke-width="5"/>
+                                    <rect x="19" y="19" width="12" height="12" rx="1.5" fill="#FF6B00"/>
+                                    <rect x="80" y="10" width="30" height="30" rx="3" fill="none" stroke="#181310" stroke-width="5"/>
+                                    <rect x="89" y="19" width="12" height="12" rx="1.5" fill="#181310"/>
+                                    <rect x="10" y="80" width="30" height="30" rx="3" fill="none" stroke="#181310" stroke-width="5"/>
+                                    <rect x="19" y="89" width="12" height="12" rx="1.5" fill="#181310"/>
+                                    <rect x="48" y="12" width="8" height="8" fill="#181310"/>
+                                    <rect x="62" y="12" width="8" height="8" fill="#181310"/>
+                                    <rect x="48" y="26" width="16" height="8" fill="#181310"/>
+                                    <rect x="12" y="48" width="8" height="16" fill="#181310"/>
+                                    <rect x="26" y="54" width="14" height="8" fill="#181310"/>
+                                    <rect x="48" y="48" width="24" height="24" rx="4" fill="#FF6B00"/>
+                                    <circle cx="60" cy="60" r="5" fill="#FFFFFF"/>
+                                    <rect x="80" y="48" width="10" height="10" fill="#181310"/>
+                                    <rect x="98" y="48" width="12" height="8" fill="#181310"/>
+                                    <rect x="88" y="64" width="22" height="8" fill="#181310"/>
+                                    <rect x="48" y="80" width="10" height="10" fill="#181310"/>
+                                    <rect x="64" y="80" width="18" height="8" fill="#181310"/>
+                                    <rect x="48" y="96" width="20" height="12" fill="#181310"/>
+                                    <rect x="76" y="94" width="14" height="14" fill="#181310"/>
+                                    <rect x="96" y="82" width="14" height="26" fill="#181310"/>
+                                </svg>
+                                <span class="pay-qris-merchant">KAWWAN PUSKESWAN</span>
+                            </div>
+                        @endif
+                        <p class="pay-qr-note">Scan QR di atas melalui aplikasi e-wallet / m-banking Anda, lalu unggah bukti bayar di bawah.</p>
+                    </div>
+
+                    {{-- Transfer Bank / E-Wallet --}}
+                    <div id="payModalTransferWrap" class="pay-transfer-info" hidden>
+                        <div class="pay-transfer-row">
+                            <div>
+                                <div class="pay-rekening-label" id="payModalRekLabel">-</div>
+                                <div class="pay-rekening-no" id="payModalRekNo">-</div>
+                                <div class="pay-rekening-name" id="payModalRekName">-</div>
+                            </div>
+                            <button type="button" class="pay-copy-btn" id="payCopyBtn" onclick="copyRekeningNo()">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>Salin</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Upload Bukti Pembayaran --}}
+                <div class="pemilik-form-group">
+                    <label for="payModalBukti">Bukti Pembayaran *</label>
+                    <label for="payModalBukti" class="pay-upload-dropzone" id="payUploadDropzone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span id="payModalFileName">Klik untuk memilih gambar bukti (JPG, PNG, WEBP)</span>
+                        <input type="file"
+                               id="payModalBukti"
+                               name="bukti_pembayaran"
+                               accept=".jpg,.jpeg,.png,.webp"
+                               class="pay-file-input"
+                               required>
+                    </label>
+                    <img id="payModalPreview" class="pay-proof-preview" alt="Preview bukti pembayaran" hidden>
+                </div>
+
+                <div class="pemilik-form-actions pay-modal-actions">
+                    <button type="button" class="pemilik-btn pemilik-btn-outline" onclick="closeBayarModal()">
+                        Batal
+                    </button>
+                    <button type="submit" class="pemilik-btn pemilik-btn-primary">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Kirim Pembayaran</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 </div>
             </main>

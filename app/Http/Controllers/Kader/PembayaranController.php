@@ -110,24 +110,9 @@ class PembayaranController extends Controller
                     continue;
                 }
 
-                // Ambil nomor antrean terakhir dokter pada tanggal tersebut.
-                $nomorTerakhir = Antrean::where('dokter_id', $dokterId)
-                    ->whereDate('tanggal', $tanggal)
-                    ->get()
-                    ->map(function ($item) {
-                        return (int) preg_replace(
-                            '/\D/',
-                            '',
-                            $item->nomor_antrean
-                        );
-                    })
-                    ->max() ?? 0;
-
-                $nomorBaru = 'A'.str_pad(
-                    $nomorTerakhir + 1,
-                    3,
-                    '0',
-                    STR_PAD_LEFT
+                $nomorBaru = Antrean::buatNomorBaru(
+                    (int) $dokterId,
+                    $tanggal->toDateString()
                 );
 
                 Antrean::create([

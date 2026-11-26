@@ -93,34 +93,49 @@
 {{-- STATISTIK DASHBOARD --}}
 <div class="kader-dashboard-stats">
 
-    <div class="dokter-card">
-        <h3>Booking Hari Ini</h3>
-        <h2>{{ $stat['booking_hari_ini'] }}</h2>
-        <p>Pemesanan jadwal hari ini</p>
+    <div class="dokter-card kader-stat-card">
+        <div class="kader-stat-top">
+            <h3>Booking Hari Ini</h3>
+            <span class="kader-stat-icon"><i class="fa-regular fa-calendar-check"></i></span>
+        </div>
+        <div class="kader-stat-value">{{ $stat['booking_hari_ini'] }}</div>
+        <p>Jadwal hari ini</p>
     </div>
 
-    <div class="dokter-card">
-        <h3>Total Booking Aktif</h3>
-        <h2>{{ $stat['total_aktif'] }}</h2>
-        <p>Semua booking belum selesai/batal</p>
+    <div class="dokter-card kader-stat-card">
+        <div class="kader-stat-top">
+            <h3>Booking Aktif</h3>
+            <span class="kader-stat-icon"><i class="fa-solid fa-ticket"></i></span>
+        </div>
+        <div class="kader-stat-value">{{ $stat['total_aktif'] }}</div>
+        <p>Total booking berjalan</p>
     </div>
 
-    <div class="dokter-card">
-        <h3>Menunggu Konfirmasi</h3>
-        <h2>{{ $stat['menunggu_kedatangan'] }}</h2>
-        <p>Pemilik menunggu kedatangan / konfirmasi</p>
+    <div class="dokter-card kader-stat-card">
+        <div class="kader-stat-top">
+            <h3>Menunggu</h3>
+            <span class="kader-stat-icon"><i class="fa-regular fa-clock"></i></span>
+        </div>
+        <div class="kader-stat-value">{{ $stat['menunggu_kedatangan'] }}</div>
+        <p>Menunggu konfirmasi</p>
     </div>
 
-    <div class="dokter-card">
-        <h3>Belum Dibayar</h3>
-        <h2>{{ $stat['belum_dibayar'] }}</h2>
-        <p>Booking aktif belum ada pembayaran</p>
+    <div class="dokter-card kader-stat-card">
+        <div class="kader-stat-top">
+            <h3>Belum Dibayar</h3>
+            <span class="kader-stat-icon"><i class="fa-solid fa-wallet"></i></span>
+        </div>
+        <div class="kader-stat-value">{{ $stat['belum_dibayar'] }}</div>
+        <p>Belum ada pembayaran</p>
     </div>
 
-    <div class="dokter-card">
-        <h3>Artikel Diajukan</h3>
-        <h2>{{ $stat['artikel_diajukan'] }}</h2>
-        <p>Artikel menunggu review</p>
+    <div class="dokter-card kader-stat-card">
+        <div class="kader-stat-top">
+            <h3>Artikel Tayang</h3>
+            <span class="kader-stat-icon"><i class="fa-solid fa-newspaper"></i></span>
+        </div>
+        <div class="kader-stat-value">{{ $stat['artikel_diajukan'] }}</div>
+        <p>Artikel aktif/diajukan</p>
     </div>
 
 </div>
@@ -213,7 +228,7 @@
 @if ($pemesananMendatang->isNotEmpty())
 <section class="dokter-card">
 
-    <h2>Pemesanan Mendatang <small style="font-size:.8rem;font-weight:400;color:#64748b">(dalam 60 hari ke depan)</small></h2>
+    <h2>Pemesanan Mendatang <small class="kader-sub-badge">(dalam 60 hari ke depan)</small></h2>
     <p>Daftar booking yang akan datang — belum dibatalkan.</p>
 
     <div class="dokter-table-wrap">

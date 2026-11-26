@@ -7,8 +7,6 @@ use App\Models\Hewan;
 use App\Models\JadwalPelayanan;
 use App\Models\Layanan;
 use App\Models\Pemesanan;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LandingPageController extends Controller
@@ -34,6 +32,7 @@ class LandingPageController extends Controller
             ->whereHas('pemeriksaan')
             ->count() : 0;
 
+        // Ambil 3 artikel terbaru yang sudah di-publish oleh Kader
         $artikelTerbaru = Artikel::published()
             ->latest('published_at')
             ->take(3)

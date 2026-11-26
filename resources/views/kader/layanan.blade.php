@@ -310,8 +310,10 @@
                                 <td>
                                     <div class="layanan-actions">
                                         <a href="{{ route('kader.layanan.edit', $item) }}"
-                                           class="layanan-action">
-                                            <i class="fa-solid fa-pen"></i> Edit
+                                           class="btn-icon-action is-edit"
+                                           title="Edit Layanan"
+                                           aria-label="Edit Layanan">
+                                            <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
 
                                         <form action="{{ route('kader.layanan.status', $item) }}"

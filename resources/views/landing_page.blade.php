@@ -302,26 +302,46 @@
 
                 <div class="article-grid">
                     @forelse($artikelTerbaru as $art)
+                        @php
+                            $gambarArtikel = $art->gambar
+                                ? (str_starts_with($art->gambar, 'http') ? $art->gambar : asset('storage/' . $art->gambar))
+                                : asset('images/default-artikel.png');
+                            $sumberArtikel = $art->sumber ?: (parse_url($art->link, PHP_URL_HOST) ?: 'Sumber Terpercaya');
+                        @endphp
                         <article class="article-card">
                             <div class="article-card-media">
-                                @if(!empty($art->gambar))
-                                    <img src="{{ asset('storage/' . $art->gambar) }}" alt="{{ $art->judul }}" class="article-card-img">
-                                @else
-                                    <div class="article-card-placeholder">
-                                        <i class="fa-solid fa-newspaper"></i>
-                                    </div>
-                                @endif
+                                <img src="{{ $gambarArtikel }}"
+                                     alt="{{ $art->judul }}"
+                                     class="article-card-img"
+                                     data-fallback-src="{{ asset('images/default-artikel.png') }}">
                                 <span class="article-tag">{{ $art->kategori ?: 'Kesehatan' }}</span>
                             </div>
                             <div class="article-card-body">
                                 <span class="article-date">
                                     <i class="fa-regular fa-calendar"></i>
-                                    {{ $art->published_at ? $art->published_at->format('d M Y') : date('d M Y') }}
+                                    {{ $art->published_at ? $art->published_at->format('d M Y') : $art->created_at?->format('d M Y') }}
                                 </span>
-                                <h3 class="article-card-title">{{ $art->judul }}</h3>
+                                <h3 class="article-card-title">
+                                    <a href="{{ $art->link }}" target="_blank" rel="noopener noreferrer">
+                                        {{ $art->judul }}
+                                    </a>
+                                </h3>
                                 <p class="article-card-excerpt">
-                                    {{ Str::limit($art->ringkasan ?: strip_tags($art->isi), 90) }}
+                                    {{ \Illuminate\Support\Str::limit($art->ringkasan ?: strip_tags($art->isi ?? ''), 120) }}
                                 </p>
+                            </div>
+                            <div class="article-card-footer">
+                                <small class="article-source">
+                                    <i class="fa-solid fa-globe"></i>
+                                    {{ $sumberArtikel }}
+                                </small>
+                                <a href="{{ $art->link }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="article-read-btn">
+                                    Baca Selengkapnya
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
                             </div>
                         </article>
                     @empty
@@ -367,13 +387,6 @@
                             </div>
                         </article>
                     @endforelse
-                </div>
-
-                <div class="article-action-wrap">
-                    <a href="{{ url('/artikel') }}" class="btn btn-outline">
-                        Jelajahi Semua Artikel
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </a>
                 </div>
             </div>
         </section>

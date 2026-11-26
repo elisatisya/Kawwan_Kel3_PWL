@@ -58,21 +58,17 @@ class LoginController extends Controller
             ])->onlyInput('email');
         }
 
-        if (Auth::attempt([
-            'email' => $email,
-            'password' => $password,
-        ], $remember)) {
+        // Pencarian email case-insensitive agar aman di PostgreSQL
+        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
 
-            $user = Auth::user();
-
+        if ($user && Hash::check($password, $user->password)) {
             if ($user->status === User::STATUS_NONAKTIF) {
-                Auth::logout();
-
                 return back()->withErrors([
                     'email' => 'Akun Anda telah dinonaktifkan oleh Administrator.',
                 ])->onlyInput('email');
             }
 
+            Auth::login($user, $remember);
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 

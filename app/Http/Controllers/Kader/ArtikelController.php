@@ -4,154 +4,85 @@ namespace App\Http\Controllers\Kader;
 
 use App\Http\Controllers\Controller;
 use App\Models\Artikel;
+use App\Services\NewsApiService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class ArtikelController extends Controller
 {
-    // Menampilkan daftar artikel milik kader
     public function index()
     {
-        $artikel = Artikel::where('user_id', auth()->id())
-            ->latest()
-            ->paginate(10);
-        $mode = null;
-        return view('kader.artikel', compact('artikel', 'mode'));
+        $artikels = Artikel::latest()->paginate(10);
+
+        return view('kader.artikel', compact('artikels'));
     }
 
-    // Menampilkan form tambah artikel
-    public function create()
+    public function searchApi(Request $request, NewsApiService $newsApi)
     {
-        return view('kader.artikel', ['mode' => 'create']);
+        $keyword = $request->input('q', 'kesehatan hewan');
+        $result = $newsApi->search($keyword);
+
+        if (!$result['success']) {
+            return response()->json(['message' => $result['message']], 422);
+        }
+
+        $existingLinks = Artikel::whereIn('link', collect($result['data'])->pluck('link'))
+            ->pluck('link')
+            ->flip();
+
+        $articles = collect($result['data'])->map(function ($item) use ($existingLinks) {
+            $item['sudah_diimpor'] = $existingLinks->has($item['link']);
+            return $item;
+        });
+
+        return response()->json(['data' => $articles]);
     }
 
-    // Menyimpan artikel baru
-    public function store(Request $request)
+    public function import(Request $request)
     {
         $validated = $request->validate([
-            'judul' => 'required|string|max:255',
-            'ringkasan' => 'nullable|string',
-            'isi' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'kategori' => 'required|string|max:100',
+            'judul'     => ['required', 'string', 'max:500'],
+            'link'      => ['required', 'url', 'max:500', 'unique:artikel,link'],
+            'sumber'    => ['nullable', 'string', 'max:150'],
+            'ringkasan' => ['nullable', 'string'],
+            'gambar'    => ['nullable', 'url'],
+            'kategori'  => ['required', 'string', 'max:100'],
+            'status'    => ['required', 'in:draft,published'],
         ]);
 
-        $validated['user_id'] = auth()->id();
-        $validated['slug'] = $this->generateSlug($validated['judul']);
-        $validated['status'] = 'draft';
-
-        if ($request->hasFile('gambar')) {
-            $validated['gambar'] = $request->file('gambar')
-                ->store('artikel', 'public');
-        }
-
-        Artikel::create($validated);
-
-        return redirect()
-            ->route('kader.artikel.index')
-            ->with('success', 'Artikel berhasil disimpan sebagai draft.');
-    }
-
-    // Menampilkan form edit artikel
-    public function edit(Artikel $artikel)
-    {
-        $artikel = $this->artikelMilikKader($artikel);
-
-        return view('kader.artikel', ['mode' => 'edit', 'artikel' => $artikel]);
-    }
-
-    // Memperbarui artikel
-    public function update(Request $request, Artikel $artikel)
-    {
-        $artikel = $this->artikelMilikKader($artikel);
-
-        $validated = $request->validate([
-            'judul' => 'required|string|max:255',
-            'ringkasan' => 'nullable|string',
-            'isi' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'kategori' => 'required|string|max:100',
+        $artikel = Artikel::create([
+            ...$validated,
+            'user_id'      => Auth::id(),
+            'published_at' => $validated['status'] === 'published' ? now() : null,
         ]);
 
-        if ($artikel->judul !== $validated['judul']) {
-            $validated['slug'] = $this->generateSlug($validated['judul']);
-        }
-
-        if ($request->hasFile('gambar')) {
-            if ($artikel->gambar) {
-                Storage::disk('public')->delete($artikel->gambar);
-            }
-
-            $validated['gambar'] = $request->file('gambar')
-                ->store('artikel', 'public');
-        }
-
-        $artikel->update($validated);
-
-        return redirect()
-            ->route('kader.artikel.index')
-            ->with('success', 'Artikel berhasil diperbarui.');
+        return response()->json([
+            'message' => 'Artikel berhasil diimpor.',
+            'data'    => $artikel,
+        ], 201);
     }
 
-    // Menghapus artikel
-    public function destroy(Artikel $artikel)
+    public function updateStatus(Request $request, Artikel $artikel)
     {
-        $artikel = $this->artikelMilikKader($artikel);
-
-        if ($artikel->gambar) {
-            Storage::disk('public')->delete($artikel->gambar);
-        }
-
-        $artikel->delete();
-
-        return redirect()
-            ->route('kader.artikel.index')
-            ->with('success', 'Artikel berhasil dihapus.');
-    }
-
-    // Mengajukan artikel untuk publikasi
-    public function ajukan(Artikel $artikel)
-    {
-        $artikel = $this->artikelMilikKader($artikel);
-
-        if ($artikel->status !== 'draft') {
-            return back()->with('error', 'Hanya artikel draft yang dapat diajukan.');
-        }
+        $request->validate([
+            'status'   => ['required', 'in:draft,published'],
+            'kategori' => ['sometimes', 'string', 'max:100'],
+        ]);
 
         $artikel->update([
-            'status' => 'diajukan',
+            'status'       => $request->status,
+            'kategori'     => $request->input('kategori', $artikel->kategori),
+            'published_at' => $request->status === 'published'
+                ? ($artikel->published_at ?? now())
+                : null,
         ]);
 
-        return redirect()
-            ->route('kader.artikel.index')
-            ->with('success', 'Artikel berhasil diajukan untuk publikasi.');
+        return back()->with('success', 'Artikel berhasil diperbarui.');
     }
 
-    // Memastikan artikel merupakan milik kader yang sedang login
-    private function artikelMilikKader(Artikel $artikel)
+    public function destroy(Artikel $artikel)
     {
-        abort_unless(
-            $artikel->user_id === auth()->id(),
-            403,
-            'Kamu tidak memiliki akses ke artikel ini.'
-        );
-
-        return $artikel;
-    }
-
-    // Membuat slug yang unik
-    private function generateSlug(string $judul): string
-    {
-        $slug = Str::slug($judul);
-        $originalSlug = $slug;
-        $counter = 1;
-
-        while (Artikel::where('slug', $slug)->exists()) {
-            $slug = $originalSlug.'-'.$counter;
-            $counter++;
-        }
-
-        return $slug;
+        $artikel->delete();
+        return back()->with('success', 'Artikel berhasil dihapus.');
     }
 }

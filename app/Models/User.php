@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -59,6 +60,13 @@ class User extends Authenticatable
             'verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function setEmailAttribute($value): void
+    {
+        $this->attributes['email'] = $value !== null
+            ? Str::lower(trim((string) $value))
+            : null;
     }
 
     public function setRoleAttribute($value): void

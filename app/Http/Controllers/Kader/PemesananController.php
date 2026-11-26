@@ -340,28 +340,36 @@ class PemesananController extends Controller
             $dokterIds = collect([$pemesanan->jadwalPelayanan->dokter_id]);
         }
 
-        foreach ($dokterIds as $dokterId) {
-            // Hindari duplikat: skip jika sudah ada antrean untuk kombinasi ini
-            $sudahAda = Antrean::where('pemesanan_id', $pemesanan->id)
-                ->where('dokter_id', $dokterId)
-                ->exists();
+        DB::transaction(function () use ($pemesanan, $dokterIds, $tanggal) {
+            foreach ($dokterIds as $dokterId) {
+                DB::table('users')
+                    ->where('id', $dokterId)
+                    ->lockForUpdate()
+                    ->first();
 
-            if ($sudahAda) {
-                continue;
+                // Hindari duplikat: skip jika sudah ada antrean untuk kombinasi ini
+                $sudahAda = Antrean::where('pemesanan_id', $pemesanan->id)
+                    ->where('dokter_id', $dokterId)
+                    ->exists();
+
+                if ($sudahAda) {
+                    continue;
+                }
+
+                // Nomor antrean unik per dokter per tanggal: D{dokter_id}-001, D{dokter_id}-002, ...
+                $nomor = Antrean::buatNomorBaru(
+                    (int) $dokterId,
+                    $tanggal->toDateString()
+                );
+
+                Antrean::create([
+                    'pemesanan_id'  => $pemesanan->id,
+                    'dokter_id'     => $dokterId,
+                    'tanggal'       => $tanggal->toDateString(),
+                    'nomor_antrean' => $nomor,
+                    'status'        => 'menunggu',
+                ]);
             }
-
-            // Nomor antrean: hitung berapa antrean dokter ini pada tanggal tsb + 1
-            $nomor = Antrean::where('dokter_id', $dokterId)
-                ->whereDate('tanggal', $tanggal->toDateString())
-                ->count() + 1;
-
-            Antrean::create([
-                'pemesanan_id'  => $pemesanan->id,
-                'dokter_id'     => $dokterId,
-                'tanggal'       => $tanggal->toDateString(),
-                'nomor_antrean' => $nomor,
-                'status'        => 'menunggu',
-            ]);
-        }
+        });
     }
 }

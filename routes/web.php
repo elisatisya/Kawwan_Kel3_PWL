@@ -224,12 +224,21 @@ Route::middleware(['auth', 'role:kader'])
         Route::patch('/layanan/{layanan}/status', [LayananController::class, 'toggleStatus'])
             ->name('layanan.status');
 
-        // Artikel
-        Route::resource('artikel', ArtikelController::class)
-            ->except('show');
+        // Artikel (Berbasis NewsData.io API)
+        Route::get('/artikel', [ArtikelController::class, 'index'])
+            ->name('artikel.index');
 
-        Route::patch('/artikel/{artikel}/ajukan', [ArtikelController::class, 'ajukan'])
-            ->name('artikel.ajukan');
+        Route::get('/artikel/search-api', [ArtikelController::class, 'searchApi'])
+            ->name('artikel.search-api');
+
+        Route::post('/artikel/import', [ArtikelController::class, 'import'])
+            ->name('artikel.import');
+
+        Route::patch('/artikel/{artikel}/status', [ArtikelController::class, 'updateStatus'])
+            ->name('artikel.update-status');
+
+        Route::delete('/artikel/{artikel}', [ArtikelController::class, 'destroy'])
+            ->name('artikel.destroy');
 
         // Profil
         Route::get('/profil', [App\Http\Controllers\Kader\ProfilController::class, 'edit'])
