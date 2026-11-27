@@ -43,7 +43,7 @@
                         <p>Kelola jadwal praktik dokter hewan, kuota pelayanan, dan ketersediaan sesi kunjungan.</p>
                     </div>
                     <div class="admin-head-actions">
-                        <button type="button" class="btn btn-primary" onclick="document.getElementById('modalTambahJadwal').classList.add('is-open')">
+                        <button type="button" class="btn btn-primary" onclick="openTambahJadwalModal()">
                             <i class="fa-solid fa-plus"></i> Tambah Jadwal
                         </button>
                     </div>
@@ -160,6 +160,21 @@
                                             </td>
                                             <td>
                                                 <div class="admin-actions-cell" style="justify-content: flex-end;">
+                                                    <button type="button"
+                                                            class="btn-icon-action is-edit"
+                                                            title="Edit Jadwal"
+                                                            aria-label="Edit Jadwal"
+                                                            onclick="openEditJadwalModal({{ json_encode([
+                                                                'id' => $j->id,
+                                                                'dokter_id' => $j->dokter_id,
+                                                                'tanggal' => $j->tanggal->format('Y-m-d'),
+                                                                'waktu_mulai' => substr($j->waktu_mulai, 0, 5),
+                                                                'waktu_selesai' => substr($j->waktu_selesai, 0, 5),
+                                                                'kuota' => $j->kuota,
+                                                                'status' => $j->status,
+                                                            ]) }})">
+                                                        <i class="fa-solid fa-pen-to-square"></i>
+                                                    </button>
                                                     <form action="{{ route('admin.jadwal.destroy', $j) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus jadwal ini?')">
                                                         @csrf
                                                         @method('DELETE')
@@ -183,19 +198,30 @@
         </div>
     </div>
 
-    {{-- Modal Tambah Jadwal --}}
+    @php
+        $editId = session('edit_jadwal_id');
+        $isEditError = $errors->any() && $editId;
+    @endphp
+
+    {{-- Modal Tambah / Edit Jadwal --}}
     <div id="modalTambahJadwal" class="pemilik-modal {{ $errors->any() ? 'is-open' : '' }}" role="dialog" aria-modal="true">
-        <div class="pemilik-modal-overlay" onclick="document.getElementById('modalTambahJadwal').classList.remove('is-open')"></div>
+        <div class="pemilik-modal-overlay" onclick="closeJadwalModal()"></div>
         <div class="pemilik-modal-dialog">
             <div class="pemilik-modal-head">
                 <div>
-                    <h2>Tambah Jadwal Pelayanan</h2>
-                    <p>Tentukan dokter hewan, tanggal, jam praktik, dan kuota antrean.</p>
+                    <h2 id="modalJadwalTitle">{{ $isEditError ? 'Edit Jadwal Pelayanan' : 'Tambah Jadwal Pelayanan' }}</h2>
+                    <p id="modalJadwalDesc">{{ $isEditError ? 'Perbarui dokter, tanggal, jam praktik, kuota, atau status jadwal.' : 'Tentukan dokter hewan, tanggal, jam praktik, dan kuota antrean.' }}</p>
                 </div>
-                <button type="button" class="pemilik-modal-close" onclick="document.getElementById('modalTambahJadwal').classList.remove('is-open')">&times;</button>
+                <button type="button" class="pemilik-modal-close" onclick="closeJadwalModal()">&times;</button>
             </div>
-            <form method="POST" action="{{ route('admin.jadwal.store') }}" class="pemilik-simple-form">
+            @if ($errors->any())
+                <div class="pemilik-alert is-error" style="margin-bottom: 12px;">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+            <form id="formJadwalModal" method="POST" action="{{ $isEditError ? route('admin.jadwal.update', $editId) : route('admin.jadwal.store') }}" class="pemilik-simple-form">
                 @csrf
+                <input type="hidden" name="_method" id="jadwalFormMethod" value="{{ $isEditError ? 'PUT' : 'POST' }}">
                 <div class="pemilik-form-group">
                     <label for="dokter_id">Dokter Hewan *</label>
                     <select id="dokter_id" name="dokter_id" required>
@@ -219,16 +245,92 @@
                         <input type="time" id="waktu_selesai" name="waktu_selesai" value="{{ old('waktu_selesai', '12:00') }}" required>
                     </div>
                 </div>
-                <div class="pemilik-form-group">
-                    <label for="kuota">Kuota Maksimal (Opsional)</label>
-                    <input type="number" id="kuota" name="kuota" min="1" max="200" value="{{ old('kuota', 15) }}" placeholder="Kosongkan jika tanpa batas">
+                <div class="pemilik-form-grid-2">
+                    <div class="pemilik-form-group">
+                        <label for="kuota">Kuota Maksimal (Opsional)</label>
+                        <input type="number" id="kuota" name="kuota" min="1" max="200" value="{{ old('kuota', 15) }}" placeholder="Kosongkan jika tanpa batas">
+                    </div>
+                    <div class="pemilik-form-group" id="jadwalStatusGroup" style="{{ $isEditError ? '' : 'display: none;' }}">
+                        <label for="jadwal_status">Status Jadwal *</label>
+                        <select id="jadwal_status" name="status">
+                            <option value="tersedia" @selected(old('status', 'tersedia') === 'tersedia')>Tersedia</option>
+                            <option value="penuh" @selected(old('status') === 'penuh')>Penuh</option>
+                            <option value="tutup" @selected(old('status') === 'tutup')>Tutup</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="pemilik-form-actions" style="justify-content: flex-end; margin-top: 6px;">
-                    <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('modalTambahJadwal').classList.remove('is-open')">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm">Simpan Jadwal</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeJadwalModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="jadwalSubmitBtn">{{ $isEditError ? 'Simpan Perubahan' : 'Simpan Jadwal' }}</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+        function syncMinTimeByDate() {
+            const tanggalEl = document.getElementById('tanggal');
+            const mulaiEl = document.getElementById('waktu_mulai');
+            if (!tanggalEl || !mulaiEl) return;
+
+            const today = "{{ now()->toDateString() }}";
+            if (tanggalEl.value === today) {
+                const now = new Date();
+                const hh = String(now.getHours()).padStart(2, '0');
+                const mm = String(now.getMinutes()).padStart(2, '0');
+                mulaiEl.min = hh + ':' + mm;
+            } else {
+                mulaiEl.removeAttribute('min');
+            }
+        }
+
+        document.getElementById('tanggal')?.addEventListener('change', syncMinTimeByDate);
+        syncMinTimeByDate();
+
+        function openTambahJadwalModal() {
+            const modal = document.getElementById('modalTambahJadwal');
+            const form = document.getElementById('formJadwalModal');
+            document.getElementById('modalJadwalTitle').textContent = 'Tambah Jadwal Pelayanan';
+            document.getElementById('modalJadwalDesc').textContent = 'Tentukan dokter hewan, tanggal, jam praktik, dan kuota antrean.';
+            document.getElementById('jadwalSubmitBtn').textContent = 'Simpan Jadwal';
+            form.action = "{{ route('admin.jadwal.store') }}";
+            document.getElementById('jadwalFormMethod').value = 'POST';
+            document.getElementById('dokter_id').value = '';
+            document.getElementById('tanggal').value = "{{ now()->toDateString() }}";
+            document.getElementById('waktu_mulai').value = '';
+            document.getElementById('waktu_selesai').value = '';
+            document.getElementById('kuota').value = '15';
+            document.getElementById('jadwalStatusGroup').style.display = 'none';
+            syncMinTimeByDate();
+            modal.classList.add('is-open');
+        }
+
+        function openEditJadwalModal(data) {
+            const modal = document.getElementById('modalTambahJadwal');
+            const form = document.getElementById('formJadwalModal');
+            document.getElementById('modalJadwalTitle').textContent = 'Edit Jadwal Pelayanan';
+            document.getElementById('modalJadwalDesc').textContent = 'Perbarui dokter, tanggal, jam praktik, kuota, atau status jadwal.';
+            document.getElementById('jadwalSubmitBtn').textContent = 'Simpan Perubahan';
+            form.action = "{{ url('/admin/jadwal') }}/" + data.id;
+            document.getElementById('jadwalFormMethod').value = 'PUT';
+            document.getElementById('dokter_id').value = data.dokter_id || '';
+            document.getElementById('tanggal').value = data.tanggal || '';
+            document.getElementById('waktu_mulai').value = data.waktu_mulai || '';
+            document.getElementById('waktu_selesai').value = data.waktu_selesai || '';
+            document.getElementById('kuota').value = data.kuota !== null ? data.kuota : '';
+            document.getElementById('jadwal_status').value = data.status || 'tersedia';
+            document.getElementById('jadwalStatusGroup').style.display = '';
+            syncMinTimeByDate();
+            modal.classList.add('is-open');
+        }
+
+        function closeJadwalModal() {
+            document.getElementById('modalTambahJadwal').classList.remove('is-open');
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeJadwalModal();
+        });
+    </script>
 </body>
 </html>

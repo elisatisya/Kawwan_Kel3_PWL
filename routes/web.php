@@ -126,6 +126,7 @@ Route::middleware(['auth', 'role:admin'])
         Route::prefix('jadwal')->name('jadwal.')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('index');
             Route::post('/', [App\Http\Controllers\Admin\JadwalController::class, 'store'])->name('store');
+            Route::put('/{jadwal}', [App\Http\Controllers\Admin\JadwalController::class, 'update'])->name('update');
             Route::patch('/{jadwal}/status', [App\Http\Controllers\Admin\JadwalController::class, 'updateStatus'])->name('status');
             Route::delete('/{jadwal}', [App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('destroy');
         });

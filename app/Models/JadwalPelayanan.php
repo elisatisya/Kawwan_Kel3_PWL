@@ -46,4 +46,21 @@ class JadwalPelayanan extends Model
     {
         return $query->where('status', 'tersedia');
     }
+
+    // Otomatis tutup jadwal yang tanggal atau jam selesainya sudah lewat
+    public static function tutupJadwalKadaluarsa(): int
+    {
+        $today = now()->toDateString();
+        $nowTime = now()->format('H:i:s');
+
+        return static::where('status', '!=', 'tutup')
+            ->where(function ($q) use ($today, $nowTime) {
+                $q->whereDate('tanggal', '<', $today)
+                  ->orWhere(function ($sub) use ($today, $nowTime) {
+                      $sub->whereDate('tanggal', '=', $today)
+                          ->where('waktu_selesai', '<=', $nowTime);
+                  });
+            })
+            ->update(['status' => 'tutup']);
+    }
 }
