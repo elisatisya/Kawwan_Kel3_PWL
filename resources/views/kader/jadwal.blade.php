@@ -176,13 +176,6 @@
 
     </div>
 @else
-    <div class="jadwal-heading">
-        <div>
-            <h1>Jadwal <span>Pelayanan</span></h1>
-            <p>Pantau jadwal praktik dokter, layanan, dan kuota pelayanan.</p>
-        </div>
-    </div>
-
     @if (session('success'))
         <div class="jadwal-alert">
             <i class="fa-solid fa-circle-check"></i>
@@ -190,7 +183,12 @@
         </div>
     @endif
 
-    <section class="dokter-card">
+    <section class="dokter-card jadwal-kader">
+
+        <div class="kader-head">
+            <h3>Jadwal Praktik Dokter</h3>
+            <p>Pantau jadwal praktik dokter, layanan, dan kuota pelayanan.</p>
+        </div>
 
         @if ($jadwal->isEmpty())
             <div class="jadwal-empty">

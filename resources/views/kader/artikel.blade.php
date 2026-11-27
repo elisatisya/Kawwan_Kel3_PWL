@@ -85,13 +85,6 @@
 
             <main class="dokter-content">
 
-                <div class="dokter-head">
-                    <div>
-                        <h1>Kelola <span>Artikel Kesehatan Hewan</span></h1>
-                        <p>Cari dan kurasi artikel dari NewsData.io API, lalu publikasikan ke halaman utama untuk pemilik hewan.</p>
-                    </div>
-                </div>
-
                 @if (session('success'))
                     <div class="dokter-alert is-success">
                         <p>{{ session('success') }}</p>
@@ -118,11 +111,9 @@
                          data-csrf="{{ csrf_token() }}"
                          data-default-img="{{ asset('images/default-artikel.png') }}">
 
-                    <div class="kawwan-panel-head">
-                        <div>
-                            <h2><i class="fa-solid fa-magnifying-glass"></i> Cari Artikel Kesehatan Hewan (API)</h2>
-                            <p class="dokter-card-sub">Masukkan topik atau pilih kata kunci cepat untuk mengambil berita berbahasa Indonesia dari NewsData.io.</p>
-                        </div>
+                    <div class="kader-head">
+                        <h3>Pencarian Artikel dari NewsData.io</h3>
+                        <p>Masukkan topik atau pilih kata kunci cepat untuk mengambil berita berbahasa Indonesia.</p>
                     </div>
 
                     <div class="kawwan-search-row">
@@ -152,9 +143,9 @@
                 {{-- PANEL 2: DAFTAR ARTIKEL TERSIMPAN DI DATABASE --}}
                 <section class="dokter-card kawwan-saved-panel">
                     <div class="kawwan-panel-head">
-                        <div>
-                            <h2><i class="fa-solid fa-newspaper"></i> Daftar Artikel Tersimpan</h2>
-                            <p class="dokter-card-sub">Artikel berstatus <strong>Published</strong> otomatis tampil di halaman utama (landing page) untuk Pemilik Hewan.</p>
+                        <div class="kader-head">
+                            <h3>Artikel Tersimpan</h3>
+                            <p>Artikel berstatus <strong>Published</strong> otomatis tampil di halaman utama untuk Pemilik Hewan.</p>
                         </div>
                         <span class="antrean-count">Total: {{ $artikels->total() }} Artikel</span>
                     </div>
@@ -162,7 +153,7 @@
                     @if ($artikels->isEmpty())
                         <div class="dokter-empty kawwan-empty-state">
                             <i class="fa-solid fa-newspaper"></i>
-                            <p>Belum ada artikel yang diimpor. Gunakan panel pencarian API di atas untuk menambahkan artikel.</p>
+                            <p>Belum ada artikel yang diimpor. Gunakan panel pencarian di atas untuk menambahkan artikel.</p>
                         </div>
                     @else
                         <div class="dokter-table-wrap">

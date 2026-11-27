@@ -7453,3 +7453,343 @@ body.cetak-body {
         grid-template-columns: 1fr;
     }
 }
+
+.jadwal-kader .jadwal-table th {
+    background: #FFF1E6;
+    color: var(--orange);
+}
+
+.jadwal-table th {
+    color: var(--orange) !important;
+    background: #FFF1E6 !important;
+}
+
+
+.booking-card-head {
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--warm-white) 0%, #FFFFFF 90%);
+    border: 1px solid var(--soft-peach);
+    border-radius: 12px;
+}
+
+.booking-card-head h3 {
+    margin: 0 0 4px;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--near-black);
+}
+
+.booking-card-head h3 span {
+    color: var(--orange);
+}
+
+.booking-card-head p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--warm-grey);
+}
+
+.booking-table thead th {
+    background: #FFF1E6 !important;
+    color: var(--orange) !important;
+}
+
+/* ===== Kader: halaman Booking & Pembayaran ===== */
+
+.booking-card-head {
+    margin-bottom: 18px;
+}
+
+.booking-card-head h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--near-black);
+}
+
+.booking-card-head p {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--warm-grey);
+}
+
+.booking-table {
+    table-layout: fixed;
+    min-width: 1000px;
+}
+
+.booking-table thead th {
+    background: #FFF1E6 !important;
+    color: var(--orange) !important;
+}
+
+.booking-table th:nth-child(1) { width: 150px; }
+.booking-table th:nth-child(2) { width: 170px; }
+.booking-table th:nth-child(3) { width: 180px; }
+.booking-table th:nth-child(4) { width: 120px; }
+.booking-table th:nth-child(5) { width: 190px; }
+.booking-table th:nth-child(6) { width: 190px; }
+
+.booking-table tbody td {
+    padding: 14px;
+    vertical-align: middle;
+}
+
+.booking-table .booking-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.booking-table .booking-actions form {
+    display: block;
+}
+
+.booking-table .booking-action-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+.kader-head {
+    margin: 0 0 16px;
+}
+
+.kader-head h3 {
+    margin: 0 0 3px;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--near-black);
+}
+
+.kader-head p {
+    margin: 2px 0 12px;
+    font-size: 12px;
+    color: var(--warm-grey);
+}
+
+/* ===== Kader: halaman Jadwal ===== */
+
+.jadwal-kader .jadwal-table {
+    min-width: 900px;
+}
+
+.jadwal-kader .jadwal-table td:nth-child(1),
+.jadwal-kader .jadwal-table td:nth-child(2),
+.jadwal-kader .jadwal-table td:nth-child(4) {
+    white-space: nowrap;
+}
+
+.jadwal-kader .jadwal-table th:nth-child(3),
+.jadwal-kader .jadwal-table td:nth-child(3) {
+    min-width: 260px;
+}
+
+/* Kuota, Terpakai, Sisa Kuota, Status: lebar sesuai isi, jarak rapat */
+.jadwal-kader .jadwal-table th:nth-child(n+5),
+.jadwal-kader .jadwal-table td:nth-child(n+5) {
+    width: 1%;
+    white-space: nowrap;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+}
+
+/* ===== Kader: halaman Layanan & Harga (tanpa scroll samping) ===== */
+
+.layanan-panel .layanan-btn {
+    color: var(--pure-white);
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.layanan-panel .layanan-btn:hover {
+    background: #E85F00;
+    border-color: #E85F00;
+}
+
+.layanan-table-wrap {
+    overflow-x: visible;
+}
+
+.layanan-table {
+    min-width: 0;
+    width: 100%;
+    table-layout: auto;
+    font-size: 12px;
+}
+
+.layanan-table th {
+    background: #FFF1E6 !important;
+    color: var(--orange) !important;
+    padding: 10px 8px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+}
+
+.layanan-table td {
+    padding: 10px 8px;
+}
+
+/* Kolom pendek: satu baris */
+.layanan-table td:nth-child(1),
+.layanan-table td:nth-child(2),
+.layanan-table td:nth-child(4),
+.layanan-table td:nth-child(5),
+.layanan-table td:nth-child(7),
+.layanan-table th {
+    white-space: nowrap;
+}
+
+/* Deskripsi: boleh turun baris, ambil sisa lebar */
+.layanan-table td:nth-child(3) {
+    white-space: normal;
+    min-width: 160px;
+}
+
+/* Dokter: antar-tag boleh turun baris, nama dalam tag tidak terpotong */
+.layanan-table .dokter-tags {
+    gap: 4px;
+}
+
+.layanan-table .dokter-tag {
+    white-space: nowrap;
+    padding: 3px 7px;
+    font-size: 10.5px;
+}
+
+.layanan-table .layanan-actions {
+    flex-wrap: nowrap;
+    gap: 4px;
+}
+
+.layanan-table .layanan-action {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.layanan-table .btn-icon-action {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+}
+
+/* ===== Kader: halaman Antrean (tanpa scroll samping) ===== */
+
+.antrean-table th {
+    background: #FFF1E6 !important;
+    color: var(--orange) !important;
+    padding: 10px 8px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.antrean-table td {
+    padding: 10px 8px;
+}
+
+.antrean-table-wrap {
+    overflow-x: visible;
+}
+
+.antrean-table {
+    min-width: 0;
+    width: 100%;
+    table-layout: auto;
+    font-size: 12px;
+}
+
+/* No, Nomor Antrean, Tanggal, Pemilik, Dokter, Status: satu baris */
+.antrean-table td:nth-child(1),
+.antrean-table td:nth-child(2),
+.antrean-table td:nth-child(3),
+.antrean-table td:nth-child(4),
+.antrean-table td:nth-child(7),
+.antrean-table td:nth-child(8) {
+    white-space: nowrap;
+}
+
+/* Jenis Hewan dan Layanan: boleh turun baris kalau panjang */
+.antrean-table td:nth-child(5),
+.antrean-table td:nth-child(6) {
+    white-space: normal;
+    min-width: 120px;
+}
+
+/* Layar kecil: tabel boleh digeser */
+@media (max-width: 1100px) {
+    .antrean-table-wrap {
+        overflow-x: auto;
+    }
+
+    .antrean-table {
+        min-width: 860px;
+    }
+}
+
+/* ===== Kader: halaman Artikel (tanpa scroll samping) ===== */
+
+.kawwan-table th {
+    background: #FFF1E6 !important;
+    color: var(--orange) !important;
+    padding: 10px 8px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.kawwan-table td {
+    padding: 10px 8px;
+}
+
+.kawwan-saved-panel .dokter-table-wrap {
+    overflow-x: visible;
+}
+
+.kawwan-table {
+    min-width: 0;
+    width: 100%;
+    font-size: 12px;
+}
+
+/* No, Kategori, Status, Tanggal, Aksi: satu baris */
+.kawwan-table td:nth-child(1),
+.kawwan-table td:nth-child(3),
+.kawwan-table td:nth-child(4),
+.kawwan-table td:nth-child(5),
+.kawwan-table td:nth-child(6) {
+    white-space: nowrap;
+}
+
+/* Judul & Sumber: ambil sisa lebar, judul boleh turun baris */
+.kawwan-table td:nth-child(2) {
+    min-width: 260px;
+}
+
+.kawwan-saved-item {
+    min-width: 0;
+}
+
+.kawwan-table .kader-aksi {
+    flex-wrap: nowrap;
+    gap: 4px;
+}
+
+.kawwan-saved-panel .kawwan-panel-head {
+    align-items: flex-start;
+    margin-bottom: 0;
+}
+
+/* Layar kecil: tabel boleh digeser */
+@media (max-width: 1100px) {
+    .kawwan-saved-panel .dokter-table-wrap {
+        overflow-x: auto;
+    }
+
+    .kawwan-table {
+        min-width: 820px;
+    }
+}

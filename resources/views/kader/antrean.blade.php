@@ -86,12 +86,12 @@
             <main class="dokter-content">
 <div class="antrean-page">
 
-    <div class="antrean-heading">
-        <h1>Daftar <span>Antrean</span></h1>
-        <p>Kelola dan pantau antrean pelayanan hewan.</p>
-    </div>
-
     <section class="antrean-panel">
+
+        <div class="kader-head">
+            <h3>Pemantauan Antrean Pelayanan</h3>
+            <p>Kelola dan pantau urutan antrean, layanan, serta status pelayanan hewan.</p>
+        </div>
 
         <div class="antrean-summary">
             <h2>Data Antrean</h2>

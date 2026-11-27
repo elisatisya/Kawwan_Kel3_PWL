@@ -84,11 +84,27 @@
             </header>
 
             <main class="dokter-content">
-{{-- HEADER --}}
-<div class="dokter-head">
-    <h1>Dashboard <span>Kader Puskesmas</span></h1>
-    <p>Selamat datang di panel pengelolaan pelayanan KAWWAN.</p>
-</div>
+{{-- HERO --}}
+<section class="pemilik-hero-banner">
+    <div class="pemilik-welcome-text">
+        <span class="pemilik-welcome-tag"><i class="fa-solid fa-notes-medical"></i> Panel Kader Puskesmas</span>
+        <h1>Halo, {{ auth()->user()->name }}</h1>
+        <p>Kelola jadwal pelayanan, booking dan pembayaran, layanan, serta antrean pasien hewan secara terpadu dalam satu panel.</p>
+        <div class="pemilik-welcome-actions" style="margin-top: 18px;">
+            <a href="{{ route('kader.pemesanan.index') }}" class="pemilik-btn pemilik-btn-primary">
+                <i class="fa-regular fa-calendar-check"></i>
+                <span>Booking & Pembayaran</span>
+            </a>
+            <a href="{{ route('kader.antrean.index') }}" class="pemilik-btn pemilik-btn-outline">
+                <i class="fa-solid fa-ticket"></i>
+                <span>Kelola Antrean</span>
+            </a>
+        </div>
+    </div>
+    <div class="pemilik-hero-visual">
+        <img src="{{ asset('images/klinik-hewan.png') }}" alt="Ilustrasi Klinik Hewan KAWWAN">
+    </div>
+</section>
 
 {{-- STATISTIK DASHBOARD --}}
 <div class="kader-dashboard-stats">
@@ -224,7 +240,7 @@
 
 </section>
 
-{{-- PEMESANAN MENDATANG (7 hari ke depan) --}}
+{{-- PEMESANAN MENDATANG (60 hari ke depan) --}}
 @if ($pemesananMendatang->isNotEmpty())
 <section class="dokter-card">
 

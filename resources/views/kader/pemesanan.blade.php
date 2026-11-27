@@ -141,12 +141,6 @@
 @else
     <div class="booking-page">
 
-        {{-- HEADER --}}
-        <div class="booking-heading">
-            <h1>Booking &amp; <span>Pembayaran</span></h1>
-            <p>Kelola pemesanan, konfirmasi kedatangan, dan pembayaran pelayanan hewan.</p>
-        </div>
-
         {{-- NOTIFIKASI --}}
         @if (session('success'))
             <div class="booking-alert booking-alert-success">
@@ -163,6 +157,11 @@
         @endif
 
         <section class="booking-panel">
+
+            <div class="kader-head">
+                <h3>Pemesanan Pelayanan Hewan</h3>
+                <p>Pantau booking yang masuk, konfirmasi kehadiran hewan, dan periksa status pembayarannya.</p>
+            </div>
 
             {{-- PENCARIAN DAN FILTER --}}
             <form method="GET"
@@ -256,7 +255,7 @@
                     </span>
 
                     <a href="{{ route('kader.pemesanan.create') }}"
-                       class="booking-btn booking-btn-primary">
+                       class="booking-btn booking-btn-secondary">
                         <i class="fa-solid fa-plus"></i>
                         Daftarkan Booking
                     </a>
