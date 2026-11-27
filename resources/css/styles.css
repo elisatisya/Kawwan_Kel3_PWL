@@ -3832,12 +3832,22 @@ img {
 }
 
 .riwayat-link {
-    color: var(--orange);
+    display: inline-block;
+    padding: 5px 14px;
+    border: 1px solid #FDBA9C;
+    border-radius: 999px;
+    background: #FFEDE5;
+    color: #D9480F;
+    font-size: 12px;
     font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s ease;
 }
 
 .riwayat-link:hover {
-    text-decoration: underline;
+    background: #D9480F;
+    border-color: #D9480F;
+    color: #fff;
 }
 
 .riwayat-back {
@@ -6325,6 +6335,11 @@ img {
     }
 }
 
+.dokter-table th,
+.riwayat-table th {
+    background: #FFF1E6;
+    color: var(--orange);
+}
 
 .riwayat-card .riwayat-item-head {
     display: flex;
@@ -7793,3 +7808,4 @@ body.cetak-body {
         min-width: 820px;
     }
 }
+

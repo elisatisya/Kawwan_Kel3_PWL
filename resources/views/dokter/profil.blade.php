@@ -101,6 +101,7 @@
                         <i class="fa-solid fa-camera"></i>
                     </label>
                     <input type="file" id="profilFoto" name="foto" accept=".jpg,.jpeg,.png,.webp" hidden data-edit>
+                    <input type="hidden" name="hapus_foto" id="hapusFoto" value="0">
                 </div>
 
                 <h2>{{ trim(($user->gelar_depan ? $user->gelar_depan.' ' : '').$user->name.($user->gelar_belakang ? ', '.$user->gelar_belakang : '')) }}</h2>
@@ -110,6 +111,12 @@
                 <button type="button" id="profilEditBtn" class="btn btn-outline profil-view-only">
                     <i class="fa-solid fa-pen"></i> Edit Profil
                 </button>
+
+                @if ($user->foto)
+                    <button type="button" id="profilHapusFotoBtn" class="btn btn-outline profil-edit-only" style="margin-top: 8px;">
+                        <i class="fa-solid fa-trash"></i> Hapus Foto
+                    </button>
+                @endif
 
                 <p class="profil-hint profil-edit-only">Klik ikon kamera untuk mengganti foto. Format JPG, PNG, atau WEBP, maksimal 2 MB.</p>
                 @error('foto')<p class="profil-error">{{ $message }}</p>@enderror
@@ -183,6 +190,34 @@
 
         </div>
     </form>
+
+    {{-- Hapus foto: foto benar-benar dihapus setelah klik "Simpan Perubahan" --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tombol = document.getElementById('profilHapusFotoBtn');
+            if (!tombol) return;
+
+            const penanda = document.getElementById('hapusFoto');
+            const input = document.getElementById('profilFoto');
+            const preview = document.getElementById('profilFotoPreview');
+            const inisial = document.getElementById('profilFotoInisial');
+
+            tombol.addEventListener('click', () => {
+                penanda.value = '1';
+                input.value = '';
+                preview.hidden = true;
+                inisial.hidden = false;
+                tombol.style.display = 'none';
+            });
+
+            input.addEventListener('change', () => {
+                if (input.files[0]) {
+                    penanda.value = '0';
+                    tombol.style.display = '';
+                }
+            });
+        });
+    </script>
             </main>
         </div>
 

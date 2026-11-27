@@ -79,10 +79,27 @@
             </header>
 
             <main class="dokter-content">
-<div class="dokter-head">
-        <h1>Halo, <span>{{ trim((auth()->user()->gelar_depan ? auth()->user()->gelar_depan.' ' : '').auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</span></h1>
-        <p>Ringkasan pelayanan pemeriksaan hewan hari ini.</p>
+{{-- HERO --}}
+<section class="pemilik-hero-banner">
+    <div class="pemilik-welcome-text">
+        <span class="pemilik-welcome-tag"><i class="fa-solid fa-stethoscope"></i> Panel Dokter Hewan</span>
+        <h1>Halo, {{ trim((auth()->user()->gelar_depan ? auth()->user()->gelar_depan.' ' : '').auth()->user()->name.(auth()->user()->gelar_belakang ? ', '.auth()->user()->gelar_belakang : '')) }}</h1>
+        <p>Ringkasan pelayanan pemeriksaan hewan hari ini. Pantau antrean pasien, catat hasil pemeriksaan, dan lihat riwayat dalam satu panel.</p>
+        <div class="pemilik-welcome-actions" style="margin-top: 18px;">
+            <a href="{{ route('dokter.pemeriksaan.index') }}" class="pemilik-btn pemilik-btn-primary">
+                <i class="fa-solid fa-clipboard-check"></i>
+                <span>Pemeriksaan</span>
+            </a>
+            <a href="{{ route('dokter.riwayat.index') }}" class="pemilik-btn pemilik-btn-outline">
+                <i class="fa-solid fa-file-medical"></i>
+                <span>Riwayat Pemeriksaan</span>
+            </a>
+        </div>
     </div>
+    <div class="pemilik-hero-visual">
+        <img src="{{ asset('images/klinik-hewan.png') }}" alt="Ilustrasi Klinik Hewan KAWWAN">
+    </div>
+</section>
 
     <div class="dokter-stats">
         <div class="dokter-stat">

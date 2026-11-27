@@ -26,6 +26,7 @@ class ProfilController extends Controller
             'nomor_telepon' => ['nullable', 'string', 'max:20'],
             'alamat' => ['nullable', 'string', 'max:500'],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'hapus_foto' => ['nullable', 'boolean'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
@@ -41,6 +42,9 @@ class ProfilController extends Controller
                 Storage::disk('public')->delete($user->foto);
             }
             $user->foto = $request->file('foto')->store('foto-dokter', 'public');
+        } elseif ($request->boolean('hapus_foto') && $user->foto) {
+            Storage::disk('public')->delete($user->foto);
+            $user->foto = null;
         }
 
         if (! empty($data['password'])) {
