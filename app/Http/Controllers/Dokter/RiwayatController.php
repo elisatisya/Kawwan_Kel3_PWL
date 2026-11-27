@@ -49,10 +49,7 @@ class RiwayatController extends Controller
             'pemesanan.jadwalPelayanan',
             'pemesanan.antrean',
         ])
-            ->whereHas('pemesanan', function ($q) use ($hewan) {
-                $q->where('hewan_id', $hewan->id)
-                  ->where('dokter_id', auth()->id());
-            })
+            ->whereHas('pemesanan', fn ($q) => $milikSaya($q->where('hewan_id', $hewan->id)))
             ->latest()
             ->get();
 
