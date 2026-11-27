@@ -84,138 +84,136 @@
             </header>
 
             <main class="dokter-content">
-@php
-    $editing = $errors->any();
-@endphp
+@php $editing = $errors->any(); @endphp
 
-@if (session('success'))
-    <div class="profil-alert">
-        <i class="fa-solid fa-circle-check"></i>
-        {{ session('success') }}
-    </div>
-@endif
+    @if (session('success'))
+        <div class="profil-alert"><i class="fa-solid fa-circle-check"></i> {{ session('success') }}</div>
+    @endif
 
-<div class="dokter-head">
-    <div>
-        <h1>Profil Saya</h1>
-        <p>Kelola informasi akun Kader Puskesmas Anda.</p>
-    </div>
-</div>
+    <form id="profilForm" method="POST" action="{{ route('kader.profil.update') }}" enctype="multipart/form-data" class="profil-form {{ $editing ? 'is-editing' : '' }}">
+        @csrf
+        @method('PUT')
 
-<form method="POST"
-      action="{{ route('kader.profil.update') }}"
-      id="profilForm"
-      class="profil-form {{ $editing ? 'is-editing' : '' }}">
+        <div class="profil-layout">
 
-    @csrf
-    @method('PUT')
+            <aside class="dokter-card profil-side">
+                <div class="profil-avatar-wrap">
+                    <div class="profil-foto">
+                        <img id="profilFotoPreview" src="{{ $user->foto ? asset('storage/'.$user->foto) : '' }}" alt="Foto profil" @if (! $user->foto) hidden @endif>
+                        <span id="profilFotoInisial" @if ($user->foto) hidden @endif>{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                    </div>
+                    <label for="profilFoto" class="profil-photo-btn profil-edit-only" title="Ubah foto">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="profilFoto" name="foto" accept=".jpg,.jpeg,.png,.webp" hidden data-edit>
+                    <input type="hidden" name="hapus_foto" id="hapusFoto" value="0">
+                </div>
 
-    <section class="kader-card">
-        <div class="row">
-            <div class="profil-avatar-wrap">
-                <div class="profil-foto">
-                    @if ($user->foto)
-                        <img src="{{ asset('storage/'.$user->foto) }}" alt="Foto profil">
-                    @else
-                        <span>{{ strtoupper(substr($user->name, 0, 1)) }}</span>
-                    @endif
+                <h2>{{ $user->name }}</h2>
+                <span class="profil-role"><i class="fa-solid fa-user-nurse"></i> Kader Puskesmas</span>
+                <p class="profil-email">{{ $user->email }}</p>
+
+                <button type="button" id="profilEditBtn" class="btn btn-outline profil-view-only">
+                    <i class="fa-solid fa-pen"></i> Edit Profil
+                </button>
+
+                @if ($user->foto)
+                    <button type="button" id="profilHapusFotoBtn" class="btn btn-outline profil-edit-only" style="margin-top: 8px;">
+                        <i class="fa-solid fa-trash"></i> Hapus Foto
+                    </button>
+                @endif
+
+                <p class="profil-hint profil-edit-only">Klik ikon kamera untuk mengganti foto. Format JPG, PNG, atau WEBP, maksimal 2 MB.</p>
+                @error('foto')<p class="profil-error">{{ $message }}</p>@enderror
+            </aside>
+
+            <div class="profil-main">
+                <section class="dokter-card">
+                    <h3><i class="fa-regular fa-id-card"></i> Informasi Pribadi</h3>
+                    <p class="dokter-card-sub">Data akun yang tampil di sistem KAWWAN.</p>
+
+                    <div class="profil-grid">
+                        <div class="profil-field">
+                            <label for="name">Nama Lengkap</label>
+                            <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" placeholder="Nama Lengkap" required data-edit @disabled(! $editing)>
+                            @error('name')<p class="profil-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="profil-field">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" placeholder="nama@gmail.com" required data-edit @disabled(! $editing)>
+                            @error('email')<p class="profil-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="profil-field">
+                            <label for="nik">NIK</label>
+                            <input type="text" id="nik" value="{{ $user->nik ?: '-' }}" disabled data-locked>
+                        </div>
+                        <div class="profil-field">
+                            <label for="nomor_telepon">Nomor Telepon</label>
+                            <input type="text" id="nomor_telepon" name="nomor_telepon" value="{{ old('nomor_telepon', $user->nomor_telepon) }}" placeholder="081234567890" data-edit @disabled(! $editing)>
+                            @error('nomor_telepon')<p class="profil-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="profil-field profil-full">
+                            <label for="alamat">Alamat</label>
+                            <textarea id="alamat" name="alamat" rows="3" placeholder="Masukkan Alamat Lengkap" data-edit @disabled(! $editing)>{{ old('alamat', $user->alamat) }}</textarea>
+                            @error('alamat')<p class="profil-error">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </section>
+
+                <section class="dokter-card profil-edit-only">
+                    <h3><i class="fa-solid fa-lock"></i> Ubah Password</h3>
+                    <p class="dokter-card-sub">Kosongkan jika tidak ingin mengganti password.</p>
+
+                    <div class="profil-grid">
+                        <div class="profil-field">
+                            <label for="password">Password Baru</label>
+                            <input type="password" id="password" name="password" placeholder="Minimal 8 karakter" autocomplete="new-password" data-edit @disabled(! $editing)>
+                            @error('password')<p class="profil-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="profil-field">
+                            <label for="password_confirmation">Konfirmasi Password</label>
+                            <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Ulangi password baru" autocomplete="new-password" data-edit @disabled(! $editing)>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="profil-actions profil-edit-only">
+                    <a href="{{ route('kader.profil') }}" class="btn btn-outline">Batal</a>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                 </div>
             </div>
 
-            <div>
-                <h3>{{ $user->name }}</h3>
-                <p class="kader-card-sub">Kader Puskesmas</p>
-                <p class="profil-email">{{ $user->email }}</p>
-            </div>
         </div>
-    </section>
+    </form>
 
-    <section class="kader-card">
-        <h3><i class="fa-solid fa-user"></i> Informasi Akun</h3>
-        <p class="kader-card-sub">
-            Informasi identitas dan kontak akun Anda.
-        </p>
+    {{-- Hapus foto: foto baru benar-benar dihapus setelah klik "Simpan Perubahan" --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tombol = document.getElementById('profilHapusFotoBtn');
+            if (!tombol) return;
 
-        <div class="profil-grid">
-            <div class="profil-field">
-                <label>Nama Lengkap</label>
-                <input type="text" name="name"
-                    value="{{ old('name', $user->name) }}"
-                    required data-edit @disabled(! $editing)>
-                @error('name') <p class="profil-error">{{ $message }}</p> @enderror
-            </div>
+            const penanda = document.getElementById('hapusFoto');
+            const input = document.getElementById('profilFoto');
+            const preview = document.getElementById('profilFotoPreview');
+            const inisial = document.getElementById('profilFotoInisial');
 
-            <div class="profil-field">
-                <label>NIK</label>
-                <input type="text" value="{{ $user->nik ?: '-' }}" disabled>
-            </div>
+            tombol.addEventListener('click', () => {
+                penanda.value = '1';
+                input.value = '';
+                preview.hidden = true;
+                inisial.hidden = false;
+                tombol.style.display = 'none';
+            });
 
-            <div class="profil-field">
-                <label>Email</label>
-                <input type="email" name="email"
-                    value="{{ old('email', $user->email) }}"
-                    required data-edit @disabled(! $editing)>
-                @error('email') <p class="profil-error">{{ $message }}</p> @enderror
-            </div>
-
-            <div class="profil-field">
-                <label>Nomor Telepon</label>
-                <input type="text" name="nomor_telepon"
-                    value="{{ old('nomor_telepon', $user->nomor_telepon) }}"
-                    data-edit @disabled(! $editing)>
-                @error('nomor_telepon') <p class="profil-error">{{ $message }}</p> @enderror
-            </div>
-
-            <div class="profil-field profil-full">
-                <label>Alamat</label>
-                <textarea name="alamat" rows="3"
-                    data-edit @disabled(! $editing)>{{ old('alamat', $user->alamat) }}</textarea>
-                @error('alamat') <p class="profil-error">{{ $message }}</p> @enderror
-            </div>
-        </div>
-    </section>
-
-    <section class="kader-card profil-edit-only">
-        <h3><i class="fa-solid fa-lock"></i> Keamanan Akun</h3>
-        <p class="kader-card-sub">Isi jika ingin mengganti password.</p>
-
-        <div class="profil-grid">
-            <div class="profil-field">
-                <label>Password Baru</label>
-                <input type="password" name="password"
-                    placeholder="Minimal 8 karakter"
-                    autocomplete="new-password"
-                    data-edit @disabled(! $editing)>
-                @error('password') <p class="profil-error">{{ $message }}</p> @enderror
-            </div>
-
-            <div class="profil-field">
-                <label>Konfirmasi Password</label>
-                <input type="password" name="password_confirmation"
-                    placeholder="Ulangi password baru"
-                    autocomplete="new-password"
-                    data-edit @disabled(! $editing)>
-            </div>
-        </div>
-    </section>
-
-    <div class="profil-actions">
-        <button type="button" id="profilEditBtn"
-            class="btn btn-outline profil-view-only">
-            <i class="fa-solid fa-pen"></i> Edit Profil
-        </button>
-
-        <div class="profil-edit-only">
-            <a href="{{ route('kader.profil') }}" class="btn btn-outline">
-                Batal
-            </a>
-            <button type="submit" class="btn btn-primary">
-                Simpan Perubahan
-            </button>
-        </div>
-    </div>
-
-</form>
+            // Kalau lalu memilih foto baru, batalkan penghapusan
+            input.addEventListener('change', () => {
+                if (input.files[0]) {
+                    penanda.value = '0';
+                    tombol.style.display = '';
+                }
+            });
+        });
+    </script>
             </main>
         </div>
 

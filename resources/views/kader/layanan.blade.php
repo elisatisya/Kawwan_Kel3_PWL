@@ -216,11 +216,6 @@
 @else
     <div class="layanan-page">
 
-        <div class="layanan-heading">
-            <h1>Layanan <span>&amp; Harga</span></h1>
-            <p>Kelola jenis pelayanan, tarif, dan dokter yang menangani layanan kesehatan hewan.</p>
-        </div>
-
         @if (session('success'))
             <div class="layanan-alert">
                 <i class="fa-solid fa-circle-check"></i>
@@ -235,6 +230,11 @@
         @endif
 
         <div class="layanan-panel">
+
+            <div class="kader-head">
+                <h3>Pengelolaan Tarif Pelayanan</h3>
+                <p>Atur jenis pelayanan, tarif, durasi, dan dokter yang menangani layanan kesehatan hewan.</p>
+            </div>
 
             <div class="layanan-toolbar">
                 <h2>Daftar Layanan</h2>
