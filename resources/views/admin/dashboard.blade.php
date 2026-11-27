@@ -100,14 +100,16 @@
         </div>
 
         {{-- Stat 2: Menunggu Verifikasi (Highlight) --}}
-        <div class="admin-stat-card is-highlight">
+        <div class="admin-stat-card {{ $stat['menunggu_verifikasi'] > 0 ? 'is-highlight' : '' }}">
             <div class="admin-stat-icon"><i class="fa-solid fa-user-clock"></i></div>
             <div class="admin-stat-body">
                 <div class="admin-stat-header-row">
                     <span class="admin-stat-label">Menunggu Verifikasi</span>
-                    <span class="admin-badge-urgent">Prioritas</span>
+                    @if ($stat['menunggu_verifikasi'] > 0)
+                        <span class="admin-badge-urgent">Prioritas</span>
+                    @endif
                 </div>
-                <span class="admin-stat-value text-orange" data-count="{{ $stat['menunggu_verifikasi'] }}">{{ $stat['menunggu_verifikasi'] }}</span>
+                <span class="admin-stat-value {{ $stat['menunggu_verifikasi'] > 0 ? 'text-orange' : '' }}" data-count="{{ $stat['menunggu_verifikasi'] }}">{{ $stat['menunggu_verifikasi'] }}</span>
                 <span class="admin-stat-sub">Butuh persetujuan admin</span>
             </div>
         </div>
